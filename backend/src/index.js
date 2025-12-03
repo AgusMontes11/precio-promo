@@ -9,8 +9,11 @@ import productRoutes from "./routes/products.js";
 import promotionRoutes from "./routes/promotions.js";
 import statsRoutes from "./routes/stats.js";
 import { upload } from "./upload.js";
+import { fileURLToPath } from "url";
 
 const app = express();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 app.use(
   cors({
@@ -21,8 +24,7 @@ app.use(
 
 app.use(express.json());
 
-// Carpeta estática para imágenes
-app.use("/uploads", express.static(path.resolve("uploads")));
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // Rutas API
 app.use("/api/products", productRoutes);
