@@ -36,10 +36,23 @@ app.use("/api/stats", statsRoutes);
 
 // ✅ Upload con Cloudinary
 app.post("/api/upload", upload.single("image"), (req, res) => {
-  res.json({
-    success: true,
-    file: req.file.path, // ✅ URL real de Cloudinary
-  });
+  try {
+    console.log("Archivo recibido:", req.file);
+
+    if (!req.file) {
+      return res.status(400).json({ error: "No se recibió ningún archivo" });
+    }
+
+    res.json({
+      success: true,
+      file: req.file.path, // Cloudinary URL
+    });
+  } catch (err) {
+    console.error("❌ ERROR EN /api/upload:", err);
+    res
+      .status(500)
+      .json({ error: "Error interno en upload", details: err.message });
+  }
 });
 
 // Test DB
