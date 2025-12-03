@@ -10,7 +10,7 @@ import { pool } from "./db.js";
 import productRoutes from "./routes/products.js";
 import promotionRoutes from "./routes/promotions.js";
 import statsRoutes from "./routes/stats.js";
-import { upload } from "./uploadCloudinary.js";
+import { upload } from "../uploadCloudinary.js";
 
 const app = express();
 
