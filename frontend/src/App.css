@@ -1,0 +1,128 @@
+/* App.css */
+
+/* Reset básico */
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f9;
+  margin: 0;
+  padding: 20px;
+  color: #333;
+}
+
+/* Contenedor principal */
+div {
+  max-width: 800px;
+  margin: auto;
+}
+
+/* Títulos */
+h1, h2, h3 {
+  color: #222;
+}
+
+/* Formularios */
+form {
+  background-color: #fff;
+  padding: 15px 20px;
+  border-radius: 10px;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+  margin-bottom: 20px;
+}
+
+form input {
+  padding: 8px;
+  margin: 5px 0;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+form button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 5px;
+}
+
+form button:hover {
+  background-color: #0056b3;
+}
+
+/* Lista de productos */
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+ul li {
+  background-color: #fff;
+  margin: 8px 0;
+  padding: 12px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+ul li strong {
+  margin-right: 10px;
+}
+
+ul li button {
+  margin-left: 5px;
+  padding: 5px 10px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+}
+
+ul li button:hover {
+  opacity: 0.8;
+}
+
+ul li button:first-of-type {
+  background-color: #dc3545;
+  color: white;
+}
+
+ul li button:last-of-type {
+  background-color: #ffc107;
+  color: #333;
+}
+
+:root {
+  --bg-main: #f8f9fb;
+  --bg-cards: #ffffff;
+  --bg-cards-secondary: #f3f4f6;
+
+  --text-primary: #1a1a1a;
+  --text-secondary: #6b7280;
+
+  --border-color: #e5e7eb;
+
+  --shadow-soft: 0 2px 6px rgba(0, 0, 0, 0.06);
+  --shadow-medium: 0 6px 20px rgba(0, 0, 0, 0.08);
+
+  --accent: #3b82f6; /* azul Shopify-like */
+}
+
+/* DARK MODE */
+[data-theme="dark"] {
+  --bg-main: #0f0f10;
+  --bg-cards: #1a1b1e;
+  --bg-cards-secondary: #26272b;
+
+  --text-primary: #f6f6f6;
+  --text-secondary: #a1a1a6;
+
+  --border-color: #2d2f33;
+
+  --shadow-soft: 0 2px 6px rgba(0, 0, 0, 0.55);
+  --shadow-medium: 0 6px 20px rgba(0, 0, 0, 0.5);
+
+  --accent: #4c8dff;
+}
+

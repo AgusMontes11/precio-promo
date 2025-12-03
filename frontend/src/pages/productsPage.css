@@ -1,0 +1,31 @@
+/* src/pages/productsPage.css */
+.products-page .card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.04);
+  border: 1px solid rgba(0,0,0,0.04);
+}
+
+/* Full page layout */
+.products-page-container {
+  display: flex;
+  height: 100vh;
+  background: var(--bg-main);
+  color: var(--text-primary);
+}
+
+/* Left side (product list) */
+.products-left {
+  width: 50%;
+  border-right: 1px solid var(--border-color);
+  overflow-y: auto;
+  background: var(--bg-cards);
+}
+
+/* Right side (builder + preview) */
+.products-right {
+  width: 50%;
+  padding: 1.2rem;
+  overflow-y: auto;
+  background: var(--bg-main);
+}
