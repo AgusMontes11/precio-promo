@@ -9,7 +9,7 @@ export default function ProductForm({ productId, onClose }) {
     name: "",
     price: "",
     category: "",
-    image: "",
+    imageUrl: null,
   });
 
   const [saving, setSaving] = useState(false);
@@ -109,7 +109,7 @@ export default function ProductForm({ productId, onClose }) {
     setSaving(true);
 
     try {
-      let imageUrl = product.imageurl || null; // ✅ importante
+      let imageUrl = product.imageurl ?? null; // ✅ importante
 
       // Si hay archivo seleccionado, lo procesamos y lo subimos
       if (imageFile) {
