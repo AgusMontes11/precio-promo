@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const axiosClient = axios.create({
-  baseURL: "http://localhost:4000/api",
+  baseURL: "https://precio-promo-backend.onrender.com/api",
 });
 
 export default axiosClient;

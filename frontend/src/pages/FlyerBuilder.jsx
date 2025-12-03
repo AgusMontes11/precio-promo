@@ -3,7 +3,6 @@ import React, { useEffect, useState } from "react";
 import FlyerGenerator from "../components/FlyerGenerator";
 import api from "../services/api";
 
-
 import black from "../templates/4.png";
 import whiteFrame from "../templates/1.png";
 import diagonal from "../templates/2.png";
@@ -30,14 +29,11 @@ export default function FlyerBuilder() {
     try {
       const res = await api.get("/products");
 
+      // ✅ NO REESCRIBIMOS imageUrl
+      // ✅ Usamos SOLO imageurl como viene de la DB
       const prods = (res.data || []).map((p) => ({
         ...p,
-        imageUrl:
-          p.image ?? p.imageUrl
-            ? (p.image ?? p.imageUrl).startsWith("http")
-              ? p.image ?? p.imageUrl
-              : `http://localhost:4000${p.image ?? p.imageUrl}`
-            : null,
+        imageurl: p.imageurl || null,
       }));
 
       setProducts(prods);
@@ -46,7 +42,6 @@ export default function FlyerBuilder() {
       alert("Error cargando productos");
     }
   };
-
   // ⭐ SOLO UN PRODUCTO SELECCIONADO
   const toggleSelect = (id) => {
     setSelected((prev) => (prev === id ? null : id));
@@ -103,7 +98,13 @@ export default function FlyerBuilder() {
                   onClick={() => toggleSelect(p.id)}
                 >
                   <img
-                    src={p.imageUrl || "/placeholder.png"}
+                    src={
+                      p.imageurl
+                        ? p.imageurl.startsWith("http")
+                          ? p.imageurl
+                          : `https://precio-promo-backend.onrender.com${p.imageurl}`
+                        : "/placeholder.png"
+                    }
                     alt={p.name}
                     style={{
                       width: "100%",

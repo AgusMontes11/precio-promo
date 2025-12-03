@@ -58,7 +58,8 @@ export default function ProductForm({ productId, onClose }) {
       // eslint-disable-next-line no-unused-vars
       const mod = await import("@imgly/background-removal");
       // prefer exported name removeBackground (package exports it)
-      const removeBackground = mod.removeBackground || mod.default || mod.imglyRemoveBackground;
+      const removeBackground =
+        mod.removeBackground || mod.default || mod.imglyRemoveBackground;
       if (typeof removeBackground === "function") {
         const result = await removeBackground(file);
         // result puede ser Blob o File; normalizamos a File png
@@ -73,9 +74,13 @@ export default function ProductForm({ productId, onClose }) {
     // fallback dinámico: cargar bundle preparado para browser desde jsDelivr
     try {
       // versión fija del paquete para estabilidad; podés ajustar la versión si querés
-      const CDN = "https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.7.0/dist/browser.mjs";
+      const CDN =
+        "https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.7.0/dist/browser.mjs";
       const remote = await import(/* @vite-ignore */ CDN);
-      const removeBackground = remote.removeBackground || remote.default || remote.imglyRemoveBackground;
+      const removeBackground =
+        remote.removeBackground ||
+        remote.default ||
+        remote.imglyRemoveBackground;
       if (typeof removeBackground === "function") {
         const result = await removeBackground(file);
         if (result instanceof Blob) return blobToFile(result, file.name);
@@ -104,13 +109,12 @@ export default function ProductForm({ productId, onClose }) {
     setSaving(true);
 
     try {
-      let imageUrl = product.image || null;
+      let imageUrl = product.imageurl || null; // ✅ importante
 
-      // Si hay archivo seleccionado, lo procesamos (intentamos remover fondo) y luego subimos
+      // Si hay archivo seleccionado, lo procesamos y lo subimos
       if (imageFile) {
         const cleanFile = await processImage(imageFile);
 
-        // En caso de que processImage haya devuelto null (no file), fallamos
         if (!cleanFile) {
           throw new Error("No se obtuvo archivo para subir");
         }
@@ -122,15 +126,17 @@ export default function ProductForm({ productId, onClose }) {
           headers: { "Content-Type": "multipart/form-data" },
         });
 
-        // asumimos que el backend devuelve la ruta en uploadRes.data.file (igual que antes)
-        imageUrl = uploadRes.data.file;
+        imageUrl = uploadRes.data.file; // ✅ ruta del backend
       }
 
+      // ✅ PAYLOAD CORRECTO PARA TU BASE DE DATOS
       const payload = {
         name: product.name,
         price: product.price,
         category: product.category,
-        image: imageUrl,
+        imageurl: imageUrl, // ✅ CLAVE FINAL
+        hasTiers: product.hasTiers || false,
+        discountTiers: product.discountTiers || [],
       };
 
       if (isEditing) {
@@ -139,7 +145,10 @@ export default function ProductForm({ productId, onClose }) {
         await api.post("/products", payload);
       }
 
-      showAlert("success", isEditing ? "Producto actualizado" : "Producto creado");
+      showAlert(
+        "success",
+        isEditing ? "Producto actualizado" : "Producto creado"
+      );
 
       setTimeout(() => {
         if (onClose) onClose();
@@ -193,11 +202,11 @@ export default function ProductForm({ productId, onClose }) {
         </div>
 
         {/* Imagen actual */}
-        {product.image && (
+        {product.imageurl && (
           <div className="mb-3 text-center">
             <label className="form-label d-block">Imagen actual</label>
             <img
-              src={`http://localhost:4000${product.image}`}
+              src={`https://precio-promo-backend.onrender.com${product.imageurl}`}
               alt="producto"
               style={{ width: 120, borderRadius: 10 }}
             />
@@ -219,7 +228,8 @@ export default function ProductForm({ productId, onClose }) {
             }}
           />
           <div className="form-text">
-            La app intentará quitar el fondo automáticamente al guardar. Si falla, la imagen se subirá tal cual.
+            La app intentará quitar el fondo automáticamente al guardar. Si
+            falla, la imagen se subirá tal cual.
           </div>
         </div>
 

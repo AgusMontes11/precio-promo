@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useMemo } from "react";
 import api from "../services/api";
 import ProductForm from "./ProductForm";
-import "./productlist.css"
+import "./productlist.css";
 
 export default function ProductList({ onToggleTier }) {
   const [products, setProducts] = useState([]);
@@ -37,7 +37,7 @@ export default function ProductList({ onToggleTier }) {
       const prods = res.data.map((p) => ({
         ...p,
         id: p.id ?? p._id,
-        imageUrl: p.image ?? p.imageUrl ?? null,
+        imageUrl: p.imageurl ?? null,
         hasTiers:
           Boolean(p.hasTiers) ||
           (Array.isArray(p.discountTiers) && p.discountTiers.length > 0),
@@ -97,9 +97,7 @@ export default function ProductList({ onToggleTier }) {
 
   const toggleCategoryChip = (cat) => {
     setSelectedCategories((prev) =>
-      prev.includes(cat)
-        ? prev.filter((c) => c !== cat)
-        : [...prev, cat]
+      prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat]
     );
   };
 
@@ -159,251 +157,241 @@ export default function ProductList({ onToggleTier }) {
     url
       ? url.startsWith("http")
         ? url
-        : `http://localhost:4000${url}`
+        : `https://precio-promo-backend.onrender.com${url}`
       : "/placeholder.png";
 
   // ------------------------------
   // UI
   // ------------------------------
   return (
-  <div className="shopify-page px-3 py-3">
-
-    {/* HEADER */}
-    <div className="d-flex justify-content-between align-items-center mb-3 ">
-      <h2 className="shopify-title">Productos de Panella</h2>
-
-      <button
-        className="btn btn-outline-primary btn-sm shopify-add-btn mb-4 "
-        onClick={() => setEditingProduct({ id: null })}
-      >
-        + Nuevo Producto
-      </button>
-    </div>
-
-    {/* FILTER CARD */}
-    <div className="shopify-card p-3 mb-3">
-
-      <div className="d-flex flex-wrap gap-3 align-items-center">
-
-        {/* BUSCADOR */}
-        <input
-          type="text"
-          placeholder="Buscar productos..."
-          className="shopify-input"
-          style={{ maxWidth: 280 }}
-          value={search}
-          onChange={(e) => {
-            setPage(1);
-            setSearch(e.target.value);
-          }}
-        />
-
-        {/* SELECT ORDEN */}
-        <select
-          className="shopify-select"
-          style={{ maxWidth: 200 }}
-          value={sortMode}
-          onChange={(e) => setSortMode(e.target.value)}
-        >
-          <option value="none">Ordenar...</option>
-          <option value="az">A → Z</option>
-          <option value="za">Z → A</option>
-          <option value="priceAsc">Más baratos</option>
-          <option value="priceDesc">Más caros</option>
-        </select>
-      </div>
-
-      {/* CATEGORY TAGS */}
-      <div className="d-flex flex-wrap gap-2 mt-3">
-        {categories.map((cat) => (
-          <span
-            key={cat}
-            className={`shopify-tag ${
-              selectedCategories.includes(cat) ? "active" : ""
-            }`}
-            onClick={() => toggleCategoryChip(cat)}
-          >
-            {cat}
-          </span>
-        ))}
-      </div>
-
-    </div>
-
-    {/* ALERTS */}
-    {alert && (
-      <div className={`alert alert-${alert.type} shopify-alert`}>
-        {alert.text}
-      </div>
-    )}
-
-    {/* SKELETON LOADER */}
-    {loading && (
-      <div className="p-4">
-        {Array.from({ length: 8 }).map((_, i) => (
-          <div key={i} className="shopify-skeleton-row mb-3"></div>
-        ))}
-      </div>
-    )}
-
-    {/* PRODUCT TABLE */}
-    {!loading && (
-      <div className="shopify-card p-0">
-
-        <table className="table table-hover align-middle shopify-table">
-          <thead className="shopify-thead">
-            <tr>
-              <th>Esc.</th>
-              <th>Imagen</th>
-              <th>Nombre</th>
-              <th>Precio</th>
-              <th>Categoría</th>
-              <th style={{ width: 160 }}>Acciones</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {paginated.map((p) => (
-              <tr key={p.id}>
-                <td>
-                  <input
-                    type="checkbox"
-                    checked={p.hasTiers}
-                    onChange={() => toggleTier(p)}
-                    className="shopify-checkbox"
-                  />
-                </td>
-
-                <td>
-                  <img
-                    src={imgSrc(p.imageUrl)}
-                    alt={p.name}
-                    className="shopify-thumb"
-                    onError={(e) => (e.target.src = "/placeholder.png")}
-                  />
-                </td>
-
-                <td className="fw-semibold">{p.name}</td>
-
-                <td>${Number(p.price).toLocaleString("es-AR")}</td>
-
-                <td>{p.category || "-"}</td>
-
-                <td>
-                  <button
-                    className="btn-sm shopify-outline-btn me-2"
-                    onClick={() => setEditingProduct(p)}
-                  >
-                    Editar
-                  </button>
-
-                  <button
-                    className="btn-sm shopify-danger-btn"
-                    onClick={() => setDeleteProduct(p)}
-                  >
-                    Eliminar
-                  </button>
-                </td>
-              </tr>
-            ))}
-
-            {paginated.length === 0 && (
-              <tr>
-                <td colSpan="6" className="text-center p-4 text-muted">
-                  No se encontraron productos.
-                </td>
-              </tr>
-            )}
-          </tbody>
-
-        </table>
-
-      </div>
-    )}
-
-    {/* PAGINACIÓN */}
-    {!loading && totalPages > 1 && (
-      <div className="d-flex justify-content-center mt-3 gap-2">
-        <button
-          className="shopify-paginacion-btn"
-          disabled={page === 1}
-          onClick={() => setPage((p) => p - 1)}
-        >
-          ← Anterior
-        </button>
-
-        <span className="px-3 py-2 shopify-page-indicator">
-          Página {page} de {totalPages}
-        </span>
+    <div className="shopify-page px-3 py-3">
+      {/* HEADER */}
+      <div className="d-flex justify-content-between align-items-center mb-3 ">
+        <h2 className="shopify-title">Productos de Panella</h2>
 
         <button
-          className="shopify-paginacion-btn"
-          disabled={page === totalPages}
-          onClick={() => setPage((p) => p + 1)}
+          className="btn btn-outline-primary btn-sm shopify-add-btn mb-4 "
+          onClick={() => setEditingProduct({ id: null })}
         >
-          Siguiente →
+          + Nuevo Producto
         </button>
       </div>
-    )}
 
-    {/* EDIT MODAL */}
-    {editingProduct && (
-      <div className="shopify-modal-backdrop">
-        <div className="shopify-modal">
-
-          <div className="d-flex justify-content-between mb-2">
-            <h5>{editingProduct.id ? "Editar Producto" : "Nuevo Producto"}</h5>
-
-            <button
-              className="shopify-close-btn"
-              onClick={() => setEditingProduct(null)}
-            >
-              ✕
-            </button>
-          </div>
-
-          <ProductForm
-            productId={editingProduct.id}
-            onClose={() => {
-              setEditingProduct(null);
-              loadProducts();
+      {/* FILTER CARD */}
+      <div className="shopify-card p-3 mb-3">
+        <div className="d-flex flex-wrap gap-3 align-items-center">
+          {/* BUSCADOR */}
+          <input
+            type="text"
+            placeholder="Buscar productos..."
+            className="shopify-input"
+            style={{ maxWidth: 280 }}
+            value={search}
+            onChange={(e) => {
+              setPage(1);
+              setSearch(e.target.value);
             }}
           />
+
+          {/* SELECT ORDEN */}
+          <select
+            className="shopify-select"
+            style={{ maxWidth: 200 }}
+            value={sortMode}
+            onChange={(e) => setSortMode(e.target.value)}
+          >
+            <option value="none">Ordenar...</option>
+            <option value="az">A → Z</option>
+            <option value="za">Z → A</option>
+            <option value="priceAsc">Más baratos</option>
+            <option value="priceDesc">Más caros</option>
+          </select>
+        </div>
+
+        {/* CATEGORY TAGS */}
+        <div className="d-flex flex-wrap gap-2 mt-3">
+          {categories.map((cat) => (
+            <span
+              key={cat}
+              className={`shopify-tag ${
+                selectedCategories.includes(cat) ? "active" : ""
+              }`}
+              onClick={() => toggleCategoryChip(cat)}
+            >
+              {cat}
+            </span>
+          ))}
         </div>
       </div>
-    )}
 
-    {/* DELETE MODAL */}
-    {deleteProduct && (
-      <div className="shopify-modal-backdrop">
-        <div className="shopify-modal small">
+      {/* ALERTS */}
+      {alert && (
+        <div className={`alert alert-${alert.type} shopify-alert`}>
+          {alert.text}
+        </div>
+      )}
 
-          <h5>Eliminar Producto</h5>
-          <p>
-            ¿Seguro querés eliminar{" "}
-            <strong>{deleteProduct.name}</strong>?
-          </p>
+      {/* SKELETON LOADER */}
+      {loading && (
+        <div className="p-4">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <div key={i} className="shopify-skeleton-row mb-3"></div>
+          ))}
+        </div>
+      )}
 
-          <div className="d-flex justify-content-end gap-2">
-            <button
-              className="shopify-secondary-btn"
-              onClick={() => setDeleteProduct(null)}
-            >
-              Cancelar
-            </button>
+      {/* PRODUCT TABLE */}
+      {!loading && (
+        <div className="shopify-card p-0">
+          <table className="table table-hover align-middle shopify-table">
+            <thead className="shopify-thead">
+              <tr>
+                <th>Esc.</th>
+                <th>Imagen</th>
+                <th>Nombre</th>
+                <th>Precio</th>
+                <th>Categoría</th>
+                <th style={{ width: 160 }}>Acciones</th>
+              </tr>
+            </thead>
 
-            <button
-              className="shopify-danger-btn"
-              onClick={() => handleDelete(deleteProduct.id)}
-            >
-              Sí, eliminar
-            </button>
+            <tbody>
+              {paginated.map((p) => (
+                <tr key={p.id}>
+                  <td>
+                    <input
+                      type="checkbox"
+                      checked={p.hasTiers}
+                      onChange={() => toggleTier(p)}
+                      className="shopify-checkbox"
+                    />
+                  </td>
+
+                  <td>
+                    <img
+                      src={imgSrc(p.imageUrl)}
+                      alt={p.name}
+                      className="shopify-thumb"
+                      onError={(e) => (e.target.src = "/placeholder.png")}
+                    />
+                  </td>
+
+                  <td className="fw-semibold">{p.name}</td>
+
+                  <td>${Number(p.price).toLocaleString("es-AR")}</td>
+
+                  <td>{p.category || "-"}</td>
+
+                  <td>
+                    <button
+                      className="btn-sm shopify-outline-btn me-2"
+                      onClick={() => setEditingProduct(p)}
+                    >
+                      Editar
+                    </button>
+
+                    <button
+                      className="btn-sm shopify-danger-btn"
+                      onClick={() => setDeleteProduct(p)}
+                    >
+                      Eliminar
+                    </button>
+                  </td>
+                </tr>
+              ))}
+
+              {paginated.length === 0 && (
+                <tr>
+                  <td colSpan="6" className="text-center p-4 text-muted">
+                    No se encontraron productos.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* PAGINACIÓN */}
+      {!loading && totalPages > 1 && (
+        <div className="d-flex justify-content-center mt-3 gap-2">
+          <button
+            className="shopify-paginacion-btn"
+            disabled={page === 1}
+            onClick={() => setPage((p) => p - 1)}
+          >
+            ← Anterior
+          </button>
+
+          <span className="px-3 py-2 shopify-page-indicator">
+            Página {page} de {totalPages}
+          </span>
+
+          <button
+            className="shopify-paginacion-btn"
+            disabled={page === totalPages}
+            onClick={() => setPage((p) => p + 1)}
+          >
+            Siguiente →
+          </button>
+        </div>
+      )}
+
+      {/* EDIT MODAL */}
+      {editingProduct && (
+        <div className="shopify-modal-backdrop">
+          <div className="shopify-modal">
+            <div className="d-flex justify-content-between mb-2">
+              <h5>
+                {editingProduct.id ? "Editar Producto" : "Nuevo Producto"}
+              </h5>
+
+              <button
+                className="shopify-close-btn"
+                onClick={() => setEditingProduct(null)}
+              >
+                ✕
+              </button>
+            </div>
+
+            <ProductForm
+              productId={editingProduct.id}
+              onClose={() => {
+                setEditingProduct(null);
+                loadProducts();
+              }}
+            />
           </div>
         </div>
-      </div>
-    )}
+      )}
 
-  </div>
-);
+      {/* DELETE MODAL */}
+      {deleteProduct && (
+        <div className="shopify-modal-backdrop">
+          <div className="shopify-modal small">
+            <h5>Eliminar Producto</h5>
+            <p>
+              ¿Seguro querés eliminar <strong>{deleteProduct.name}</strong>?
+            </p>
 
+            <div className="d-flex justify-content-end gap-2">
+              <button
+                className="shopify-secondary-btn"
+                onClick={() => setDeleteProduct(null)}
+              >
+                Cancelar
+              </button>
+
+              <button
+                className="shopify-danger-btn"
+                onClick={() => handleDelete(deleteProduct.id)}
+              >
+                Sí, eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }

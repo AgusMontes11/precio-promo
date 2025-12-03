@@ -114,12 +114,15 @@ export default function FlyerGenerator({
   const templateKey = guessTemplateKey(template);
   const cfg = TEMPLATE_CONFIG[templateKey] || TEMPLATE_CONFIG.black;
 
-  const normalizeImg = (url) =>
-    !url
-      ? "/placeholder.png"
-      : url.startsWith("http")
+  const normalizeImg = (product) => {
+    const url = product?.imageurl || null;
+
+    if (!url) return "/placeholder.png";
+
+    return url.startsWith("http")
       ? url
-      : `http://localhost:4000${url}`;
+      : `https://precio-promo-backend.onrender.com${url}`;
+  };
 
   // ============================================================
   // Medir preview
@@ -191,7 +194,7 @@ export default function FlyerGenerator({
     return (
       <>
         <img
-          src={normalizeImg(product.imageUrl ?? product.image)}
+          src={normalizeImg(product)}
           alt={product.name}
           style={{
             position: "absolute",
