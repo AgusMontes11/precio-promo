@@ -1,34 +1,37 @@
 import { pool } from '../db.js';
 
-// GET ALL
+// ✅ GET ALL
 export const getAll = async (req, res) => {
   try {
-    const result = await pool.query('SELECT * FROM products ORDER BY id ASC');
+    const result = await pool.query(
+      'SELECT * FROM products ORDER BY id ASC'
+    );
     res.json(result.rows);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
 
-// CREATE
+// ✅ CREATE (CORREGIDO PARA TU TABLA REAL)
 export const create = async (req, res) => {
   try {
-    const { name, price, category, image, hasTiers, discountTiers } = req.body;
+    const { name, price, imageurl } = req.body;
 
     const result = await pool.query(
-      `INSERT INTO products (name, price, category, image, has_tiers, discount_tiers)
-       VALUES ($1, $2, $3, $4, $5, $6)
+      `INSERT INTO products (name, price, imageurl)
+       VALUES ($1, $2, $3)
        RETURNING *`,
-      [name, price, category, image, hasTiers, discountTiers]
+      [name, price, imageurl]
     );
 
     res.json(result.rows[0]);
   } catch (err) {
+    console.error("ERROR CREATE:", err.message);
     res.status(500).json({ error: err.message });
   }
 };
 
-// GET BY ID
+// ✅ GET BY ID
 export const getById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -43,34 +46,33 @@ export const getById = async (req, res) => {
     }
 
     res.json(result.rows[0]);
-
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
 
-// UPDATE
+// ✅ UPDATE (CORREGIDO)
 export const update = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, price, category, image, hasTiers, discountTiers } = req.body;
+    const { name, price, imageurl } = req.body;
 
     const result = await pool.query(
       `UPDATE products 
-       SET name=$1, price=$2, category=$3, image=$4, has_tiers=$5, discount_tiers=$6
-       WHERE id=$7
+       SET name=$1, price=$2, imageurl=$3
+       WHERE id=$4
        RETURNING *`,
-      [name, price, category, image, hasTiers, discountTiers, id]
+      [name, price, imageurl, id]
     );
 
     res.json(result.rows[0]);
-
   } catch (err) {
+    console.error("ERROR UPDATE:", err.message);
     res.status(500).json({ error: err.message });
   }
 };
 
-// DELETE
+// ✅ DELETE
 export const remove = async (req, res) => {
   try {
     const { id } = req.params;
@@ -78,7 +80,6 @@ export const remove = async (req, res) => {
     await pool.query('DELETE FROM products WHERE id=$1', [id]);
 
     res.json({ message: 'Producto eliminado' });
-
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
