@@ -10,7 +10,7 @@ import { pool } from "./db.js";
 import productRoutes from "./routes/products.js";
 import promotionRoutes from "./routes/promotions.js";
 import statsRoutes from "./routes/stats.js";
-import { upload } from "../uploadCloudinary.js";
+import { upload, uploadToCloudinary } from "../uploadCloudinary.js";
 
 const app = express();
 
@@ -26,32 +26,30 @@ app.use(
 
 app.use(express.json());
 
-// ❌ YA NO USAMOS /uploads CON CLOUDINARY
-// app.use("/uploads", express.static(path.join(__dirname, "uploads")));
-
 // Rutas API
 app.use("/api/products", productRoutes);
 app.use("/api/promotions", promotionRoutes);
 app.use("/api/stats", statsRoutes);
 
 // ✅ Upload con Cloudinary
-app.post("/api/upload", upload.single("image"), (req, res) => {
+app.post("/api/upload", upload.single("image"), async (req, res) => {
   try {
-    console.log("Archivo recibido:", req.file);
-
     if (!req.file) {
       return res.status(400).json({ error: "No se recibió ningún archivo" });
     }
 
+    const result = await uploadToCloudinary(req.file.buffer);
+
     res.json({
       success: true,
-      file: req.file.path, // Cloudinary URL
+      file: result.secure_url, // ✅ URL REAL DE CLOUDINARY
     });
   } catch (err) {
-    console.error("❌ ERROR EN /api/upload:", err);
-    res
-      .status(500)
-      .json({ error: "Error interno en upload", details: err.message });
+    console.error("❌ ERROR EN CLOUDINARY:", err);
+    res.status(500).json({
+      error: "Error subiendo a Cloudinary",
+      details: err.message,
+    });
   }
 });
 
