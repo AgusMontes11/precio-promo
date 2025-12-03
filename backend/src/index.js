@@ -10,6 +10,7 @@ import promotionRoutes from "./routes/promotions.js";
 import statsRoutes from "./routes/stats.js";
 import { upload } from "./upload.js";
 import { fileURLToPath } from "url";
+import { upload } from "./uploadCloudinary.js";
 
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
@@ -33,9 +34,11 @@ app.use("/api/stats", statsRoutes);
 
 // Upload de imágenes
 app.post("/api/upload", upload.single("image"), (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ error: "No se subió un archivo" });
-  }
+  res.json({
+    success: true,
+    file: req.file.path, // ✅ URL directa de Cloudinary
+  });
+});
 
   res.json({
     success: true,
