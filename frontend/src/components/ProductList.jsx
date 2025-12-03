@@ -44,6 +44,11 @@ export default function ProductList({ onToggleTier }) {
       }));
 
       setProducts(prods);
+      console.log("PRODUCTOS CRUDOS:", prods);
+      console.log(
+        "IMAGENES:",
+        prods.map((p) => p.imageUrl)
+      );
     } catch (err) {
       console.error(err);
       setAlert({ type: "danger", text: "Error cargando productos." });
