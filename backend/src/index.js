@@ -8,7 +8,6 @@ import { pool } from "./db.js";
 import productRoutes from "./routes/products.js";
 import promotionRoutes from "./routes/promotions.js";
 import statsRoutes from "./routes/stats.js";
-import { upload } from "./upload.js";
 import { fileURLToPath } from "url";
 import { upload } from "./uploadCloudinary.js";
 
