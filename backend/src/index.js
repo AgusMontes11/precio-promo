@@ -12,10 +12,12 @@ import { upload } from "./upload.js";
 
 const app = express();
 
-app.use(cors({
-  origin: "*",
-  methods: ["GET", "POST", "PUT", "DELETE"],
-}));
+app.use(
+  cors({
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+  })
+);
 
 app.use(express.json());
 
@@ -40,13 +42,14 @@ app.post("/api/upload", upload.single("image"), (req, res) => {
 });
 
 // Test DB
-pool.query("SELECT NOW()")
+pool
+  .query("SELECT NOW()")
   .then(() => console.log("DB conectada a PostgreSQL"))
-  .catch(err => console.error("ERROR conectando a la DB:", err.message));
-
-const PORT = process.env.PORT || 4000;
-app.listen(PORT, () => console.log(`Servidor iniciado en puerto ${PORT}`));
+  .catch((err) => console.error("ERROR conectando a la DB:", err.message));
 
 app.get("/", (req, res) => {
   res.send("Backend funcionando OK");
 });
+
+const PORT = process.env.PORT || 4000;
+app.listen(PORT, () => console.log(`Servidor iniciado en puerto ${PORT}`));
