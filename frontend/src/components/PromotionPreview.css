@@ -1,11 +1,61 @@
-/* Caja de vista previa / lista de difusión */
+/* Caja general */
 .preview-box {
   background: var(--bg-card);
   color: var(--text-main);
   border: 1px solid var(--border-color);
   border-radius: 12px;
-  padding: 18px;
-  font-family: "Menlo", "Consolas", monospace;
-  white-space: pre-wrap;
+  padding: 16px 18px;
   box-shadow: var(--shadow-main);
+}
+
+/* Título y subtítulo */
+.preview-title {
+  color: var(--text-main);
+  font-weight: 600;
+}
+
+.preview-subtitle {
+  color: var(--text-muted);
+}
+
+/* Contenido del mensaje (monospace) */
+.preview-content {
+  margin: 0;
+  margin-top: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  padding: 14px 16px;
+  font-family: "Menlo", "Consolas", monospace;
+  font-size: 0.95rem;
+  white-space: pre-wrap;
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+}
+
+/* Ajuste específico en dark mode para que se funda mejor */
+.dark-theme .preview-content {
+  background: rgba(0, 0, 0, 0.35);
+}
+
+/* Toast de copiado */
+.preview-toast {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 20px 30px;
+  border-radius: 10px;
+  z-index: 9999;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #fff;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+}
+
+.preview-toast.ok {
+  background: #22c55e;
+}
+
+.preview-toast.error {
+  background: #ef4444;
 }

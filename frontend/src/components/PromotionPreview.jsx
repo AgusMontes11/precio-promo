@@ -6,7 +6,8 @@ export default function PromotionPreview({ products }) {
   const [toast, setToast] = useState(null);
 
   const generateMessage = () => {
-    if (!products || products.length === 0) return "No hay productos seleccionados.";
+    if (!products || products.length === 0)
+      return "No hay productos seleccionados.";
 
     const lines = ["🔥 *PROMOS DEL DÍA* 🔥\n"];
 
@@ -16,7 +17,9 @@ export default function PromotionPreview({ products }) {
 
       p.discountTiers.forEach((tier) => {
         const finalPrice = (p.price * (1 - tier.discount / 100)).toFixed(0);
-        lines.push(`• ${tier.quantity} bulto(s): *$${finalPrice}* (${tier.discount}% OFF)`);
+        lines.push(
+          `• ${tier.quantity} bulto(s): *$${finalPrice}* (${tier.discount}% OFF)`
+        );
       });
     });
 
@@ -25,7 +28,8 @@ export default function PromotionPreview({ products }) {
   };
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(generateMessage())
+    navigator.clipboard
+      .writeText(generateMessage())
       .then(() => {
         setToast("success");
         setTimeout(() => setToast(null), 1000);
@@ -38,39 +42,21 @@ export default function PromotionPreview({ products }) {
 
   return (
     <div className="mt-4 preview-box">
-      <h4>Vista previa</h4>
+      <div className="d-flex justify-content-between align-items-center mb-2">
+        <h4 className="mb-0 preview-title">Vista previa</h4>
+        <small className="preview-subtitle">
+          Texto para lista de difusión
+        </small>
+      </div>
 
-      <pre
-        style={{
-          background: "#f8f8f8",
-          padding: 15,
-          borderRadius: 8,
-          whiteSpace: "pre-wrap",
-        }}
-      >
-        {generateMessage()}
-      </pre>
+      <pre className="preview-content">{generateMessage()}</pre>
 
-      <button className="btn btn-success" onClick={handleCopy}>
+      <button className="btn btn-success mt-3" onClick={handleCopy}>
         Copiar mensaje
       </button>
 
       {toast && (
-        <div
-          style={{
-            position: "fixed",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            backgroundColor: toast === "success" ? "#4caf50" : "#f44336",
-            color: "#fff",
-            padding: "20px 30px",
-            borderRadius: 8,
-            zIndex: 9999,
-            fontSize: "1.3rem",
-            fontWeight: "bold",
-          }}
-        >
+        <div className={`preview-toast ${toast === "success" ? "ok" : "error"}`}>
           {toast === "success" ? "¡Copiado!" : "Error copiando"}
         </div>
       )}
