@@ -183,20 +183,33 @@
   font-weight: 500;
 }
 
-/* SKELETON */
+/* ============================================================
+   🟣 Skeleton Loader adaptado a DARK MODE
+   ============================================================ */
+
 .shopify-skeleton-row {
-  height: 40px;
+  height: 20px;
   width: 100%;
   border-radius: 10px;
-  background: linear-gradient(90deg, #f3f3f3, #ececec, #f3f3f3);
+
+  /* Fondo adaptado a theme */
+  background: linear-gradient(
+    90deg,
+    var(--bg-card),
+    rgba(255,255,255,0.06),
+    var(--bg-card)
+  );
+
   background-size: 200% 100%;
-  animation: shopify-skeleton 1.2s infinite;
+  animation: shopify-skeleton 1.4s ease-in-out infinite;
+  border: 1px solid var(--border-color);
 }
 
 @keyframes shopify-skeleton {
   from { background-position: 200% 0; }
   to { background-position: -200% 0; }
 }
+
 
 /* MODALES */
 .shopify-modal-backdrop {
