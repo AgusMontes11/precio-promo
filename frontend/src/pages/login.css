@@ -12,8 +12,20 @@
 
   padding-top: 120px;        /* ✅ lo baja desde arriba */
   overflow: hidden;
+
+    /* ✅ ANIMACIÓN DE ENTRADA DEL FONDO */
+  animation: bgFadeZoom 1.2s ease-out forwards;
+  transform: scale(1.05);
+  opacity: 0;
 }
 
+/* ✅ Animación elegante */
+@keyframes bgFadeZoom {
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
 
 /* Capa de blur encima del fondo */
 .login-bg::before {
