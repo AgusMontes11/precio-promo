@@ -1,107 +1,120 @@
-.shopify-container {
-  font-size: 14px;
-}
-
-/* TARJETAS IGUALES TIPO POLARIS */
-.shopify-card {
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 14px;
-  padding: 16px;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
-  transition: box-shadow 0.2s ease, transform 0.15s ease;
-}
-
-.shopify-card:hover {
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-  transform: translateY(-2px);
-}
-
-/* HEADER FIJO DENTRO DEL SCROLL */
-.sticky-header {
-  position: sticky;
-  top: 0;
-  background: white;
-  z-index: 10;
-  box-shadow: 0 1px 0 rgba(0,0,0,0.06);
-}
-
-/* INPUTS TIPO POLARIS */
-.shopify-input {
-  border-radius: 8px !important;
-  border: 1px solid #d1d5db !important;
-  font-size: 13px !important;
-  padding: 6px 8px !important;
-  height: 32px !important;
-  transition: 0.15s ease;
-}
-
-.shopify-input:focus {
-  border-color: #3b82f6 !important;
-  box-shadow: 0 0 0 3px rgba(59,130,246,0.25) !important;
-}
-
-/* TH ESTILO POLARIS */
-.shopify-th {
-  font-size: 12px;
+/* TÍTULO PRINCIPAL */
+.builder-title {
+  color: var(--text-main);
   font-weight: 600;
-  color: #6b7280;
-  border-bottom: 1px solid #f1f1f1 !important;
+  font-size: 1.3rem;
+  margin-bottom: 14px;
 }
 
-/* BOTÓN BORRAR */
-.shopify-delete-btn {
-  background: #f9fafb;
-  border-radius: 8px;
-  padding: 3px 8px;
-  font-size: 13px;
-  border: 1px solid #e5e7eb;
-  transition: 0.15s ease;
+/* TEXTO CUANDO NO HAY PRODUCTOS */
+.builder-empty {
+  color: var(--text-muted);
+  font-size: 0.9rem;
 }
 
-.shopify-delete-btn:hover {
-  background: #efefef;
+/* NOMBRE DEL PRODUCTO */
+.builder-product-name {
+  color: var(--text-main);
+  font-weight: 600;
 }
 
-/* BOTÓN AGREGAR TIER */
-.shopify-add-btn {
-  border-radius: 10px;
-  font-size: 13px;
-  padding: 7px;
+/* TARJETA PRINCIPAL */
+.shopify-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  padding: 14px 16px;
+  box-shadow: var(--shadow-main);
+  color: var(--text-main);
   transition: all 0.2s ease;
 }
 
-.shopify-add-btn:hover {
-  background: #eaf1ff;
+.shopify-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.35);
 }
 
-/* SCROLL SUAVE */
-.overflow-auto::-webkit-scrollbar {
-  width: 6px;
-}
-.overflow-auto::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 20px;
+/* TABLA DE ESCALONADAS */
+.builder-table {
+  background: transparent;
+  color: var(--text-main);
 }
 
-/* BOTÓN FLOTANTE */
+.builder-th {
+  background: rgba(255,255,255,0.05);
+  color: var(--text-main);
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* INPUTS */
+.builder-input {
+  background: var(--bg-card) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-main) !important;
+}
+
+.builder-input:focus {
+  box-shadow: 0 0 0 2px rgba(59,130,246,0.3);
+}
+
+/* BOTÓN ELIMINAR */
+.builder-remove-btn {
+  background: #f87171;
+  border: none;
+  color: #fff;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.builder-remove-btn:hover {
+  background: #ef4444;
+}
+
+/* BOTÓN AGREGAR ESCALONADA */
+.builder-add-btn {
+  background: transparent;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  padding: 6px 10px;
+  font-size: 0.9rem;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.builder-add-btn:hover {
+  background: var(--accent);
+  color: #fff;
+}
+
+/* STICKY HEADER */
+.sticky-header th {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+/* FLOATING BTN */
 .floating-add-btn {
   position: fixed;
   bottom: 24px;
   right: 24px;
-  width: 48px;
-  height: 48px;
+  width: 52px;
+  height: 52px;
   border-radius: 50%;
-  border: none;
-  background: #3b82f6;
+  font-size: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent);
   color: white;
-  font-size: 28px;
-  line-height: 0;
-  box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+  border: none;
+  box-shadow: var(--shadow-main);
+  cursor: pointer;
   transition: 0.2s ease;
 }
 
 .floating-add-btn:hover {
-  background: #2563eb;
-  transform: scale(1.06);
+  transform: scale(1.08);
 }

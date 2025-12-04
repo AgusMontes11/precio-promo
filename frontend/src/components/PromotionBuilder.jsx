@@ -6,13 +6,12 @@ import "./PromotionBuilder.css";
 export default function PromotionBuilder({ selectedProducts }) {
   const [products, setProducts] = useState([]);
 
-  // Cada vez que cambian los productos seleccionados, los normalizamos
   useEffect(() => {
     const normalized = selectedProducts.map((p) => ({
       ...p,
       discountTiers: Array.isArray(p.discountTiers)
         ? p.discountTiers
-        : [{ quantity: 1, discount: 0 }], // <-- PREVENCIÓN DEL ERROR
+        : [{ quantity: 1, discount: 0 }],
     }));
 
     setProducts(normalized);
@@ -59,35 +58,34 @@ export default function PromotionBuilder({ selectedProducts }) {
 
   return (
     <div className="shopify-container position-relative">
-      <h5 className="fw-semibold mb-3 text-secondary">
-        Configurar Escalonadas
-      </h5>
 
+      {/* TÍTULO PRINCIPAL */}
+      <h5 className="builder-title">Configurar Escalonadas</h5>
+
+      {/* SI NO HAY PRODUCTOS */}
       {products.length === 0 ? (
-        <p className="text-muted small">
-          Seleccioná productos para agregar escalonadas
-        </p>
+        <p className="builder-empty">Seleccioná productos para agregar escalonadas</p>
       ) : (
         <div
           className={`${products.length >= 3 ? "overflow-auto" : ""}`}
           style={{
             maxHeight: products.length >= 3 ? "360px" : "none",
             paddingRight: "4px",
-            scrollBehavior: "smooth",
           }}
         >
-          {/* GRID EN 2 COLUMNAS */}
           <div className="row g-3">
             {products.map((p) => (
               <div key={p.id} className="col-12 col-md-6">
-                {/* TARJETA SHOPIFY PRO */}
+
+                {/* TARJETA */}
                 <div className="shopify-card h-100 d-flex flex-column">
-                  {/* HEADER DEL PRODUCTO */}
+
+                  {/* HEADER */}
                   <div className="d-flex justify-content-between align-items-center mb-2">
-                    <div className="fw-semibold small">{p.name}</div>
+                    <div className="builder-product-name">{p.name}</div>
                   </div>
 
-                  {/* SCROLL INTERNO PARA ESCALONADAS */}
+                  {/* TABLA DE ESCALONADAS */}
                   <div
                     className={`flex-grow-1 ${
                       p.discountTiers.length > 3 ? "overflow-auto" : ""
@@ -95,15 +93,14 @@ export default function PromotionBuilder({ selectedProducts }) {
                     style={{
                       maxHeight: p.discountTiers.length > 3 ? "150px" : "auto",
                       paddingRight: "3px",
-                      scrollBehavior: "smooth",
                     }}
                   >
-                    <table className="table table-sm mb-2 shopify-table">
+                    <table className="table table-sm mb-2 builder-table">
                       <thead className="sticky-header">
                         <tr>
-                          <th className="shopify-th">Cantidad</th>
-                          <th className="shopify-th">Descuento %</th>
-                          <th className="shopify-th"></th>
+                          <th className="builder-th">Cantidad</th>
+                          <th className="builder-th">Descuento %</th>
+                          <th className="builder-th"></th>
                         </tr>
                       </thead>
 
@@ -114,7 +111,7 @@ export default function PromotionBuilder({ selectedProducts }) {
                               <input
                                 type="number"
                                 min="1"
-                                className="form-control form-control-sm shopify-input"
+                                className="form-control form-control-sm builder-input"
                                 value={tier.quantity}
                                 onChange={(e) =>
                                   updateTier(
@@ -131,7 +128,7 @@ export default function PromotionBuilder({ selectedProducts }) {
                               <input
                                 type="number"
                                 min="0"
-                                className="form-control form-control-sm shopify-input"
+                                className="form-control form-control-sm builder-input"
                                 value={tier.discount}
                                 onChange={(e) =>
                                   updateTier(
@@ -146,7 +143,7 @@ export default function PromotionBuilder({ selectedProducts }) {
 
                             <td className="text-end">
                               <button
-                                className="shopify-danger-btn"
+                                className="builder-remove-btn"
                                 onClick={() => removeTier(p.id, index)}
                               >
                                 ✕
@@ -158,13 +155,14 @@ export default function PromotionBuilder({ selectedProducts }) {
                     </table>
                   </div>
 
-                  {/* BOTÓN AGREGAR ESCALONADA */}
+                  {/* BOTÓN AGREGAR */}
                   <button
-                    className="btn btn-outline-primary btn-sm w-100 shopify-add-btn mt-auto"
+                    className="builder-add-btn mt-auto"
                     onClick={() => addTier(p.id)}
                   >
                     ＋ Agregar Escalonada
                   </button>
+
                 </div>
               </div>
             ))}
@@ -174,7 +172,7 @@ export default function PromotionBuilder({ selectedProducts }) {
 
       <PromotionPreview products={products} />
 
-      {/* BOTÓN FLOTANTE SHOPIFY */}
+      {/* BOTÓN FLOTANTE */}
       <button
         className="floating-add-btn"
         onClick={() => console.log("Agregar producto…")}
