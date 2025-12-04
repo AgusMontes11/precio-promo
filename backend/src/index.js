@@ -10,6 +10,7 @@ import { pool } from "./db.js";
 import productRoutes from "./routes/products.js";
 import promotionRoutes from "./routes/promotions.js";
 import statsRoutes from "./routes/stats.js";
+import authRoutes from "./routes/auth.routes.js";
 import { upload, uploadToCloudinary } from "../uploadCloudinary.js";
 
 const app = express();
@@ -30,6 +31,7 @@ app.use(express.json());
 app.use("/api/products", productRoutes);
 app.use("/api/promotions", promotionRoutes);
 app.use("/api/stats", statsRoutes);
+app.use("/api/auth", authRoutes); 
 
 // ✅ Upload con Cloudinary
 app.post("/api/upload", upload.single("image"), async (req, res) => {
