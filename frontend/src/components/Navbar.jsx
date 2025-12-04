@@ -1,12 +1,14 @@
-// src/components/Navbar.jsx
 import React, { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Home, Image as ImageIcon, Boxes, Sun, Moon } from "lucide-react";
+import { Home, Image as ImageIcon, Boxes, Sun, Moon, LogOut } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
 import "./navbar.css";
 
 export default function Navbar() {
   const { pathname } = useLocation();
+  const navigate = useNavigate();
+  const { logout } = useAuth();
 
   // ---- THEME SYSTEM ----
   const [theme, setTheme] = useState(localStorage.getItem("theme") || "light");
@@ -23,6 +25,11 @@ export default function Navbar() {
   const toggleTheme = () =>
     setTheme((prev) => (prev === "dark" ? "light" : "dark"));
 
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
+
   const links = [
     { to: "/dashboard", label: "Inicio", icon: <Home size={20} /> },
     { to: "/flyers", label: "Flyers", icon: <ImageIcon size={20} /> },
@@ -37,6 +44,7 @@ export default function Navbar() {
       className="pro-navbar"
     >
       <div className="nav-inner d-flex align-items-center position-relative">
+
         {/* LEFT — LOGO */}
         <div className="nav-left">
           <Link to="/dashboard" className="logo-link d-flex align-items-center">
@@ -83,11 +91,13 @@ export default function Navbar() {
           })}
         </div>
 
-        {/* RIGHT — THEME BUTTON */}
-        <div className="nav-right ms-auto">
+        {/* RIGHT — THEME + LOGOUT */}
+        <div className="nav-right ms-auto d-flex align-items-center gap-2">
+
+          {/* BOTÓN TEMA */}
           <motion.button
             onClick={toggleTheme}
-            whileTap={{ scale: 0.1 }}
+            whileTap={{ scale: 0.9 }}
             className="btn btn-outline-dark d-flex align-items-center gap-2 px-3 py-1"
             style={{
               borderRadius: 10,
@@ -100,6 +110,21 @@ export default function Navbar() {
             {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
             {theme === "dark" ? "Modo claro" : "Modo oscuro"}
           </motion.button>
+
+          {/* ✅ BOTÓN CERRAR SESIÓN */}
+          <motion.button
+            onClick={handleLogout}
+            whileTap={{ scale: 0.9 }}
+            className="btn btn-outline-danger d-flex align-items-center gap-2 px-3 py-1"
+            style={{
+              borderRadius: 10,
+              fontSize: 13,
+            }}
+          >
+            <LogOut size={16} />
+            Salir
+          </motion.button>
+
         </div>
       </div>
     </motion.nav>
