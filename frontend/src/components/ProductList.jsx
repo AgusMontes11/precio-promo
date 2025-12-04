@@ -235,6 +235,7 @@ export default function ProductList({ onToggleTier }) {
           {alert.text}
         </div>
       )}
+      
 
       {/* SKELETON LOADER */}
       {loading && (
