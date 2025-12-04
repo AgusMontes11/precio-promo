@@ -1,55 +1,94 @@
-/* GENERAL */
-.shopify-page {
-  font-size: 14px;
-  color: var(--text-main);
-}
+/* ============================================================
+   🎯 PATCH DEFINITIVO PARA QUE LA TABLA RESPETE EL DARK MODE
+   ============================================================ */
 
-/* TITLE */
-.shopify-title {
-  font-size: 28px;
-  font-weight: 800;
-  background: linear-gradient(90deg, #204c96, #62c5d5);
-  -webkit-background-clip: text;
-  color: transparent;
-  letter-spacing: -0.5px;
-  margin-bottom: 20px;
-}
-
-/* CARDS */
+/* Fondo general de cada card/tabla */
 .shopify-card {
-  background: var(--bg-card);
-  border-radius: 14px;
+  background: var(--bg-card) !important;
+  border: 1px solid var(--border-color) !important;
+  box-shadow: var(--shadow-main) !important;
+}
+
+/* TABLA GENERAL */
+.shopify-table {
+  width: 100%;
+  background: var(--bg-card) !important;
+  color: var(--text-main) !important;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-color: var(--border-color) !important;
+}
+
+/* HEADERS */
+.shopify-table thead {
+  background: var(--bg-card) !important;
+}
+
+.shopify-table thead tr {
+  background: var(--bg-card) !important;
+  border-bottom: 1px solid var(--border-color) !important;
+}
+
+.shopify-table thead th {
+  background: var(--bg-card) !important;
+  color: var(--text-main) !important;
+  border-color: var(--border-color) !important;
+  padding: 12px 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 12px;
+}
+
+/* ROWS */
+.shopify-table tbody tr {
+  background: var(--bg-card) !important;
+  color: var(--text-main) !important;
+  border-color: var(--border-color) !important;
+  transition: background 0.15s ease;
+}
+
+/* Hover */
+.shopify-table tbody tr:hover {
+  background: rgba(255,255,255,0.05) !important;
+}
+
+/* CELDAS */
+.shopify-table td {
+  background: transparent !important;
+  color: var(--text-main) !important;
+  border-color: var(--border-color) !important;
+  padding: 12px 10px;
+}
+
+/* CHECKBOX */
+.shopify-checkbox {
+  transform: scale(1.2);
+  accent-color: var(--accent) !important;
+}
+
+/* IMÁGENES */
+.shopify-thumb {
+  width: 45px;
+  height: 45px;
+  object-fit: cover;
+  border-radius: 8px;
   border: 1px solid var(--border-color);
-  box-shadow: var(--shadow-main);
-  transition: 0.25s;
 }
 
-/* INPUTS + SELECTS */
-.shopify-input,
-.shopify-select {
-  border-radius: 10px;
-  border: 1px solid var(--border-color);
-  padding: 8px 10px;
-  background: var(--bg-card);
-  color: var(--text-main);
-  transition: 0.15s;
+/* PLACEHOLDER (cuando no hay productos) */
+.shopify-table tbody td[colspan] {
+  color: var(--text-muted) !important;
 }
 
-.shopify-input:focus,
-.shopify-select:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(59,130,246,0.25);
+/* PAGINACIÓN */
+.shopify-page-indicator {
+  color: var(--text-main) !important;
 }
 
-/* TAGS DE CATEGORIAS */
+/* TAGS */
 .shopify-tag {
-  padding: 6px 14px;
-  border-radius: 20px;
   background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  cursor: pointer;
-  font-size: 13px;
-  transition: 0.2s;
+  border-color: var(--border-color);
   color: var(--text-main);
 }
 
@@ -59,128 +98,23 @@
   color: white;
 }
 
-/* TABLE */
-.shopify-table {
+/* INPUTS */
+.shopify-input,
+.shopify-select {
+  background: var(--bg-card) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-main) !important;
+}
+
+/* SELECT: limpiar estilos de Bootstrap */
+.shopify-select option {
   background: var(--bg-card);
   color: var(--text-main);
 }
 
-.shopify-thead {
-  background: var(--bg-card);
-  border-bottom: 1px solid var(--border-color);
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.4px;
-}
-
-/* CHECKBOX */
-.shopify-checkbox {
-  transform: scale(1.2);
-}
-
-/* IMAGEN */
-.shopify-thumb {
-  width: 45px;
-  height: 45px;
-  object-fit: cover;
-  border-radius: 8px;
-}
-
-/* BUTTONS */
-.shopify-outline-btn {
-  border: 1px solid var(--border-color);
-  background: var(--bg-card);
-  color: var(--text-main);
-  border-radius: 9px;
-  padding: 5px 10px;
-}
-.shopify-outline-btn:hover {
-  background: var(--accent);
-  color: white;
-}
-
-.shopify-danger-btn {
-  background: #fee2e2;
-  border: 1px solid #fca5a5;
-  color: #7f1d1d;
-  border-radius: 9px;
-  padding: 5px 10px;
-}
-.shopify-danger-btn:hover {
-  background: #fecaca;
-}
-
-/* PAGINACIÓN */
-.shopify-paginacion-btn {
-  background: var(--accent);
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 10px;
-  transition: 0.2s;
-}
-
-.shopify-paginacion-btn:hover {
-  opacity: 0.85;
-}
-
-.shopify-paginacion-btn:disabled {
-  background: #9ca3af;
-  cursor: not-allowed;
-}
-
-.shopify-page-indicator {
-  color: var(--text-main);
-  font-weight: 500;
-}
-
-/* SKELETON */
-.shopify-skeleton-row {
-  height: 40px;
-  width: 100%;
-  border-radius: 10px;
-  background: linear-gradient(90deg, #f3f3f3, #ececec, #f3f3f3);
-  background-size: 200% 100%;
-  animation: shopify-skeleton 1.2s infinite;
-}
-
-@keyframes shopify-skeleton {
-  from { background-position: 200% 0; }
-  to { background-position: -200% 0; }
-}
-
-/* MODALES */
-.shopify-modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.4);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 20;
-}
-
-.shopify-modal {
-  background: var(--bg-card);
-  border-radius: 16px;
-  padding: 20px;
-  width: 480px;
-  box-shadow: var(--shadow-main);
-  color: var(--text-main);
-}
-
-.shopify-modal.small {
-  width: 360px;
-}
-
-.shopify-close-btn {
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  padding: 6px 10px;
-  color: var(--text-main);
-}
-
-.shopify-close-btn:hover {
-  background: var(--border-color);
+/* ALERTS */
+.shopify-alert {
+  background: var(--bg-card) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-main) !important;
 }
