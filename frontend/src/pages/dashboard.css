@@ -9,7 +9,7 @@
   color: var(--text-main);
 }
 
-/* Fade-in general */
+/* Animación suave */
 .fade-in {
   animation: fadeIn 0.45s ease;
 }
@@ -53,19 +53,20 @@
 }
 
 .quick-card-inner {
-  background: rgba(255, 255, 255, 0.07);
-  backdrop-filter: blur(18px);
+  background: rgba(255, 255, 255, 0.06);   /* Light mode */
+  backdrop-filter: blur(16px);
   border-radius: 16px;
   padding: 22px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(0, 0, 0, 0.06);
   box-shadow: var(--shadow-main);
   transition: 0.25s;
   color: var(--text-main);
 }
 
+/* MODO OSCURO REAL */
 .dark-theme .quick-card-inner {
-  background: rgba(40, 48, 62, 0.57);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(30, 36, 48, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .quick-card-inner h3 {
@@ -90,7 +91,7 @@
 
 .quick-card.disabled {
   pointer-events: none;
-  opacity: 0.5;
+  opacity: 0.45;
 }
 
 /* =============================
@@ -117,16 +118,17 @@
   box-shadow: var(--shadow-main);
   border: 1px solid var(--border-color);
   transition: 0.25s ease;
+  color: var(--text-main);
 }
 
 .stat-box:hover {
-  transform: translateY(-3px);
+  transform: translateY(-4px);
 }
 
 .stat-box h4 {
   font-size: 14px;
   color: var(--text-muted);
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }
 
 .stat-box span {
