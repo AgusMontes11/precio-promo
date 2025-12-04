@@ -239,7 +239,7 @@ export default function ProductList({ onToggleTier }) {
       {/* SKELETON LOADER */}
       {loading && (
         <div className="p-4">
-          {Array.from({ length: 4 }).map((_, i) => (
+          {Array.from({ length: 5 }).map((_, i) => (
             <div key={i} className="shopify-skeleton-row mb-3"></div>
           ))}
         </div>
