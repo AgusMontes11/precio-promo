@@ -1,6 +1,7 @@
 // src/components/ProductForm.jsx
 import React, { useEffect, useState } from "react";
 import api from "../services/api";
+import "./ProductForm.css";
 
 export default function ProductForm({ productId, onClose }) {
   const isEditing = Boolean(productId);

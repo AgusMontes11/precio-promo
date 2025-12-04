@@ -246,27 +246,3 @@
 .shopify-close-btn:hover {
   background: var(--border-color);
 }
-
-
-input[type="file"] {
-  background: var(--bg-card) !important;
-  color: var(--text-main) !important;
-  border: 1px solid var(--border-color) !important;
-  padding: 8px 12px;
-  border-radius: 10px;
-}
-
-input[type="file"]::file-selector-button {
-  background: #3b82f6; /* color del botón */
-  color: white;
-  border: none;
-  padding: 6px 12px;
-  margin-right: 10px;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-.dark-theme input[type="file"]::file-selector-button {
-  background: #2563eb; /* versión modo oscuro */
-  color: white;
-}
