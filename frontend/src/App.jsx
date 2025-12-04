@@ -7,7 +7,6 @@ import ProductForm from "./components/ProductForm";
 import FlyerBuilder from "./pages/FlyerBuilder";
 import PromotionBuilder from "./components/PromotionBuilder";
 import Login from "./pages/Login";
-import { useLocation } from "react-router-dom";
 import PrivateRoute from "./routes/PrivateRoute";
 import { useAuth } from "./context/AuthContext";
 
@@ -15,8 +14,6 @@ import "./styles.css";
 
 export default function App() {
   const { user, loading } = useAuth();
-  const location = useLocation();
-
 
   if (loading) return null; // Evita parpadeos al recargar
 
