@@ -53,9 +53,9 @@
 }
 
 .preview-toast.ok {
-  background: #22c55e;
+  background: #39b065;
 }
 
 .preview-toast.error {
-  background: #ef4444;
+  background: #d84545;
 }
