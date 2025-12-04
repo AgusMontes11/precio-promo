@@ -1,40 +1,106 @@
 // src/App.jsx
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Navbar from "./components/Navbar";
+
 import Dashboard from "./pages/Dashboard";
 import ProductsPage from "./pages/ProductsPage";
 import ProductForm from "./components/ProductForm";
 import FlyerBuilder from "./pages/FlyerBuilder";
 import PromotionBuilder from "./components/PromotionBuilder";
+import Login from "./pages/Login";
 
+import PrivateRoute from "./routes/PrivateRoute";
+import { useAuth } from "./context/AuthContext";
 
-import "./styles.css"; // global styles (si ya lo tenés, mantenelo)
+import "./styles.css";
 
 export default function App() {
+  const { user, loading } = useAuth();
+
+  if (loading) return null; // Evita parpadeos al recargar
+
   return (
     <BrowserRouter>
-      <Navbar />
+      {/* ✅ Navbar solo si hay usuario logueado */}
+      {user && <Navbar />}
 
       <Routes>
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        {/* ✅ Ruta pública */}
+        <Route path="/login" element={<Login />} />
 
-        <Route path="/dashboard" element={<Dashboard />} />
+        {/* ✅ Redirección inicial */}
+        <Route
+          path="/"
+          element={
+            user ? <Navigate to="/dashboard" replace /> : <Navigate to="/login" replace />
+          }
+        />
 
-        {/* Productos (página única e integrada) */}
-        <Route path="/products" element={<ProductsPage />} />
+        {/* ✅ Dashboard (admin + supervisor) */}
+        <Route
+          path="/dashboard"
+          element={
+            <PrivateRoute roles={["admin", "supervisor"]}>
+              <Dashboard />
+            </PrivateRoute>
+          }
+        />
 
-        <Route path="/promos" element={<PromotionBuilder />} />
+        {/* ✅ Productos (admin + supervisor) */}
+        <Route
+          path="/products"
+          element={
+            <PrivateRoute roles={["admin", "supervisor"]}>
+              <ProductsPage />
+            </PrivateRoute>
+          }
+        />
 
+        <Route
+          path="/products/new"
+          element={
+            <PrivateRoute roles={["admin", "supervisor"]}>
+              <ProductForm />
+            </PrivateRoute>
+          }
+        />
 
-        {/* Rutas directas al form (opcional) */}
-        <Route path="/products/new" element={<ProductForm />} />
-        <Route path="/products/:id/edit" element={<ProductForm />} />
+        <Route
+          path="/products/:id/edit"
+          element={
+            <PrivateRoute roles={["admin", "supervisor"]}>
+              <ProductForm />
+            </PrivateRoute>
+          }
+        />
 
-        {/* Flyers */}
-        <Route path="/flyers" element={<FlyerBuilder />} />
+        {/* ✅ Promociones (solo admin) */}
+        <Route
+          path="/promos"
+          element={
+            <PrivateRoute roles={["admin"]}>
+              <PromotionBuilder />
+            </PrivateRoute>
+          }
+        />
 
-        {/* Fallback */}
-        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        {/* ✅ Flyers (admin + supervisor + promotor) */}
+        <Route
+          path="/flyers"
+          element={
+            <PrivateRoute roles={["admin", "supervisor", "promotor"]}>
+              <FlyerBuilder />
+            </PrivateRoute>
+          }
+        />
+
+        {/* ✅ Fallback */}
+        <Route
+          path="*"
+          element={
+            user ? <Navigate to="/dashboard" replace /> : <Navigate to="/login" replace />
+          }
+        />
       </Routes>
     </BrowserRouter>
   );
