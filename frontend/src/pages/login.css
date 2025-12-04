@@ -36,12 +36,31 @@
 /* Caja del formulario */
 .login-card {
   position: relative;
-  z-index: 3; /* queda por encima del blur */
+  z-index: 3;
+
   width: 100%;
   max-width: 380px;
-  background: rgba(255, 255, 255, 0.92);
-  padding: 32px 28px;
-  border-radius: 18px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(6px);
+
+  /* ✅ EFECTO GLASS / GLOSS */
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.85),
+    rgba(255, 255, 255, 0.55)
+  );
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 22px;
+
+  padding: 34px 30px;
+
+  /* ✅ SOMBRA MÁS ELEGANTE */
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+
+  /* ✅ LO SUBIMOS UN POCO */
+  transform: translateY(-60px);
 }
+
