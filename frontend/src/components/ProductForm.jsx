@@ -236,7 +236,7 @@ export default function ProductForm({ productId, onClose }) {
             }}
           />
           <div className="form-text">
-            Si es posible, la app quitará el fondo automáticamente.
+            Si es posible, la app quitará el fondo automáticamente
           </div>
         </div>
 
@@ -260,3 +260,4 @@ export default function ProductForm({ productId, onClose }) {
     </div>
   );
 }
+
