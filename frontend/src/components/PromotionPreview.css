@@ -1,0 +1,11 @@
+/* Caja de vista previa / lista de difusión */
+.preview-box {
+  background: var(--bg-card);
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 18px;
+  font-family: "Menlo", "Consolas", monospace;
+  white-space: pre-wrap;
+  box-shadow: var(--shadow-main);
+}

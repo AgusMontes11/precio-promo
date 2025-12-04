@@ -1,5 +1,6 @@
 // src/components/PromotionPreview.jsx
 import React, { useState } from "react";
+import "./PromotionPreview.css";
 
 export default function PromotionPreview({ products }) {
   const [toast, setToast] = useState(null);
@@ -36,7 +37,7 @@ export default function PromotionPreview({ products }) {
   };
 
   return (
-    <div className="mt-4">
+    <div className="mt-4 preview-box">
       <h4>Vista previa</h4>
 
       <pre
