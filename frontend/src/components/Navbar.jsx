@@ -40,7 +40,7 @@ export default function Navbar() {
     <motion.nav
       initial={{ opacity: 0, y: -18 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.7, ease: "easeOut" }}
+      transition={{ duration: 0.35, ease: "easeOut", delay: 0.15 }} // ✅ delay clave
       className="pro-navbar"
     >
       <div className="nav-inner d-flex align-items-center position-relative">
