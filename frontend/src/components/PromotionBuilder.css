@@ -123,14 +123,12 @@
    ELIMINAR BLANCOS MOLESTOS (BOOTSTRAP)
    ============================= */
 
-/* HEADER DE LA TABLA (Cantidad / Descuento %) */
+/* Fondo blanco del thead */
 .builder-table thead th {
-  background: rgba(59,130,246,0.12) !important; /* azul suave */
+  background: rgba(255, 255, 255, 0.08) !important;
   color: var(--text-main) !important;
-  border-bottom: 1px solid rgba(59,130,246,0.3) !important; /* línea azul */
-  font-weight: 600;
+  border-bottom: 1px solid var(--border-color) !important;
 }
-
 
 /* Fondo interno del table (el blanco que ves) */
 .builder-table {
