@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { motion, useMotionValue, useTransform, animate } from "framer-motion";
+import { motion } from "framer-motion";
 import { Boxes, Image as ImageIcon, Sparkles, ArrowRight } from "lucide-react";
 import "./dashboard.css";
 import { Link } from "react-router-dom";
@@ -11,7 +11,7 @@ function AnimatedNumber({ value }) {
   useEffect(() => {
     let start = 0;
     let end = value;
-    let duration = 1200; // ms
+    let duration = 1200;
     let startTime = null;
 
     const step = (timestamp) => {
@@ -28,24 +28,14 @@ function AnimatedNumber({ value }) {
   }, [value]);
 
   return (
-    <span
-      style={{
-        display: "inline-block",
-        minWidth: 24,
-        fontVariantNumeric: "tabular-nums",
-      }}
-    >
-      {display}
-    </span>
+    <span className="animated-number">{display}</span>
   );
 }
-
 
 export default function Dashboard() {
   const [totalProducts, setTotalProducts] = useState(null);
   const [flyersGenerated, setFlyersGenerated] = useState(0);
 
-  // 🔥 Obtener estadísticas del backend
   useEffect(() => {
     const fetchStats = async () => {
       try {
@@ -61,63 +51,41 @@ export default function Dashboard() {
 
     fetchStats();
 
-    // 🔹 Escuchar evento de flyer generado
     const handler = () => fetchStats();
     window.addEventListener("flyer-generated", handler);
     return () => window.removeEventListener("flyer-generated", handler);
   }, []);
 
   return (
-        <motion.div
+    <motion.div
+      className="dashboard-container fade-in"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
     >
-    <motion.div
-      className="dashboard-container"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.4 }}
-    >
-      <motion.div
-        className="dashboard-header"
-        initial={{ y: -20 }}
-        animate={{ y: 0 }}
-        transition={{ duration: 0.4 }}
-      >
+      {/* HEADER */}
+      <div className="dashboard-header">
         <h1>Panel Principal</h1>
         <p>Gestioná tus productos, generá flyers y administrá tu catálogo.</p>
-      </motion.div>
+      </div>
 
-      {/* 🔵 TARJETAS RÁPIDAS */}
+      {/* QUICK CARDS */}
       <div className="quick-actions">
         <Link to="/products" className="quick-card">
-          <motion.div
-            whileHover={{ scale: 1.04 }}
-            whileTap={{ scale: 0.97 }}
-            className="quick-card-inner"
-          >
+          <motion.div className="quick-card-inner" whileHover={{ scale: 1.04 }}>
             <Boxes size={32} />
             <h3>Productos</h3>
             <p>Agregá, editá o eliminá productos.</p>
-            <div className="quick-go">
-              Ir <ArrowRight size={16} />
-            </div>
+            <div className="quick-go">Ir <ArrowRight size={16} /></div>
           </motion.div>
         </Link>
 
         <Link to="/flyers" className="quick-card">
-          <motion.div
-            whileHover={{ scale: 1.04 }}
-            whileTap={{ scale: 0.97 }}
-            className="quick-card-inner"
-          >
+          <motion.div className="quick-card-inner" whileHover={{ scale: 1.04 }}>
             <ImageIcon size={32} />
             <h3>Flyers</h3>
             <p>Generá flyers con diseño profesional.</p>
-            <div className="quick-go">
-              Ir <ArrowRight size={16} />
-            </div>
+            <div className="quick-go">Ir <ArrowRight size={16} /></div>
           </motion.div>
         </Link>
 
@@ -126,28 +94,21 @@ export default function Dashboard() {
             <Sparkles size={32} />
             <h3>Próximamente</h3>
             <p>Nuevas funciones en camino.</p>
-            <div className="quick-go">
-              <ArrowRight size={16} />
-            </div>
+            <div className="quick-go"><ArrowRight size={16} /></div>
           </motion.div>
         </div>
       </div>
 
+      {/* STATS */}
       <h2 className="stats-title">Estadísticas</h2>
 
-      {/* 🔥 ESTADÍSTICAS CON ANIMACIÓN */}
       <div className="stats-grid">
         <motion.div className="stat-box" whileHover={{ scale: 1.03 }}>
           <h4>Total de productos</h4>
           <span>
             {totalProducts !== null ? (
-              <AnimatedNumber
-                key={`products-${totalProducts}`}
-                value={totalProducts}
-              />
-            ) : (
-              <span style={{ minWidth: 24, display: "inline-block" }}>—</span>
-            )}
+              <AnimatedNumber value={totalProducts} />
+            ) : "—"}
           </span>
         </motion.div>
 
@@ -163,7 +124,6 @@ export default function Dashboard() {
           <span>0</span>
         </motion.div>
       </div>
-    </motion.div>
     </motion.div>
   );
 }

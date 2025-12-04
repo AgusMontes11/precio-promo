@@ -1,24 +1,45 @@
+/* =============================
+   CONTENEDOR GENERAL
+============================= */
+
 .dashboard-container {
   padding: 40px 20px;
   max-width: 1100px;
   margin: auto;
+  color: var(--text-main);
 }
 
-/* Header */
+/* Fade-in general */
+.fade-in {
+  animation: fadeIn 0.45s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* =============================
+   HEADER
+============================= */
+
 .dashboard-header h1 {
   font-size: 36px;
   font-weight: 800;
   margin-bottom: 4px;
-  color: #1a1a1a;
+  color: var(--text-main);
 }
 
 .dashboard-header p {
-  color: #555;
+  color: var(--text-muted);
   font-size: 16px;
   margin-bottom: 30px;
 }
 
-/* Quick Actions */
+/* =============================
+   QUICK ACTION CARDS
+============================= */
+
 .quick-actions {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -32,13 +53,19 @@
 }
 
 .quick-card-inner {
-  background: rgba(255, 255, 255, 0.72);
-  backdrop-filter: blur(16px);
+  background: rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(18px);
   border-radius: 16px;
   padding: 22px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.07);
-  border: 1px solid rgba(255, 255, 255, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: var(--shadow-main);
   transition: 0.25s;
+  color: var(--text-main);
+}
+
+.dark-theme .quick-card-inner {
+  background: rgba(40, 48, 62, 0.57);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .quick-card-inner h3 {
@@ -48,30 +75,33 @@
 }
 
 .quick-card-inner p {
-  color: #555;
   margin-top: 6px;
   font-size: 14px;
+  color: var(--text-muted);
 }
 
 .quick-go {
   margin-top: 14px;
   display: flex;
-  align-items: center;
   gap: 6px;
   font-weight: 600;
-  color: rgba(6, 49, 142, 0.732);
+  color: var(--accent);
 }
 
 .quick-card.disabled {
   pointer-events: none;
-  opacity: 0.6;
+  opacity: 0.5;
 }
 
-/* Stats */
+/* =============================
+   STATS SECTION
+============================= */
+
 .stats-title {
   font-size: 24px;
   font-weight: 700;
   margin-bottom: 18px;
+  color: var(--text-main);
 }
 
 .stats-grid {
@@ -82,19 +112,31 @@
 
 .stat-box {
   padding: 20px;
-  background: white;
+  background: var(--bg-card);
   border-radius: 14px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: var(--shadow-main);
+  border: 1px solid var(--border-color);
+  transition: 0.25s ease;
+}
+
+.stat-box:hover {
+  transform: translateY(-3px);
 }
 
 .stat-box h4 {
   font-size: 14px;
-  color: #555;
+  color: var(--text-muted);
+  margin-bottom: 6px;
 }
 
 .stat-box span {
   font-size: 32px;
   font-weight: 800;
-  color: #222;
+  color: var(--text-main);
+}
+
+.animated-number {
+  display: inline-block;
+  min-width: 24px;
+  font-variant-numeric: tabular-nums;
 }
