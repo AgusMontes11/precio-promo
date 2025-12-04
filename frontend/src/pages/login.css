@@ -2,14 +2,18 @@
 .login-bg {
   position: relative;
   min-height: 100vh;
-  background-image: url("/fondo-login.jpg"); /* tu imagen */
+  background-image: url("/fondo-login2.jpg");
   background-size: cover;
   background-position: center;
+
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: flex-start;   /* ✅ ya no queda centrado vertical */
+  justify-content: center;   /* ✅ sigue centrado horizontal */
+
+  padding-top: 120px;        /* ✅ lo baja desde arriba */
   overflow: hidden;
 }
+
 
 /* Capa de blur encima del fondo */
 .login-bg::before {
@@ -39,19 +43,19 @@
   z-index: 3;
 
   width: 100%;
-  max-width: 380px;
+  max-width: 400px;
 
   /* ✅ EFECTO GLASS / GLOSS */
   background: linear-gradient(
     135deg,
-    rgba(255, 255, 255, 0.85),
-    rgba(255, 255, 255, 0.55)
+    rgba(255, 255, 255, 0.20),
+    rgba(255, 255, 255, 0.16)
   );
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
 
   border: 1px solid rgba(255, 255, 255, 0.35);
-  border-radius: 22px;
+  border-radius: 10spx;
 
   padding: 34px 30px;
 
