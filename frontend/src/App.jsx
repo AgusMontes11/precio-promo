@@ -17,12 +17,13 @@ export default function App() {
   const { user, loading } = useAuth();
   const location = useLocation();
 
+
   if (loading) return null; // Evita parpadeos al recargar
 
   return (
     <BrowserRouter>
       {/* ✅ Navbar solo si hay usuario logueado */}
-      {user && location.pathname !== "/login" && <Navbar />}
+      {user && <Navbar />}
 
       <Routes>
         {/* ✅ Ruta pública */}
