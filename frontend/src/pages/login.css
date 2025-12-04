@@ -57,7 +57,7 @@
   width: 100%;
   max-width: 400px;
 
-  animation: floatCard 4s ease-in-out infinite;
+  animation: floatCard 2s ease-in-out;
 
   /* ✅ EFECTO GLASS / GLOSS */
   background: linear-gradient(
