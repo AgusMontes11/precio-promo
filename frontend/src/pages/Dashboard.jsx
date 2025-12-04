@@ -68,6 +68,11 @@ export default function Dashboard() {
   }, []);
 
   return (
+        <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+    >
     <motion.div
       className="dashboard-container"
       initial={{ opacity: 0 }}
@@ -158,6 +163,7 @@ export default function Dashboard() {
           <span>0</span>
         </motion.div>
       </div>
+    </motion.div>
     </motion.div>
   );
 }

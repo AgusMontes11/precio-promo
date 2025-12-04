@@ -1,0 +1,47 @@
+/* Fondo con imagen + blur */
+.login-bg {
+  position: relative;
+  min-height: 100vh;
+  background-image: url("/fondo-login.jpg"); /* tu imagen */
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* Capa de blur encima del fondo */
+.login-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: inherit;
+  background-size: cover;
+  background-position: center;
+  filter: blur(10px);
+  transform: scale(1.1); /* evita bordes feos */
+  z-index: 1;
+}
+
+/* Oscurecido sutil para mejor contraste */
+.login-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  z-index: 2;
+}
+
+/* Caja del formulario */
+.login-card {
+  position: relative;
+  z-index: 3; /* queda por encima del blur */
+  width: 100%;
+  max-width: 380px;
+  background: rgba(255, 255, 255, 0.92);
+  padding: 32px 28px;
+  border-radius: 18px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(6px);
+}

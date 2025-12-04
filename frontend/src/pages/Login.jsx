@@ -1,6 +1,9 @@
+// src/pages/Login.jsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { motion } from "framer-motion";
+import "./login.css";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -28,16 +31,14 @@ export default function Login() {
 
       const data = await res.json();
 
-      if (!res.ok) {
-        throw new Error(data.error || "Error en el login");
-      }
+      if (!res.ok) throw new Error(data.error || "Error en el login");
 
       login(data.token, data.usuario);
 
-      // ✅ Redirección según rol
-      if (data.usuario.rol === "admin") navigate("/dashboard");
-      else if (data.usuario.rol === "supervisor") navigate("/supervisor");
-      else navigate("/promotor");
+      // ✅ Transición suave al dashboard
+      setTimeout(() => {
+        navigate("/dashboard");
+      }, 400);
 
     } catch (err) {
       setError(err.message);
@@ -47,31 +48,42 @@ export default function Login() {
   };
 
   return (
-    <div className="container mt-5" style={{ maxWidth: 400 }}>
-      <h3 className="mb-4">Iniciar sesión</h3>
+    <div className="login-bg">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.92, y: 30 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        className="login-card"
+      >
+        <h3 className="mb-4 text-center">Iniciar sesión</h3>
 
-      {error && <div className="alert alert-danger">{error}</div>}
+        {error && <div className="alert alert-danger">{error}</div>}
 
-      <form onSubmit={handleSubmit}>
-        <input
-          className="form-control mb-3"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
+        <form onSubmit={handleSubmit}>
+          <input
+            className="form-control mb-3"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
 
-        <input
-          type="password"
-          className="form-control mb-3"
-          placeholder="Contraseña"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
+          <input
+            type="password"
+            className="form-control mb-3"
+            placeholder="Contraseña"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
 
-        <button className="btn btn-dark w-100" disabled={loading}>
-          {loading ? "Entrando..." : "Entrar"}
-        </button>
-      </form>
+          <motion.button
+            whileTap={{ scale: 0.95 }}
+            className="btn btn-dark w-100"
+            disabled={loading}
+          >
+            {loading ? "Entrando..." : "Entrar"}
+          </motion.button>
+        </form>
+      </motion.div>
     </div>
   );
 }
