@@ -1,8 +1,157 @@
-/* src/styles.css */
-body { background: #f6f7fb; font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; }
-.container { max-width: 1100px; }
-.table thead.table-dark { background:#22282e; color:#fff; }
-.card { border-radius: 10px; box-shadow: 0 6px 18px rgba(12,20,30,0.06); }
-.app-header { padding: 18px 0; border-bottom: 1px solid #e6e9ef; margin-bottom: 18px; }
-.search-input { max-width: 360px; }
-.small-muted { color:#6b7280; font-size:0.9rem; }
+/* ================================
+   🎨 SISTEMA DE VARIABLES GLOBAL
+   ================================ */
+
+:root {
+  --bg-main: #f6f7fb;
+  --bg-card: #ffffff;
+  --text-main: #1f2937;
+  --text-muted: #6b7280;
+  --border-color: #e6e9ef;
+  --accent: #2563eb;
+  --shadow-main: 0 6px 18px rgba(12,20,30,0.06);
+}
+
+/* ✅ MODO OSCURO GLOBAL */
+.dark-theme {
+  --bg-main: #0d1117;
+  --bg-card: #161b22;
+  --text-main: #e5e7eb;
+  --text-muted: #9ca3af;
+  --border-color: #27313a;
+  --accent: #3b82f6;
+  --shadow-main: 0 10px 30px rgba(0,0,0,0.45);
+}
+
+/* ================================
+   🌙 BASE GLOBAL
+   ================================ */
+
+body {
+  background: var(--bg-main);
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  color: var(--text-main);
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+* {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* ================================
+   📦 LAYOUT GENERAL
+   ================================ */
+
+.container {
+  max-width: 1100px;
+}
+
+/* ================================
+   📊 TABLAS
+   ================================ */
+
+.table {
+  color: var(--text-main);
+  background: var(--bg-card);
+}
+
+.table th,
+.table td {
+  border-color: var(--border-color);
+}
+
+.table thead.table-dark {
+  background: #22282e;
+  color: #ffffff;
+}
+
+.dark-theme .table thead.table-dark {
+  background: #0f172a;
+}
+
+/* ================================
+   🧩 CARDS
+   ================================ */
+
+.card {
+  border-radius: 10px;
+  background: var(--bg-card);
+  box-shadow: var(--shadow-main);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+}
+
+/* ================================
+   🧭 HEADER
+   ================================ */
+
+.app-header {
+  padding: 18px 0;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 18px;
+}
+
+/* ================================
+   🔍 SEARCH INPUT
+   ================================ */
+
+.search-input {
+  max-width: 360px;
+}
+
+/* ================================
+   🧠 TEXTO SECUNDARIO
+   ================================ */
+
+.small-muted {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+/* ================================
+   ✍️ FORMULARIOS
+   ================================ */
+
+.form-control {
+  background: var(--bg-card) !important;
+  color: var(--text-main) !important;
+  border-color: var(--border-color) !important;
+}
+
+.form-control::placeholder {
+  color: var(--text-muted);
+}
+
+/* ================================
+   🔘 BOTONES
+   ================================ */
+
+.btn-primary {
+  background-color: var(--accent);
+  border-color: var(--accent);
+}
+
+.btn-dark {
+  background-color: #0f172a;
+  border-color: #0f172a;
+}
+
+.btn-outline-dark {
+  color: var(--text-main);
+  border-color: var(--border-color);
+}
+
+.dark-theme .btn-outline-dark {
+  border-color: var(--border-color);
+  color: var(--text-main);
+}
+
+/* ================================
+   🪟 MODALES
+   ================================ */
+
+.modal-content {
+  background: var(--bg-card);
+  color: var(--text-main);
+  border-color: var(--border-color);
+}
