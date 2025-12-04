@@ -11,8 +11,6 @@ import Login from "./pages/Login";
 import PrivateRoute from "./routes/PrivateRoute";
 import { useAuth } from "./context/AuthContext";
 
-//import "./styles.css";
-
 export default function AppShell() {
   const { user, loading } = useAuth();
   const location = useLocation();
