@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Boxes, Image as ImageIcon, Sparkles, ArrowRight } from "lucide-react";
-import "./dashboard.css";
+//import "./dashboard.css";
 import { Link } from "react-router-dom";
 import api from "../services/api";
 
