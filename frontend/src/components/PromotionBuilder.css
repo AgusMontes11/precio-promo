@@ -118,3 +118,31 @@
 .floating-add-btn:hover {
   transform: scale(1.08);
 }
+
+/* =============================
+   ELIMINAR BLANCOS MOLESTOS (BOOTSTRAP)
+   ============================= */
+
+/* HEADER DE LA TABLA (Cantidad / Descuento %) */
+.builder-table thead th {
+  background: rgba(59,130,246,0.12) !important; /* azul suave */
+  color: var(--text-main) !important;
+  border-bottom: 1px solid rgba(59,130,246,0.3) !important; /* línea azul */
+  font-weight: 600;
+}
+
+
+/* Fondo interno del table (el blanco que ves) */
+.builder-table {
+  background: transparent !important;
+  border-collapse: separate; /* evita lineas blancas internas */
+  border-color: var(--border-color) !important;
+}
+
+/* Eliminar borde blanco derecho / inferior */
+.builder-table tr,
+.builder-table td {
+  background: transparent !important;
+  border-color: var(--border-color) !important;
+}
+
