@@ -57,8 +57,6 @@
   width: 100%;
   max-width: 400px;
 
-  animation: floatCard 2s ease-in-out;
-
   /* ✅ EFECTO GLASS / GLOSS */
   background: linear-gradient(
     135deg,
@@ -80,13 +78,4 @@
 
   /* ✅ LO SUBIMOS UN POCO */
   transform: translateY(-100px);
-}
-
-@keyframes floatCard {
-  0%, 100% {
-    transform: translateY(-60px);
-  }
-  50% {
-    transform: translateY(-75px);
-  }
 }
