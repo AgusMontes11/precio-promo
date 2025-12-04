@@ -84,9 +84,9 @@
 
 @keyframes floatCard {
   0%, 100% {
-    transform: translateY(-60px);
+    transform: translateY(-50px);
   }
   50% {
-    transform: translateY(-70px);
+    transform: translateY(-80px);
   }
 }
