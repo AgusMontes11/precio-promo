@@ -211,6 +211,7 @@ export default function ProductForm({ productId, onClose }) {
           />
         </div>
 
+        
         {/* Vista previa de imagen */}
         {product.imageurl && (
           <div className="mb-3 text-center">
