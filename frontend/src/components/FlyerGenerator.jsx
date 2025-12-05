@@ -3,7 +3,7 @@ import * as htmlToImage from "html-to-image";
 import api from "../services/api";
 
 // ============================================================
-// Configuración de templates
+// CONFIGURACIÓN DE TEMPLATES
 // ============================================================
 const TEMPLATE_CONFIG = {
   black: {
@@ -49,11 +49,13 @@ const TEMPLATE_CONFIG = {
   },
 };
 
+// Vite renombra las imágenes a algo como "4-asd98asd.png"
+// Por eso buscamos por prefijo del archivo original.
 const TEMPLATE_KEY_BY_NAME = {
-  "4.png": "black",
-  "1.png": "white",
-  "2.png": "diag",
-  "7.png": "texture",
+  "4": "black",
+  "1": "white",
+  "2": "diag",
+  "7": "texture",
 };
 
 // ============================================================
@@ -92,40 +94,54 @@ function CurvedText({ text, radius, fontSize, color, shadow }) {
   );
 }
 
+// Detecta correctamente la key del template con imports de Vite
 function guessTemplateKey(templateSrc) {
   if (!templateSrc) return "black";
+
   const low = templateSrc.toLowerCase();
-  for (const keySuffix of Object.keys(TEMPLATE_KEY_BY_NAME))
-    if (low.includes(keySuffix)) return TEMPLATE_KEY_BY_NAME[keySuffix];
-  return "black";
+
+  for (const prefix of Object.keys(TEMPLATE_KEY_BY_NAME)) {
+    if (
+      low.includes(`/${prefix}.`) ||
+      low.includes(`/${prefix}-`) ||
+      low.includes(`${prefix}.`) ||
+      low.includes(`${prefix}-`)
+    ) {
+      return TEMPLATE_KEY_BY_NAME[prefix];
+    }
+  }
+
+  return "black"; // fallback
+}
+
+// Normaliza la imagen del producto
+function normalizeImg(product) {
+  const url =
+    product?.imageUrl ||
+    product?.imageurl ||
+    product?.image ||
+    product?.imageURL ||
+    null;
+
+  if (!url) return "/placeholder.png";
+
+  return url.startsWith("http")
+    ? url
+    : `https://precio-promo-backend.onrender.com${url}`;
 }
 
 // ============================================================
-// Componente Principal
+// COMPONENTE PRINCIPAL
 // ============================================================
-export default function FlyerGenerator({
-  template,
-  items = [],
-  layout = "single",
-}) {
+export default function FlyerGenerator({ template, items = [], layout = "single" }) {
   const previewRef = useRef(null);
   const [previewSize, setPreviewSize] = useState({ w: 0, h: 0 });
 
   const templateKey = guessTemplateKey(template);
   const cfg = TEMPLATE_CONFIG[templateKey] || TEMPLATE_CONFIG.black;
 
-  const normalizeImg = (product) => {
-    const url = product?.imageurl || null;
-
-    if (!url) return "/placeholder.png";
-
-    return url.startsWith("http")
-      ? url
-      : `https://precio-promo-backend.onrender.com${url}`;
-  };
-
   // ============================================================
-  // Medir preview
+  // Medir preview dinámicamente
   // ============================================================
   useEffect(() => {
     function updateSize() {
@@ -135,8 +151,10 @@ export default function FlyerGenerator({
       setPreviewSize({ w: rect.width, h: rect.height });
     }
     updateSize();
+
     window.addEventListener("resize", updateSize);
-    const tid = setTimeout(updateSize, 50);
+    const tid = setTimeout(updateSize, 80);
+
     return () => {
       window.removeEventListener("resize", updateSize);
       clearTimeout(tid);
@@ -144,7 +162,7 @@ export default function FlyerGenerator({
   }, [template, items]);
 
   // ============================================================
-  // Exportar flyer + update contador
+  // EXPORTAR FLYER
   // ============================================================
   const exportHighRes = async () => {
     try {
@@ -154,10 +172,7 @@ export default function FlyerGenerator({
       const dataUrl = await htmlToImage.toPng(element, {
         cacheBust: true,
         skipFonts: true,
-        filter: (el) => {
-          if (el.tagName === "LINK") return false;
-          return true;
-        },
+        filter: (el) => el.tagName !== "LINK",
       });
 
       const link = document.createElement("a");
@@ -165,9 +180,7 @@ export default function FlyerGenerator({
       link.href = dataUrl;
       link.click();
 
-      // Incrementar contador en DB
       await api.post("/stats/flyers/increment");
-
       window.dispatchEvent(new Event("flyer-generated"));
     } catch (e) {
       console.error("Error exportando flyer:", e);
@@ -175,24 +188,27 @@ export default function FlyerGenerator({
   };
 
   // ============================================================
-  // Render de un solo producto
+  // RENDER DEL PREVIEW
   // ============================================================
   const renderSinglePreview = (product) => {
     if (!product || previewSize.w === 0) return null;
+
     const W = previewSize.w;
     const H = previewSize.h;
+
     const size = Math.round(W * cfg.imageSizeRatio);
     const imageTop = Math.round(H * cfg.imageTopRatio);
     const nameTop = Math.round(H * cfg.nameTopRatio);
-    const priceTop = cfg.priceAbsolute
-      ? null
-      : Math.round(H * (cfg.priceTopRatio || 0.7));
+    const priceTop = cfg.priceAbsolute ? null : Math.round(H * (cfg.priceTopRatio || 0.7));
+
     const nameFont = Math.round(W * cfg.nameFontRatio);
     const priceFont = Math.round(W * cfg.priceFontRatio);
+
     const textShadow = cfg.dark ? "0 3px 10px rgba(255,255,255,0.85)" : "none";
 
     return (
       <>
+        {/* IMAGEN */}
         <img
           src={normalizeImg(product)}
           alt={product.name}
@@ -205,9 +221,10 @@ export default function FlyerGenerator({
             height: `${size}px`,
             objectFit: "cover",
             borderRadius: 16,
-            background: "transparent",
           }}
         />
+
+        {/* NOMBRE (curvo solo en white) */}
         {templateKey === "white" ? (
           <div
             style={{
@@ -236,19 +253,19 @@ export default function FlyerGenerator({
               transform: "translateX(-50%)",
               width: `${0.75 * W}px`,
               textAlign: "center",
-              color: "#000",
               fontWeight: 900,
               fontSize: `${nameFont}px`,
+              color: "#000",
               textShadow,
-              fontFamily: "'Work Sans', sans-serif",
               textTransform: "uppercase",
-              whiteSpace: "normal",
               wordWrap: "break-word",
             }}
           >
             {product.name.toUpperCase()}
           </div>
         )}
+
+        {/* PRECIO */}
         <div
           style={{
             position: "absolute",
@@ -256,7 +273,6 @@ export default function FlyerGenerator({
               ? {
                   left: cfg.priceLeft * (W / 1080),
                   bottom: cfg.priceBottom * (H / 1920),
-                  width: "auto",
                 }
               : {
                   left: 0,
@@ -268,7 +284,6 @@ export default function FlyerGenerator({
             fontWeight: 800,
             fontSize: `${priceFont}px`,
             textShadow,
-            fontFamily: "'Roboto', sans-serif",
           }}
         >
           ${Number(product.price).toLocaleString("es-AR")}
@@ -279,6 +294,7 @@ export default function FlyerGenerator({
 
   return (
     <div>
+      {/* PREVIEW */}
       <div
         ref={previewRef}
         id="flyer-preview"
@@ -299,6 +315,7 @@ export default function FlyerGenerator({
         {layout === "single" && items[0] && renderSinglePreview(items[0])}
       </div>
 
+      {/* BOTÓN DESCARGA */}
       <div className="mt-3 d-flex gap-2">
         <button className="btn btn-success" onClick={exportHighRes}>
           Descargar flyer (alta resolución)

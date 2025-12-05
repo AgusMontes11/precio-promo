@@ -1,8 +1,8 @@
-// src/pages/FlyerBuilder.jsx
 import React, { useEffect, useState } from "react";
 import FlyerGenerator from "../components/FlyerGenerator";
 import api from "../services/api";
 
+// IMPORTS DE TEMPLATES (Vite renombra los archivos)
 import black from "../templates/4.png";
 import whiteFrame from "../templates/1.png";
 import diagonal from "../templates/2.png";
@@ -17,23 +17,24 @@ const TEMPLATES = [
 
 export default function FlyerBuilder() {
   const [products, setProducts] = useState([]);
-  const [selected, setSelected] = useState(null); // ⭐ SOLO UN PRODUCTO
+  const [selected, setSelected] = useState(null);
   const [templateId, setTemplateId] = useState("black");
-  const [mode, setMode] = useState("single");
 
   useEffect(() => {
-    load();
+    loadProducts();
   }, []);
 
-  const load = async () => {
+  const loadProducts = async () => {
     try {
       const res = await api.get("/products");
 
-      // ✅ NO REESCRIBIMOS imageUrl
-      // ✅ Usamos SOLO imageurl como viene de la DB
+      // ⛔ NO tocamos ni calculamos imageUrl
+      // ⛔ NO agregamos http://localhost
+      // ⛔ NO pisamos campos
+
       const prods = (res.data || []).map((p) => ({
         ...p,
-        imageurl: p.imageurl || null,
+        imageurl: p.imageurl || null, // el único campo real que usa tu backend
       }));
 
       setProducts(prods);
@@ -42,14 +43,15 @@ export default function FlyerBuilder() {
       alert("Error cargando productos");
     }
   };
-  // ⭐ SOLO UN PRODUCTO SELECCIONADO
+
+  // SOLO un producto seleccionado
   const toggleSelect = (id) => {
     setSelected((prev) => (prev === id ? null : id));
   };
 
-  const template = TEMPLATES.find((t) => t.id === templateId).src;
+  const template = TEMPLATES.find((t) => t.id === templateId)?.src;
 
-  // ⭐ items contiene SOLO 1 elemento
+  // Items para el FlyerGenerator
   const items = selected
     ? [products.find((p) => p.id === selected)].filter(Boolean)
     : [];
@@ -59,7 +61,7 @@ export default function FlyerBuilder() {
       <h3 className="mb-3 mt-3">Generador de Flyers</h3>
 
       <div className="row g-0">
-        {/* LADO IZQUIERDO */}
+        {/* IZQUIERDA: selector + productos */}
         <div
           className="col-12 col-md-5 d-flex flex-column"
           style={{ height: "100vh" }}
@@ -117,6 +119,7 @@ export default function FlyerBuilder() {
                       e.currentTarget.src = "/placeholder.png";
                     }}
                   />
+
                   <div className="mt-2">
                     <div className="fw-bold small">{p.name}</div>
                     <div className="small text-muted">${p.price}</div>
@@ -127,7 +130,7 @@ export default function FlyerBuilder() {
           </div>
         </div>
 
-        {/* LADO DERECHO */}
+        {/* DERECHA: preview */}
         <div className="col-12 col-md-7">
           <h5 className="mb-2">Preview</h5>
 
