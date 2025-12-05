@@ -1,35 +1,22 @@
 import { pool } from '../db.js';
 
-// ==========================================================
-// Helper: normaliza un producto desde la DB
-// ==========================================================
-const fixProduct = (p) => {
-  let tiers = [];
-
+function safeParse(json) {
   try {
-    // Si viene null o vacío → lo dejamos como []
-    if (!p.discount_tiers || p.discount_tiers.trim() === "") {
-      tiers = [];
-    }
-    // Si viene string JSON → parsearlo
-    else if (typeof p.discount_tiers === "string") {
-      tiers = JSON.parse(p.discount_tiers);
-    }
-    // Si ya viene array → usarlo
-    else if (Array.isArray(p.discount_tiers)) {
-      tiers = p.discount_tiers;
-    }
-  } catch (e) {
-    console.error("Error parseando discount_tiers:", p.discount_tiers);
-    tiers = [];
+    if (!json) return [];
+    if (typeof json === "object") return json;
+    return JSON.parse(json);
+  } catch {
+    return [];
   }
+}
 
+function fixProduct(p) {
   return {
     ...p,
-    has_tiers: p.has_tiers ?? false,
-    discount_tiers: tiers
+    discount_tiers: safeParse(p.discount_tiers),
+    has_tiers: p.has_tiers === true,
   };
-};
+}
 
 
 // =============================
@@ -41,15 +28,12 @@ export const getAll = async (req, res) => {
       "SELECT * FROM products ORDER BY id ASC"
     );
 
-    const fixed = result.rows.map(fixProduct);
-    res.json(fixed);
-
+    res.json(result.rows.map(fixProduct));
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: err.message });
   }
 };
-
 
 // =============================
 // GET BY ID
@@ -57,7 +41,6 @@ export const getAll = async (req, res) => {
 export const getById = async (req, res) => {
   try {
     const { id } = req.params;
-
     const result = await pool.query(
       "SELECT * FROM products WHERE id = $1",
       [id]
@@ -67,9 +50,7 @@ export const getById = async (req, res) => {
       return res.status(404).json({ error: "Producto no encontrado" });
     }
 
-    const fixed = fixProduct(result.rows[0]);
-    res.json(fixed);
-
+    res.json(fixProduct(result.rows[0]));
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: err.message });
