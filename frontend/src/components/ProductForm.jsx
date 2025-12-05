@@ -10,17 +10,17 @@ export default function ProductForm({ productId, onClose }) {
     name: "",
     price: "",
     category: "",
-    imageUrl: null,
-    imageurl: null, // backend key real
+    imageurl: null,
+    hasTiers: false,
+    discountTiers: [],
   });
 
   const [saving, setSaving] = useState(false);
   const [alert, setAlert] = useState(null);
-
-  const [imageFile, setImageFile] = useState(null); // archivo nuevo
+  const [imageFile, setImageFile] = useState(null);
 
   // ========================================================
-  // 🔧 Normalizador universal de URLs
+  // URL normalizer
   // ========================================================
   const normalizeImage = (url) => {
     if (!url) return null;
@@ -29,7 +29,7 @@ export default function ProductForm({ productId, onClose }) {
   };
 
   // ========================================================
-  // 🔄 Cargar producto si estoy editando
+  // Load product on edit
   // ========================================================
   useEffect(() => {
     if (!isEditing) return;
@@ -44,16 +44,12 @@ export default function ProductForm({ productId, onClose }) {
           price: data.price || "",
           category: data.category || "",
           imageurl: data.imageurl || null,
-          imageUrl: normalizeImage(data.imageurl || data.imageUrl),
-          hasTiers: data.hasTiers || false,
-          discountTiers: data.discountTiers || [],
+          hasTiers: data.has_tiers || false,
+          discountTiers: data.discount_tiers || [],
         });
       })
       .catch(() =>
-        setAlert({
-          type: "danger",
-          text: "No se pudo cargar el producto",
-        })
+        setAlert({ type: "danger", text: "No se pudo cargar el producto" })
       );
   }, [productId, isEditing]);
 
@@ -63,7 +59,7 @@ export default function ProductForm({ productId, onClose }) {
   };
 
   // ========================================================
-  // 🧹 Procesamiento de imagen (quitar fondo)
+  // Background removal (igual a la versión anterior)
   // ========================================================
   const processImage = async (file) => {
     if (!file) return null;
@@ -77,18 +73,15 @@ export default function ProductForm({ productId, onClose }) {
       const mod = await import("@imgly/background-removal");
       const removeBackground =
         mod.removeBackground || mod.default || mod.imglyRemoveBackground;
-
       if (typeof removeBackground === "function") {
         const result = await removeBackground(file);
         return result instanceof Blob ? blobToFile(result, file.name) : result;
       }
     } catch (_) {}
 
-    // fallback
     try {
       const CDN =
         "https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.7.0/dist/browser.mjs";
-
       const remote = await import(/* @vite-ignore */ CDN);
       const removeBackground =
         remote.removeBackground ||
@@ -100,18 +93,15 @@ export default function ProductForm({ productId, onClose }) {
         return result instanceof Blob ? blobToFile(result, file.name) : result;
       }
     } catch (err) {
-      console.warn("Dynamic import fallback failed", err);
+      console.warn("fallback failed", err);
     }
 
-    showAlert(
-      "warning",
-      "No se pudo remover el fondo automáticamente; se subirá la imagen original."
-    );
+    showAlert("warning", "No se pudo remover el fondo. Se sube la imagen original.");
     return file;
   };
 
   // ========================================================
-  // 💾 Guardar producto
+  // SAVE PRODUCT
   // ========================================================
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -128,7 +118,6 @@ export default function ProductForm({ productId, onClose }) {
 
       if (imageFile) {
         const cleanFile = await processImage(imageFile);
-
         const fd = new FormData();
         fd.append("image", cleanFile);
 
@@ -144,8 +133,8 @@ export default function ProductForm({ productId, onClose }) {
         price: product.price,
         category: product.category,
         imageurl: imageUrl,
-        hasTiers: product.hasTiers || false,
-        discountTiers: product.discountTiers || [],
+        hasTiers: product.hasTiers,
+        discountTiers: product.discountTiers,
       };
 
       if (isEditing) {
@@ -154,10 +143,7 @@ export default function ProductForm({ productId, onClose }) {
         await api.post("/products", payload);
       }
 
-      showAlert(
-        "success",
-        isEditing ? "Producto actualizado" : "Producto creado"
-      );
+      showAlert("success", isEditing ? "Producto actualizado" : "Producto creado");
 
       setTimeout(() => onClose?.(), 900);
     } catch (err) {
@@ -166,6 +152,28 @@ export default function ProductForm({ productId, onClose }) {
     } finally {
       setSaving(false);
     }
+  };
+
+  // ========================================================
+  // TIERS HANDLERS
+  // ========================================================
+  const addTier = () => {
+    setProduct({
+      ...product,
+      discountTiers: [...product.discountTiers, { min: 1, price: 0 }],
+    });
+  };
+
+  const updateTier = (index, field, value) => {
+    const tiers = [...product.discountTiers];
+    tiers[index][field] = value;
+    setProduct({ ...product, discountTiers: tiers });
+  };
+
+  const deleteTier = (index) => {
+    const tiers = [...product.discountTiers];
+    tiers.splice(index, 1);
+    setProduct({ ...product, discountTiers: tiers });
   };
 
   // ========================================================
@@ -205,14 +213,11 @@ export default function ProductForm({ productId, onClose }) {
           <input
             className="form-control"
             value={product.category}
-            onChange={(e) =>
-              setProduct({ ...product, category: e.target.value })
-            }
+            onChange={(e) => setProduct({ ...product, category: e.target.value })}
           />
         </div>
 
-        
-        {/* Vista previa de imagen */}
+        {/* Imagen actual */}
         {product.imageurl && (
           <div className="mb-3 text-center">
             <label className="form-label d-block">Imagen actual</label>
@@ -224,7 +229,7 @@ export default function ProductForm({ productId, onClose }) {
           </div>
         )}
 
-        {/* Cargar nueva imagen */}
+        {/* Subir nueva imagen */}
         <div className="mb-3">
           <label className="form-label">Imagen (archivo)</label>
           <input
@@ -232,14 +237,75 @@ export default function ProductForm({ productId, onClose }) {
             accept="image/*"
             className="form-control"
             onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file) setImageFile(file);
+              const f = e.target.files?.[0];
+              if (f) setImageFile(f);
             }}
           />
-          <div className="form-text">
-            Si es posible, la app quitará el fondo automáticamente
-          </div>
+          <div className="form-text">La app intentará quitar el fondo automáticamente</div>
         </div>
+
+        {/* Escalonadas */}
+        <div className="form-check mb-2">
+          <input
+            className="form-check-input"
+            type="checkbox"
+            checked={product.hasTiers}
+            onChange={(e) =>
+              setProduct({ ...product, hasTiers: e.target.checked })
+            }
+          />
+          <label className="form-check-label">
+            Este producto tiene precios escalonados
+          </label>
+        </div>
+
+        {product.hasTiers && (
+          <div className="mb-3 p-2 border rounded">
+            <strong>Escalonadas</strong>
+
+            {product.discountTiers.length === 0 && (
+              <div className="text-muted small">No hay escalonadas cargadas</div>
+            )}
+
+            {product.discountTiers.map((tier, index) => (
+              <div key={index} className="d-flex gap-2 mb-2">
+                <input
+                  type="number"
+                  className="form-control"
+                  placeholder="Cantidad mínima"
+                  value={tier.min}
+                  onChange={(e) =>
+                    updateTier(index, "min", Number(e.target.value))
+                  }
+                />
+                <input
+                  type="number"
+                  className="form-control"
+                  placeholder="Precio por unidad"
+                  value={tier.price}
+                  onChange={(e) =>
+                    updateTier(index, "price", Number(e.target.value))
+                  }
+                />
+                <button
+                  type="button"
+                  className="btn btn-danger"
+                  onClick={() => deleteTier(index)}
+                >
+                  X
+                </button>
+              </div>
+            ))}
+
+            <button
+              type="button"
+              className="btn btn-primary btn-sm mt-2"
+              onClick={addTier}
+            >
+              + Agregar escalonada
+            </button>
+          </div>
+        )}
 
         {/* Botones */}
         <div className="d-flex gap-2">
@@ -247,18 +313,11 @@ export default function ProductForm({ productId, onClose }) {
             {saving ? "Guardando..." : "Guardar"}
           </button>
 
-          {onClose && (
-            <button
-              type="button"
-              className="btn btn-secondary"
-              onClick={onClose}
-            >
-              Cancelar
-            </button>
-          )}
+          <button type="button" className="btn btn-secondary" onClick={onClose}>
+            Cancelar
+          </button>
         </div>
       </form>
     </div>
   );
 }
-
