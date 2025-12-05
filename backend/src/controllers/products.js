@@ -3,25 +3,72 @@ import { pool } from '../db.js';
 // ==========================================================
 // Helper: normaliza un producto desde la DB
 // ==========================================================
-const fixProduct = (p) => ({
-  ...p,
-  has_tiers: p.has_tiers ?? false,
-  discount_tiers: p.discount_tiers
-    ? JSON.parse(p.discount_tiers)
-    : []
-});
+const fixProduct = (p) => {
+  let tiers = [];
 
-// ==========================================================
+  try {
+    // Si viene null o vacío → lo dejamos como []
+    if (!p.discount_tiers || p.discount_tiers.trim() === "") {
+      tiers = [];
+    }
+    // Si viene string JSON → parsearlo
+    else if (typeof p.discount_tiers === "string") {
+      tiers = JSON.parse(p.discount_tiers);
+    }
+    // Si ya viene array → usarlo
+    else if (Array.isArray(p.discount_tiers)) {
+      tiers = p.discount_tiers;
+    }
+  } catch (e) {
+    console.error("Error parseando discount_tiers:", p.discount_tiers);
+    tiers = [];
+  }
+
+  return {
+    ...p,
+    has_tiers: p.has_tiers ?? false,
+    discount_tiers: tiers
+  };
+};
+
+
+// =============================
 // GET ALL
-// ==========================================================
+// =============================
 export const getAll = async (req, res) => {
   try {
     const result = await pool.query(
-      'SELECT * FROM products ORDER BY id ASC'
+      "SELECT * FROM products ORDER BY id ASC"
     );
 
-    // Normalizamos antes de enviar
-    res.json(result.rows.map(fixProduct));
+    const fixed = result.rows.map(fixProduct);
+    res.json(fixed);
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
+};
+
+
+// =============================
+// GET BY ID
+// =============================
+export const getById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const result = await pool.query(
+      "SELECT * FROM products WHERE id = $1",
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Producto no encontrado" });
+    }
+
+    const fixed = fixProduct(result.rows[0]);
+    res.json(fixed);
 
   } catch (err) {
     console.error(err);
@@ -61,30 +108,6 @@ export const create = async (req, res) => {
 
   } catch (err) {
     console.error("CREATE ERROR:", err);
-    res.status(500).json({ error: err.message });
-  }
-};
-
-// ==========================================================
-// GET BY ID
-// ==========================================================
-export const getById = async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    const result = await pool.query(
-      'SELECT * FROM products WHERE id = $1',
-      [id]
-    );
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Producto no encontrado' });
-    }
-
-    res.json(fixProduct(result.rows[0]));
-
-  } catch (err) {
-    console.error(err);
     res.status(500).json({ error: err.message });
   }
 };
