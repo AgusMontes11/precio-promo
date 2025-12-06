@@ -1,5 +1,8 @@
 import { pool } from '../db.js';
 
+// -------------------------------------
+// HELPERS PARA JSON SEGURO
+// -------------------------------------
 function safeParse(json) {
   try {
     if (!json) return [];
@@ -18,16 +21,12 @@ function fixProduct(p) {
   };
 }
 
-
-// =============================
+// =====================================================
 // GET ALL
-// =============================
+// =====================================================
 export const getAll = async (req, res) => {
   try {
-    const result = await pool.query(
-      "SELECT * FROM products ORDER BY id ASC"
-    );
-
+    const result = await pool.query("SELECT * FROM products ORDER BY id ASC");
     res.json(result.rows.map(fixProduct));
   } catch (err) {
     console.error(err);
@@ -35,20 +34,20 @@ export const getAll = async (req, res) => {
   }
 };
 
-// =============================
+// =====================================================
 // GET BY ID
-// =============================
+// =====================================================
 export const getById = async (req, res) => {
   try {
     const { id } = req.params;
+
     const result = await pool.query(
       "SELECT * FROM products WHERE id = $1",
       [id]
     );
 
-    if (result.rows.length === 0) {
+    if (result.rows.length === 0)
       return res.status(404).json({ error: "Producto no encontrado" });
-    }
 
     res.json(fixProduct(result.rows[0]));
   } catch (err) {
@@ -57,9 +56,9 @@ export const getById = async (req, res) => {
   }
 };
 
-// ==========================================================
+// =====================================================
 // CREATE
-// ==========================================================
+// =====================================================
 export const create = async (req, res) => {
   try {
     const {
@@ -68,8 +67,13 @@ export const create = async (req, res) => {
       imageurl,
       category,
       hasTiers,
-      discountTiers
+      discountTiers,
     } = req.body;
+
+    // 🔥 Normalizamos Tiers (si vienen como strings, los parseamos)
+    const finalTiers = Array.isArray(discountTiers)
+      ? discountTiers.map((t) => (typeof t === "string" ? JSON.parse(t) : t))
+      : [];
 
     const result = await pool.query(
       `INSERT INTO products (name, price, imageurl, category, has_tiers, discount_tiers)
@@ -81,21 +85,20 @@ export const create = async (req, res) => {
         imageurl,
         category ?? null,
         hasTiers ?? false,
-        JSON.stringify(discountTiers || [])
+        JSON.stringify(finalTiers),
       ]
     );
 
     res.json(fixProduct(result.rows[0]));
-
   } catch (err) {
     console.error("CREATE ERROR:", err);
     res.status(500).json({ error: err.message });
   }
 };
 
-// =============================
-// UPDATE seguro
-// =============================
+// =====================================================
+// UPDATE (VERSION 100% ROBUSTA)
+// =====================================================
 export const update = async (req, res) => {
   try {
     const { id } = req.params;
@@ -109,26 +112,30 @@ export const update = async (req, res) => {
       discountTiers,
     } = req.body;
 
-    // Buscar el producto actual
+    // Traemos el producto actual
     const existing = await pool.query(
       "SELECT * FROM products WHERE id = $1",
       [id]
     );
 
-    if (existing.rows.length === 0) {
+    if (existing.rows.length === 0)
       return res.status(404).json({ error: "Producto no encontrado" });
-    }
 
     const current = existing.rows[0];
 
-    // 🚀 REGLA: si NO viene discountTiers en el body, NO tocarlo
-    const finalDiscountTiers =
-      discountTiers !== undefined ? discountTiers : current.discount_tiers;
+    // 🔥 REGLA DE ORO:
+    // Si NO vino discountTiers en el body → NO lo tocamos.
+    let finalTiers =
+      discountTiers !== undefined
+        ? discountTiers.map((t) =>
+            typeof t === "string" ? JSON.parse(t) : t
+          )
+        : safeParse(current.discount_tiers);
 
     const result = await pool.query(
       `
       UPDATE products
-      SET
+      SET 
         name = $1,
         price = $2,
         imageurl = $3,
@@ -144,31 +151,26 @@ export const update = async (req, res) => {
         imageurl ?? current.imageurl,
         category ?? current.category,
         hasTiers ?? current.has_tiers,
-        finalDiscountTiers,
+        JSON.stringify(finalTiers),
         id,
       ]
     );
 
-    res.json(result.rows[0]);
-
+    res.json(fixProduct(result.rows[0]));
   } catch (err) {
     console.error("UPDATE ERROR:", err);
     res.status(500).json({ error: err.message });
   }
 };
 
-
-// ==========================================================
+// =====================================================
 // DELETE
-// ==========================================================
+// =====================================================
 export const remove = async (req, res) => {
   try {
     const { id } = req.params;
-
-    await pool.query('DELETE FROM products WHERE id = $1', [id]);
-
-    res.json({ message: 'Producto eliminado' });
-
+    await pool.query("DELETE FROM products WHERE id = $1", [id]);
+    res.json({ message: "Producto eliminado" });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: err.message });
