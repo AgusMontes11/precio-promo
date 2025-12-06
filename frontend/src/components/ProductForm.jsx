@@ -19,11 +19,6 @@ export default function ProductForm({ productId, onClose }) {
   const [alert, setAlert] = useState(null);
   const [imageFile, setImageFile] = useState(null);
 
-  const showAlert = (type, text, timeout = 4000) => {
-    setAlert({ type, text });
-    setTimeout(() => setAlert(null), timeout);
-  };
-
   const normalizeImage = (url) => {
     if (!url) return null;
     if (url.startsWith("http")) return url;
@@ -41,35 +36,23 @@ export default function ProductForm({ productId, onClose }) {
 
       setProduct({
         name: data.name || "",
-        price: Number(data.price) || "",
+        price: data.price || "",
         category: data.category || "",
         imageurl: data.imageurl || null,
         hasTiers: data.has_tiers || false,
         discountTiers: Array.isArray(data.discount_tiers)
-          ? data.discount_tiers.sort((a, b) => a.quantity - b.quantity)
+          ? data.discount_tiers
           : [],
       });
-    });
+    })
+    .catch(() =>
+      setAlert({ type: "danger", text: "No se pudo cargar el producto" })
+    );
   }, [productId, isEditing]);
 
-  // ========================================================
-  // TIERS VALIDATION
-  // ========================================================
-  const validateTiers = () => {
-    const errors = [];
-
-    const quantities = new Set();
-
-    for (const t of product.discountTiers) {
-      if (t.quantity < 1) errors.push("Cantidad mínima debe ser 1 o más.");
-      if (t.discount < 0 || t.discount > 100)
-        errors.push("El descuento debe estar entre 0% y 100%.");
-      if (quantities.has(t.quantity))
-        errors.push(`Cantidad duplicada: ${t.quantity} unidades.`);
-      quantities.add(t.quantity);
-    }
-
-    return errors;
+  const showAlert = (type, text, timeout = 4000) => {
+    setAlert({ type, text });
+    setTimeout(() => setAlert(null), timeout);
   };
 
   // ========================================================
@@ -83,24 +66,19 @@ export default function ProductForm({ productId, onClose }) {
       return;
     }
 
-    if (product.hasTiers) {
-      const tierErrors = validateTiers();
-      if (tierErrors.length > 0) {
-        showAlert("danger", tierErrors.join(" | "));
-        return;
-      }
-    }
-
     setSaving(true);
 
     try {
-      let imageUrl = product.imageurl;
+      let imageUrl = product.imageurl || null;
 
       if (imageFile) {
         const fd = new FormData();
         fd.append("image", imageFile);
 
-        const uploadRes = await api.post("/upload", fd);
+        const uploadRes = await api.post("/upload", fd, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+
         imageUrl = uploadRes.data.file;
       }
 
@@ -110,9 +88,7 @@ export default function ProductForm({ productId, onClose }) {
         category: product.category,
         imageurl: imageUrl,
         hasTiers: product.hasTiers,
-        discountTiers: product.discountTiers.sort(
-          (a, b) => a.quantity - b.quantity
-        ),
+        discountTiers: product.discountTiers,
       };
 
       if (isEditing) {
@@ -121,7 +97,7 @@ export default function ProductForm({ productId, onClose }) {
         await api.post("/products", payload);
       }
 
-      showAlert("success", isEditing ? "Producto actualizado" : "Creado");
+      showAlert("success", isEditing ? "Producto actualizado" : "Producto creado");
 
       setTimeout(() => onClose?.(), 900);
     } catch (err) {
@@ -133,63 +109,25 @@ export default function ProductForm({ productId, onClose }) {
   };
 
   // ========================================================
-  // TIER HANDLERS (con orden automático)
+  // TIERS HANDLERS (CORREGIDOS)
   // ========================================================
   const addTier = () => {
-    setProduct((prev) => ({
-      ...prev,
-      discountTiers: [
-        ...prev.discountTiers,
-        { quantity: 1, discount: 0 },
-      ].sort((a, b) => a.quantity - b.quantity),
-    }));
+    setProduct({
+      ...product,
+      discountTiers: [...product.discountTiers, { quantity: 1, discount: 0 }],
+    });
   };
 
   const updateTier = (index, field, value) => {
     const tiers = [...product.discountTiers];
-    tiers[index][field] = Number(value);
-
-    setProduct({
-      ...product,
-      discountTiers: tiers.sort((a, b) => a.quantity - b.quantity),
-    });
+    tiers[index][field] = value;
+    setProduct({ ...product, discountTiers: tiers });
   };
 
   const deleteTier = (index) => {
-    const updated = product.discountTiers.filter((_, i) => i !== index);
-    setProduct({
-      ...product,
-      discountTiers: updated.sort((a, b) => a.quantity - b.quantity),
-    });
-  };
-
-  // ========================================================
-  // WHATSAPP-LIKE PREVIEW
-  // ========================================================
-  const renderPreview = () => {
-    if (!product.hasTiers || product.discountTiers.length === 0) return null;
-
-    return (
-      <div className="mt-3 p-2 border rounded" style={{ whiteSpace: "pre-line" }}>
-        <strong>Vista previa:</strong>
-        <div className="mt-2">
-          <strong>{product.name}</strong>
-          <br />
-          Precio base: ${Number(product.price).toLocaleString("es-AR")}
-          <br />
-          Escalonadas:
-          <ul className="mt-1">
-            {product.discountTiers.map((t, i) => (
-              <li key={i}>
-                {t.quantity} unidades → {t.discount}% OFF
-                {" "}
-                ( ${Math.round(product.price * (1 - t.discount / 100)).toLocaleString("es-AR")} )
-              </li>
-            ))}
-          </ul>
-        </div>
-      </div>
-    );
+    const tiers = [...product.discountTiers];
+    tiers.splice(index, 1);
+    setProduct({ ...product, discountTiers: tiers });
   };
 
   // ========================================================
@@ -200,6 +138,7 @@ export default function ProductForm({ productId, onClose }) {
       {alert && <div className={`alert alert-${alert.type}`}>{alert.text}</div>}
 
       <form onSubmit={handleSubmit}>
+        
         {/* Nombre */}
         <div className="mb-3">
           <label className="form-label">Nombre</label>
@@ -218,7 +157,7 @@ export default function ProductForm({ productId, onClose }) {
             type="number"
             className="form-control"
             value={product.price}
-            onChange={(e) => setProduct({ ...product, price: Number(e.target.value) })}
+            onChange={(e) => setProduct({ ...product, price: e.target.value })}
             required
           />
         </div>
@@ -229,9 +168,7 @@ export default function ProductForm({ productId, onClose }) {
           <input
             className="form-control"
             value={product.category}
-            onChange={(e) =>
-              setProduct({ ...product, category: e.target.value })
-            }
+            onChange={(e) => setProduct({ ...product, category: e.target.value })}
           />
         </div>
 
@@ -247,7 +184,7 @@ export default function ProductForm({ productId, onClose }) {
           </div>
         )}
 
-        {/* Subir Imagen */}
+        {/* Subir imagen nueva */}
         <div className="mb-3">
           <label className="form-label">Imagen (archivo)</label>
           <input
@@ -258,7 +195,7 @@ export default function ProductForm({ productId, onClose }) {
           />
         </div>
 
-        {/* Escalonadas */}
+        {/* ESCALONADAS */}
         <div className="form-check mb-2">
           <input
             className="form-check-input"
@@ -268,15 +205,16 @@ export default function ProductForm({ productId, onClose }) {
               setProduct({ ...product, hasTiers: e.target.checked })
             }
           />
-          <label className="form-check-label">
-            Este producto tiene precios escalonados
-          </label>
+          <label className="form-check-label">Este producto tiene precios escalonados</label>
         </div>
 
-        {/* EDIT Tiers */}
         {product.hasTiers && (
           <div className="mb-3 p-2 border rounded">
             <strong>Escalonadas</strong>
+
+            {product.discountTiers.length === 0 && (
+              <div className="text-muted small">No hay escalonadas cargadas</div>
+            )}
 
             {product.discountTiers.map((tier, index) => (
               <div key={index} className="d-flex gap-2 mb-2">
@@ -285,8 +223,9 @@ export default function ProductForm({ productId, onClose }) {
                   className="form-control"
                   placeholder="Cantidad mínima"
                   value={tier.quantity}
-                  min={1}
-                  onChange={(e) => updateTier(index, "quantity", e.target.value)}
+                  onChange={(e) =>
+                    updateTier(index, "quantity", Number(e.target.value))
+                  }
                 />
 
                 <input
@@ -294,9 +233,9 @@ export default function ProductForm({ productId, onClose }) {
                   className="form-control"
                   placeholder="Descuento %"
                   value={tier.discount}
-                  min={0}
-                  max={100}
-                  onChange={(e) => updateTier(index, "discount", e.target.value)}
+                  onChange={(e) =>
+                    updateTier(index, "discount", Number(e.target.value))
+                  }
                 />
 
                 <button
@@ -319,10 +258,8 @@ export default function ProductForm({ productId, onClose }) {
           </div>
         )}
 
-        {/* Vista previa */}
-        {renderPreview()}
-
-        <div className="d-flex gap-2 mt-3">
+        {/* Botones */}
+        <div className="d-flex gap-2">
           <button className="btn btn-success" disabled={saving}>
             {saving ? "Guardando..." : "Guardar"}
           </button>
@@ -331,6 +268,7 @@ export default function ProductForm({ productId, onClose }) {
             Cancelar
           </button>
         </div>
+
       </form>
     </div>
   );

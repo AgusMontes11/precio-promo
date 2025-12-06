@@ -8,22 +8,24 @@ export default function PromotionBuilder({
   editedTiers,
   onSaveTiers,
 }) {
-  // Obtener tiers efectivos de un producto
+  // Determinar datos reales del producto
   const getTierData = (p) => {
     return (
       editedTiers[p.id] ?? {
-        hasTiers: p.has_tiers,
-        discountTiers: p.discount_tiers ?? [],
+        hasTiers: p.has_tiers || p.hasTiers || false,
+        discountTiers:
+          p.discount_tiers ||
+          p.discountTiers ||
+          [],
       }
     );
   };
 
-  // Modificar una escalonada
+  // Modificar un tier
   const updateTier = (productId, index, field, value) => {
-    const current = editedTiers[productId] ?? {
-      hasTiers: true,
-      discountTiers: [],
-    };
+    const current = getTierData(
+      selectedProducts.find((x) => x.id === productId)
+    );
 
     const newTiers = [...current.discountTiers];
     newTiers[index] = { ...newTiers[index], [field]: value };
@@ -34,12 +36,11 @@ export default function PromotionBuilder({
     });
   };
 
-  // Agregar escalonada
+  // Agregar
   const addTier = (productId) => {
-    const current = editedTiers[productId] ?? {
-      hasTiers: true,
-      discountTiers: [],
-    };
+    const current = getTierData(
+      selectedProducts.find((x) => x.id === productId)
+    );
 
     onSaveTiers(productId, {
       hasTiers: true,
@@ -50,10 +51,11 @@ export default function PromotionBuilder({
     });
   };
 
-  // Eliminar escalonada
+  // Eliminar
   const removeTier = (productId, index) => {
-    const current = editedTiers[productId];
-    if (!current) return;
+    const current = getTierData(
+      selectedProducts.find((x) => x.id === productId)
+    );
 
     const filtered = current.discountTiers.filter((_, i) => i !== index);
 
@@ -65,11 +67,8 @@ export default function PromotionBuilder({
 
   return (
     <div className="shopify-container position-relative">
-      
-      {/* TITULO */}
       <h5 className="builder-title">Configurar Escalonadas</h5>
 
-      {/* SI NO HAY SELECCIONADOS */}
       {selectedProducts.length === 0 ? (
         <p className="builder-empty">Seleccioná productos para agregar escalonadas</p>
       ) : (
@@ -84,16 +83,17 @@ export default function PromotionBuilder({
               return (
                 <div key={p.id} className="col-12 col-md-6">
                   <div className="shopify-card h-100 d-flex flex-column">
+                    <div className="builder-product-name mb-2">{p.name}</div>
 
-                    <div className="builder-product-name mb-2">
-                      {p.name}
-                    </div>
-
-                    {/* TABLA */}
                     <div
-                      className={`flex-grow-1 ${tierData.discountTiers.length > 3 ? "overflow-auto" : ""}`}
+                      className={`flex-grow-1 ${
+                        tierData.discountTiers.length > 3
+                          ? "overflow-auto"
+                          : ""
+                      }`}
                       style={{
-                        maxHeight: tierData.discountTiers.length > 3 ? "150px" : "auto",
+                        maxHeight:
+                          tierData.discountTiers.length > 3 ? "150px" : "auto",
                         paddingRight: "3px",
                       }}
                     >
@@ -157,14 +157,12 @@ export default function PromotionBuilder({
                       </table>
                     </div>
 
-                    {/* BOTÓN AGREGAR */}
                     <button
                       className="builder-add-btn mt-auto"
                       onClick={() => addTier(p.id)}
                     >
                       ＋ Agregar Escalonada
                     </button>
-
                   </div>
                 </div>
               );
@@ -173,7 +171,6 @@ export default function PromotionBuilder({
         </div>
       )}
 
-      {/* PREVIEW */}
       <PromotionPreview
         products={selectedProducts.map((p) => {
           const t = getTierData(p);
