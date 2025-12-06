@@ -15,7 +15,7 @@ export default function ProductList({ onToggleTier }) {
 
   // FILTROS
   const [search, setSearch] = useState("");
-  const [selectedCategories, setSelectedCategories] = useState([]); // MULTI-CATEGORÍA
+  const [selectedCategories, setSelectedCategories] = useState([]);
   const [sortMode, setSortMode] = useState("none");
 
   // PAGINACIÓN
@@ -38,17 +38,12 @@ export default function ProductList({ onToggleTier }) {
         ...p,
         id: p.id ?? p._id,
         imageUrl: p.imageurl ?? null,
-        hasTiers:
-          Boolean(p.hasTiers) ||
-          (Array.isArray(p.discountTiers) && p.discountTiers.length > 0),
+        hasTiers: Boolean(p.has_tiers),
+        discountTiers: p.discount_tiers ?? [],
       }));
 
       setProducts(prods);
       console.log("PRODUCTOS CRUDOS:", prods);
-      console.log(
-        "IMAGENES:",
-        prods.map((p) => p.imageUrl)
-      );
     } catch (err) {
       console.error(err);
       setAlert({ type: "danger", text: "Error cargando productos." });
@@ -57,23 +52,49 @@ export default function ProductList({ onToggleTier }) {
   };
 
   // ------------------------------
-  // TOGGLE ESCALONADAS
+  // NUEVO: Seleccionar/deseleccionar producto con sus tiers reales
   // ------------------------------
-  const toggleTier = async (p) => {
-    const updated = { ...p, hasTiers: !p.hasTiers };
+  const handleSelectTier = async (productId) => {
+    const local = products.find((p) => p.id === productId);
 
-    setProducts((prev) => prev.map((x) => (x.id === p.id ? updated : x)));
+    if (!local) return;
 
-    onToggleTier?.(updated);
-
-    try {
-      await api.put(`/products/${p.id}`, {
-        ...updated,
-        discountTiers: updated.discountTiers || [],
-        hasTiers: updated.hasTiers,
+    // Si ya lo habías seleccionado → lo saco del builder
+    if (local._selected) {
+      onToggleTier({
+        ...local,
+        _selected: false,
       });
+
+      setProducts((prev) =>
+        prev.map((p) =>
+          p.id === productId ? { ...p, _selected: false } : p
+        )
+      );
+      return;
+    }
+
+    // Si NO está seleccionado → cargamos el real del backend
+    try {
+      const res = await api.get(`/products/${productId}`);
+      const full = res.data;
+
+      const clean = {
+        ...local,
+        hasTiers: Boolean(full.has_tiers),
+        discountTiers: full.discount_tiers ?? [],
+        _selected: true,
+      };
+
+      // avisamos al padre
+      onToggleTier(clean);
+
+      // actualizamos la lista local
+      setProducts((prev) =>
+        prev.map((p) => (p.id === productId ? clean : p))
+      );
     } catch (err) {
-      console.warn("No se pudo persistir hasTiers", err);
+      console.error("Error obteniendo product real:", err);
     }
   };
 
@@ -112,19 +133,16 @@ export default function ProductList({ onToggleTier }) {
   const filtered = useMemo(() => {
     let data = [...products];
 
-    // BUSCADOR
     if (search.trim() !== "") {
       data = data.filter((p) =>
         p.name?.toLowerCase().includes(search.toLowerCase())
       );
     }
 
-    // MULTI CATEGORÍA
     if (selectedCategories.length > 0) {
       data = data.filter((p) => selectedCategories.includes(p.category));
     }
 
-    // ORDENAR
     switch (sortMode) {
       case "priceAsc":
         data.sort((a, b) => a.price - b.price);
@@ -182,10 +200,9 @@ export default function ProductList({ onToggleTier }) {
         </button>
       </div>
 
-      {/* FILTER CARD */}
+      {/* FILTRO */}
       <div className="shopify-card p-3 mb-3">
         <div className="d-flex flex-wrap gap-3 align-items-center">
-          {/* BUSCADOR */}
           <input
             type="text"
             placeholder="Buscar productos..."
@@ -198,7 +215,6 @@ export default function ProductList({ onToggleTier }) {
             }}
           />
 
-          {/* SELECT ORDEN */}
           <select
             className="shopify-select"
             style={{ maxWidth: 200 }}
@@ -213,7 +229,6 @@ export default function ProductList({ onToggleTier }) {
           </select>
         </div>
 
-        {/* CATEGORY TAGS */}
         <div className="d-flex flex-wrap gap-2 mt-3">
           {categories.map((cat) => (
             <span
@@ -229,14 +244,14 @@ export default function ProductList({ onToggleTier }) {
         </div>
       </div>
 
-      {/* ALERTS */}
+      {/* ALERT */}
       {alert && (
         <div className={`alert alert-${alert.type} shopify-alert`}>
           {alert.text}
         </div>
       )}
-    
-      {/* SKELETON LOADER */}
+
+      {/* LOADING */}
       {loading && (
         <div className="p-4">
           {Array.from({ length: 5 }).map((_, i) => (
@@ -266,8 +281,8 @@ export default function ProductList({ onToggleTier }) {
                   <td>
                     <input
                       type="checkbox"
-                      checked={p.hasTiers}
-                      onChange={() => toggleTier(p)}
+                      checked={p._selected || false}
+                      onChange={() => handleSelectTier(p.id)}
                       className="shopify-checkbox"
                     />
                   </td>
