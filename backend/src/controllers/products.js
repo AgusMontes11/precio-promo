@@ -93,9 +93,9 @@ export const create = async (req, res) => {
   }
 };
 
-// ==========================================================
-// UPDATE
-// ==========================================================
+// =============================
+// UPDATE seguro
+// =============================
 export const update = async (req, res) => {
   try {
     const { id } = req.params;
@@ -106,37 +106,57 @@ export const update = async (req, res) => {
       imageurl,
       category,
       hasTiers,
-      discountTiers
+      discountTiers,
     } = req.body;
 
+    // Buscar el producto actual
+    const existing = await pool.query(
+      "SELECT * FROM products WHERE id = $1",
+      [id]
+    );
+
+    if (existing.rows.length === 0) {
+      return res.status(404).json({ error: "Producto no encontrado" });
+    }
+
+    const current = existing.rows[0];
+
+    // 🚀 REGLA: si NO viene discountTiers en el body, NO tocarlo
+    const finalDiscountTiers =
+      discountTiers !== undefined ? discountTiers : current.discount_tiers;
+
     const result = await pool.query(
-      `UPDATE products 
-       SET name = $1,
-           price = $2,
-           imageurl = $3,
-           category = $4,
-           has_tiers = $5,
-           discount_tiers = $6
-       WHERE id = $7
-       RETURNING *`,
+      `
+      UPDATE products
+      SET
+        name = $1,
+        price = $2,
+        imageurl = $3,
+        category = $4,
+        has_tiers = $5,
+        discount_tiers = $6
+      WHERE id = $7
+      RETURNING *
+      `,
       [
-        name,
-        price,
-        imageurl,
-        category ?? null,
-        hasTiers ?? false,
-        JSON.stringify(discountTiers || []),
-        id
+        name ?? current.name,
+        price ?? current.price,
+        imageurl ?? current.imageurl,
+        category ?? current.category,
+        hasTiers ?? current.has_tiers,
+        finalDiscountTiers,
+        id,
       ]
     );
 
-    res.json(fixProduct(result.rows[0]));
+    res.json(result.rows[0]);
 
   } catch (err) {
     console.error("UPDATE ERROR:", err);
     res.status(500).json({ error: err.message });
   }
 };
+
 
 // ==========================================================
 // DELETE
