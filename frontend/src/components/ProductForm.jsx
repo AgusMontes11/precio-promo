@@ -19,9 +19,6 @@ export default function ProductForm({ productId, onClose }) {
   const [alert, setAlert] = useState(null);
   const [imageFile, setImageFile] = useState(null);
 
-  // ========================================================
-  // URL normalizer
-  // ========================================================
   const normalizeImage = (url) => {
     if (!url) return null;
     if (url.startsWith("http")) return url;
@@ -29,75 +26,33 @@ export default function ProductForm({ productId, onClose }) {
   };
 
   // ========================================================
-  // Load product on edit
+  // LOAD PRODUCT WHEN EDITING
   // ========================================================
   useEffect(() => {
     if (!isEditing) return;
 
-    api
-      .get(`/products/${productId}`)
-      .then((res) => {
-        const data = res.data;
+    api.get(`/products/${productId}`).then((res) => {
+      const data = res.data;
 
-        setProduct({
-          name: data.name || "",
-          price: data.price || "",
-          category: data.category || "",
-          imageurl: data.imageurl || null,
-          hasTiers: data.has_tiers || false,
-          discountTiers: data.discount_tiers || [],
-        });
-      })
-      .catch(() =>
-        setAlert({ type: "danger", text: "No se pudo cargar el producto" })
-      );
+      setProduct({
+        name: data.name || "",
+        price: data.price || "",
+        category: data.category || "",
+        imageurl: data.imageurl || null,
+        hasTiers: data.has_tiers || false,
+        discountTiers: Array.isArray(data.discount_tiers)
+          ? data.discount_tiers
+          : [],
+      });
+    })
+    .catch(() =>
+      setAlert({ type: "danger", text: "No se pudo cargar el producto" })
+    );
   }, [productId, isEditing]);
 
   const showAlert = (type, text, timeout = 4000) => {
     setAlert({ type, text });
     setTimeout(() => setAlert(null), timeout);
-  };
-
-  // ========================================================
-  // Background removal (igual a la versión anterior)
-  // ========================================================
-  const processImage = async (file) => {
-    if (!file) return null;
-
-    const blobToFile = (blob, name) => {
-      const filename = name.replace(/\.[^/.]+$/, "") + ".png";
-      return new File([blob], filename, { type: "image/png" });
-    };
-
-    try {
-      const mod = await import("@imgly/background-removal");
-      const removeBackground =
-        mod.removeBackground || mod.default || mod.imglyRemoveBackground;
-      if (typeof removeBackground === "function") {
-        const result = await removeBackground(file);
-        return result instanceof Blob ? blobToFile(result, file.name) : result;
-      }
-    } catch (_) {}
-
-    try {
-      const CDN =
-        "https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.7.0/dist/browser.mjs";
-      const remote = await import(/* @vite-ignore */ CDN);
-      const removeBackground =
-        remote.removeBackground ||
-        remote.default ||
-        remote.imglyRemoveBackground;
-
-      if (typeof removeBackground === "function") {
-        const result = await removeBackground(file);
-        return result instanceof Blob ? blobToFile(result, file.name) : result;
-      }
-    } catch (err) {
-      console.warn("fallback failed", err);
-    }
-
-    showAlert("warning", "No se pudo remover el fondo. Se sube la imagen original.");
-    return file;
   };
 
   // ========================================================
@@ -117,9 +72,8 @@ export default function ProductForm({ productId, onClose }) {
       let imageUrl = product.imageurl || null;
 
       if (imageFile) {
-        const cleanFile = await processImage(imageFile);
         const fd = new FormData();
-        fd.append("image", cleanFile);
+        fd.append("image", imageFile);
 
         const uploadRes = await api.post("/upload", fd, {
           headers: { "Content-Type": "multipart/form-data" },
@@ -155,12 +109,12 @@ export default function ProductForm({ productId, onClose }) {
   };
 
   // ========================================================
-  // TIERS HANDLERS
+  // TIERS HANDLERS (CORREGIDOS)
   // ========================================================
   const addTier = () => {
     setProduct({
       ...product,
-      discountTiers: [...product.discountTiers, { min: 1, price: 0 }],
+      discountTiers: [...product.discountTiers, { quantity: 1, discount: 0 }],
     });
   };
 
@@ -184,6 +138,7 @@ export default function ProductForm({ productId, onClose }) {
       {alert && <div className={`alert alert-${alert.type}`}>{alert.text}</div>}
 
       <form onSubmit={handleSubmit}>
+        
         {/* Nombre */}
         <div className="mb-3">
           <label className="form-label">Nombre</label>
@@ -229,22 +184,18 @@ export default function ProductForm({ productId, onClose }) {
           </div>
         )}
 
-        {/* Subir nueva imagen */}
+        {/* Subir imagen nueva */}
         <div className="mb-3">
           <label className="form-label">Imagen (archivo)</label>
           <input
             type="file"
             accept="image/*"
             className="form-control"
-            onChange={(e) => {
-              const f = e.target.files?.[0];
-              if (f) setImageFile(f);
-            }}
+            onChange={(e) => setImageFile(e.target.files?.[0] ?? null)}
           />
-          <div className="form-text">La app intentará quitar el fondo automáticamente</div>
         </div>
 
-        {/* Escalonadas */}
+        {/* ESCALONADAS */}
         <div className="form-check mb-2">
           <input
             className="form-check-input"
@@ -254,9 +205,7 @@ export default function ProductForm({ productId, onClose }) {
               setProduct({ ...product, hasTiers: e.target.checked })
             }
           />
-          <label className="form-check-label">
-            Este producto tiene precios escalonados
-          </label>
+          <label className="form-check-label">Este producto tiene precios escalonados</label>
         </div>
 
         {product.hasTiers && (
@@ -273,20 +222,22 @@ export default function ProductForm({ productId, onClose }) {
                   type="number"
                   className="form-control"
                   placeholder="Cantidad mínima"
-                  value={tier.min}
+                  value={tier.quantity}
                   onChange={(e) =>
-                    updateTier(index, "min", Number(e.target.value))
+                    updateTier(index, "quantity", Number(e.target.value))
                   }
                 />
+
                 <input
                   type="number"
                   className="form-control"
-                  placeholder="Precio por unidad"
-                  value={tier.price}
+                  placeholder="Descuento %"
+                  value={tier.discount}
                   onChange={(e) =>
-                    updateTier(index, "price", Number(e.target.value))
+                    updateTier(index, "discount", Number(e.target.value))
                   }
                 />
+
                 <button
                   type="button"
                   className="btn btn-danger"
@@ -317,6 +268,7 @@ export default function ProductForm({ productId, onClose }) {
             Cancelar
           </button>
         </div>
+
       </form>
     </div>
   );
