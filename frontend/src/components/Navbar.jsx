@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Home, Image as ImageIcon, Boxes, Sun, Moon, LogOut } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import "./navbar.css";
@@ -36,11 +36,14 @@ export default function Navbar() {
     { to: "/products", label: "Productos", icon: <Boxes size={20} /> },
   ];
 
+  // Mobile menu
+  const [openMenu, setOpenMenu] = useState(false);
+
   return (
     <motion.nav
       initial={{ opacity: 0, y: -17 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35, ease: "easeOut", delay: 0.15 }} // ✅ delay clave
+      transition={{ duration: 0.35, ease: "easeOut", delay: 0.15 }}
       className="pro-navbar"
     >
       <div className="nav-inner d-flex align-items-center position-relative">
@@ -59,8 +62,18 @@ export default function Navbar() {
           </Link>
         </div>
 
-        {/* CENTER — MENU CENTRADO */}
-        <div className="nav-center position-absolute start-50 translate-middle-x d-flex align-items-center gap-3">
+        {/* HAMBURGER (MOBILE ONLY) */}
+        <button
+          className="nav-hamburger d-lg-none"
+          onClick={() => setOpenMenu((prev) => !prev)}
+        >
+          <div className={`bar ${openMenu ? "open" : ""}`}></div>
+          <div className={`bar ${openMenu ? "open" : ""}`}></div>
+          <div className={`bar ${openMenu ? "open" : ""}`}></div>
+        </button>
+
+        {/* DESKTOP MENU */}
+        <div className="nav-center d-none d-lg-flex position-absolute start-50 translate-middle-x gap-3">
           {links.map((item) => {
             const active = pathname.startsWith(item.to);
 
@@ -94,7 +107,6 @@ export default function Navbar() {
         {/* RIGHT — THEME + LOGOUT */}
         <div className="nav-right ms-auto d-flex align-items-center gap-2">
 
-          {/* BOTÓN TEMA */}
           <motion.button
             onClick={toggleTheme}
             whileTap={{ scale: 0.9 }}
@@ -111,7 +123,6 @@ export default function Navbar() {
             {theme === "dark" ? "Modo claro" : "Modo oscuro"}
           </motion.button>
 
-          {/* ✅ BOTÓN CERRAR SESIÓN */}
           <motion.button
             onClick={handleLogout}
             whileTap={{ scale: 0.9 }}
@@ -127,6 +138,34 @@ export default function Navbar() {
 
         </div>
       </div>
+
+      {/* MOBILE ANIMATED MENU */}
+      <AnimatePresence>
+        {openMenu && (
+          <motion.div
+            className="mobile-menu d-lg-none"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.25 }}
+          >
+            {links.map((item) => {
+              const active = pathname.startsWith(item.to);
+              return (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  onClick={() => setOpenMenu(false)}
+                  className={`mobile-menu-item ${active ? "active" : ""}`}
+                >
+                  {item.icon}
+                  <span>{item.label}</span>
+                </Link>
+              );
+            })}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.nav>
   );
 }

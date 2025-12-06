@@ -34,16 +34,31 @@ export default function ProductList({ onToggleTier }) {
     try {
       const res = await api.get("/products");
 
-      const prods = res.data.map((p) => ({
-        ...p,
-        id: p.id ?? p._id,
-        imageUrl: p.imageurl ?? null,
-        hasTiers: Boolean(p.has_tiers),
-        discountTiers: p.discount_tiers ?? [],
-      }));
+      const prods = res.data.map((p) => {
+        const discountTiers =
+          p.discountTiers ?? p.discount_tiers ?? [];
+
+        const hasTiersFlag =
+          p.hasTiers ??
+          p.has_tiers ??
+          (Array.isArray(discountTiers) && discountTiers.length > 0);
+
+        return {
+          ...p,
+          id: p.id ?? p._id,
+          imageUrl: p.imageurl ?? null,
+          hasTiers: hasTiersFlag,
+          discountTiers,
+        };
+      });
 
       setProducts(prods);
+
       console.log("PRODUCTOS CRUDOS:", prods);
+      console.log(
+        "IMAGENES:",
+        prods.map((p) => p.imageUrl)
+      );
     } catch (err) {
       console.error(err);
       setAlert({ type: "danger", text: "Error cargando productos." });
@@ -52,49 +67,29 @@ export default function ProductList({ onToggleTier }) {
   };
 
   // ------------------------------
-  // NUEVO: Seleccionar/deseleccionar producto con sus tiers reales
+  // TOGGLE ESCALONADAS (checkbox)
   // ------------------------------
-  const handleSelectTier = async (productId) => {
-    const local = products.find((p) => p.id === productId);
+  const toggleTier = async (p) => {
+    const updated = { ...p, hasTiers: !p.hasTiers };
 
-    if (!local) return;
+    // actualizar en el estado local
+    setProducts((prev) => prev.map((x) => (x.id === p.id ? updated : x)));
 
-    // Si ya lo habías seleccionado → lo saco del builder
-    if (local._selected) {
-      onToggleTier({
-        ...local,
-        _selected: false,
-      });
+    // avisar al padre (ProductsPage) para agregar/quitar en selectedProducts
+    onToggleTier?.(updated);
 
-      setProducts((prev) =>
-        prev.map((p) =>
-          p.id === productId ? { ...p, _selected: false } : p
-        )
-      );
-      return;
-    }
-
-    // Si NO está seleccionado → cargamos el real del backend
+    // persistir sólo el flag y las escalonadas
     try {
-      const res = await api.get(`/products/${productId}`);
-      const full = res.data;
-
-      const clean = {
-        ...local,
-        hasTiers: Boolean(full.has_tiers),
-        discountTiers: full.discount_tiers ?? [],
-        _selected: true,
-      };
-
-      // avisamos al padre
-      onToggleTier(clean);
-
-      // actualizamos la lista local
-      setProducts((prev) =>
-        prev.map((p) => (p.id === productId ? clean : p))
-      );
+      await api.put(`/products/${p.id}`, {
+        name: updated.name,
+        price: updated.price,
+        category: updated.category,
+        imageurl: updated.imageurl ?? updated.imageUrl ?? null,
+        hasTiers: updated.hasTiers,
+        discountTiers: updated.discountTiers || [],
+      });
     } catch (err) {
-      console.error("Error obteniendo product real:", err);
+      console.warn("No se pudo persistir hasTiers", err);
     }
   };
 
@@ -145,10 +140,10 @@ export default function ProductList({ onToggleTier }) {
 
     switch (sortMode) {
       case "priceAsc":
-        data.sort((a, b) => a.price - b.price);
+        data.sort((a, b) => Number(a.price) - Number(b.price));
         break;
       case "priceDesc":
-        data.sort((a, b) => b.price - a.price);
+        data.sort((a, b) => Number(b.price) - Number(a.price));
         break;
       case "az":
         data.sort((a, b) => a.name.localeCompare(b.name));
@@ -189,20 +184,21 @@ export default function ProductList({ onToggleTier }) {
   return (
     <div className="shopify-page px-3 py-3">
       {/* HEADER */}
-      <div className="d-flex justify-content-between align-items-center mb-3 ">
-        <h2 className="shopify-title">Productos de Panella</h2>
+      <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <h2 className="shopify-title mb-0">Productos de Panella</h2>
 
         <button
-          className="btn btn-outline-primary btn-sm shopify-add-btn mb-4 "
+          className="btn btn-outline-primary btn-sm shopify-add-btn mb-1"
           onClick={() => setEditingProduct({ id: null })}
         >
           + Nuevo Producto
         </button>
       </div>
 
-      {/* FILTRO */}
+      {/* FILTER CARD */}
       <div className="shopify-card p-3 mb-3">
         <div className="d-flex flex-wrap gap-3 align-items-center">
+          {/* BUSCADOR */}
           <input
             type="text"
             placeholder="Buscar productos..."
@@ -215,6 +211,7 @@ export default function ProductList({ onToggleTier }) {
             }}
           />
 
+          {/* SELECT ORDEN */}
           <select
             className="shopify-select"
             style={{ maxWidth: 200 }}
@@ -229,6 +226,7 @@ export default function ProductList({ onToggleTier }) {
           </select>
         </div>
 
+        {/* CATEGORY TAGS */}
         <div className="d-flex flex-wrap gap-2 mt-3">
           {categories.map((cat) => (
             <span
@@ -244,14 +242,14 @@ export default function ProductList({ onToggleTier }) {
         </div>
       </div>
 
-      {/* ALERT */}
+      {/* ALERTS */}
       {alert && (
         <div className={`alert alert-${alert.type} shopify-alert`}>
           {alert.text}
         </div>
       )}
 
-      {/* LOADING */}
+      {/* SKELETON LOADER */}
       {loading && (
         <div className="p-4">
           {Array.from({ length: 5 }).map((_, i) => (
@@ -262,79 +260,81 @@ export default function ProductList({ onToggleTier }) {
 
       {/* PRODUCT TABLE */}
       {!loading && (
-        <div className="shopify-card p-0">
-          <table className="table table-hover align-middle shopify-table">
-            <thead className="shopify-thead">
-              <tr>
-                <th>Esc.</th>
-                <th>Imagen</th>
-                <th>Nombre</th>
-                <th>Precio</th>
-                <th>Categoría</th>
-                <th style={{ width: 160 }}>Acciones</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {paginated.map((p) => (
-                <tr key={p.id}>
-                  <td>
-                    <input
-                      type="checkbox"
-                      checked={p._selected || false}
-                      onChange={() => handleSelectTier(p.id)}
-                      className="shopify-checkbox"
-                    />
-                  </td>
-
-                  <td>
-                    <img
-                      src={imgSrc(p.imageUrl)}
-                      alt={p.name}
-                      className="shopify-thumb"
-                      onError={(e) => (e.target.src = "/placeholder.png")}
-                    />
-                  </td>
-
-                  <td className="fw-semibold">{p.name}</td>
-
-                  <td>${Number(p.price).toLocaleString("es-AR")}</td>
-
-                  <td>{p.category || "-"}</td>
-
-                  <td>
-                    <button
-                      className="btn-sm shopify-outline-btn me-2"
-                      onClick={() => setEditingProduct(p)}
-                    >
-                      Editar
-                    </button>
-
-                    <button
-                      className="btn-sm shopify-danger-btn"
-                      onClick={() => setDeleteProduct(p)}
-                    >
-                      Eliminar
-                    </button>
-                  </td>
-                </tr>
-              ))}
-
-              {paginated.length === 0 && (
+        <div className="shopify-card p-0 shopify-table-container">
+          <div className="shopify-table-wrapper">
+            <table className="table table-hover align-middle shopify-table">
+              <thead className="shopify-thead">
                 <tr>
-                  <td colSpan="6" className="text-center p-4 text-muted">
-                    No se encontraron productos.
-                  </td>
+                  <th>Esc.</th>
+                  <th>Imagen</th>
+                  <th>Nombre</th>
+                  <th>Precio</th>
+                  <th>Categoría</th>
+                  <th style={{ width: 160 }}>Acciones</th>
                 </tr>
-              )}
-            </tbody>
-          </table>
+              </thead>
+
+              <tbody>
+                {paginated.map((p) => (
+                  <tr key={p.id}>
+                    <td>
+                      <input
+                        type="checkbox"
+                        checked={p.hasTiers}
+                        onChange={() => toggleTier(p)}
+                        className="shopify-checkbox"
+                      />
+                    </td>
+
+                    <td>
+                      <img
+                        src={imgSrc(p.imageUrl)}
+                        alt={p.name}
+                        className="shopify-thumb"
+                        onError={(e) => (e.target.src = "/placeholder.png")}
+                      />
+                    </td>
+
+                    <td className="fw-semibold">{p.name}</td>
+
+                    <td>${Number(p.price).toLocaleString("es-AR")}</td>
+
+                    <td>{p.category || "-"}</td>
+
+                    <td>
+                      <button
+                        className="btn-sm shopify-outline-btn me-2"
+                        onClick={() => setEditingProduct(p)}
+                      >
+                        Editar
+                      </button>
+
+                      <button
+                        className="btn-sm shopify-danger-btn"
+                        onClick={() => setDeleteProduct(p)}
+                      >
+                        Eliminar
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+
+                {paginated.length === 0 && (
+                  <tr>
+                    <td colSpan="6" className="text-center p-4 text-muted">
+                      No se encontraron productos.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 
       {/* PAGINACIÓN */}
       {!loading && totalPages > 1 && (
-        <div className="d-flex justify-content-center mt-3 gap-2">
+        <div className="d-flex justify-content-center mt-3 gap-2 flex-wrap">
           <button
             className="shopify-paginacion-btn"
             disabled={page === 1}

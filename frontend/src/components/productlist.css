@@ -1,15 +1,13 @@
-/* ============================
-   TRUE DARK MODE TABLE PATCH
-   ============================ */
+/* ============================================================
+   TRUE DARK MODE PATCH (se respeta tu theme actual)
+============================================================ */
 
-/* Fondo general de la tabla */
 .shopify-table {
   background: var(--bg-card) !important;
   color: var(--text-main) !important;
   border-color: var(--border-color) !important;
 }
 
-/* ENCABEZADO */
 .shopify-table thead tr {
   background: var(--bg-card) !important;
   border-bottom: 1px solid var(--border-color) !important;
@@ -21,39 +19,36 @@
   border-color: var(--border-color) !important;
 }
 
-/* FILAS */
 .shopify-table tbody tr {
   background: var(--bg-card) !important;
   color: var(--text-main) !important;
   border-color: var(--border-color) !important;
 }
 
-/* Hover */
 .shopify-table tbody tr:hover {
-  background: rgba(255,255,255,0.04) !important; /* se ve bien en light y dark */
+  background: rgba(255,255,255,0.04) !important;
 }
 
-/* Celdas */
-.shopify-table td, 
+.shopify-table td,
 .shopify-table th {
   background: transparent !important;
   color: var(--text-main) !important;
   border-color: var(--border-color) !important;
 }
 
-/* Checkbox */
 .shopify-checkbox {
   accent-color: var(--accent);
 }
 
+/* ============================================================
+   GENERAL PAGE STYLES
+============================================================ */
 
-/* GENERAL */
 .shopify-page {
   font-size: 14px;
   color: var(--text-main);
 }
 
-/* TITLE */
 .shopify-title {
   font-size: 28px;
   font-weight: 800;
@@ -64,7 +59,10 @@
   margin-bottom: 20px;
 }
 
-/* CARDS */
+/* ============================================================
+   CARDS
+============================================================ */
+
 .shopify-card {
   background: var(--bg-card);
   border-radius: 14px;
@@ -73,7 +71,10 @@
   transition: 0.25s;
 }
 
-/* INPUTS + SELECTS */
+/* ============================================================
+   INPUTS + SELECTS
+============================================================ */
+
 .shopify-input,
 .shopify-select {
   border-radius: 10px;
@@ -90,7 +91,10 @@
   box-shadow: 0 0 0 3px rgba(59,130,246,0.25);
 }
 
-/* TAGS DE CATEGORIAS */
+/* ============================================================
+   CATEGORY TAGS
+============================================================ */
+
 .shopify-tag {
   padding: 6px 14px;
   border-radius: 20px;
@@ -108,10 +112,22 @@
   color: white;
 }
 
-/* TABLE */
+/* ============================================================
+   TABLE
+============================================================ */
+
+.shopify-table-container {
+  width: 100%;
+}
+
+.shopify-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
 .shopify-table {
-  background: var(--bg-card);
-  color: var(--text-main);
+  font-size: 14px;
+  min-width: 640px; /* no se aplasta en mobile */
 }
 
 .shopify-thead {
@@ -122,12 +138,6 @@
   letter-spacing: 0.4px;
 }
 
-/* CHECKBOX */
-.shopify-checkbox {
-  transform: scale(1.2);
-}
-
-/* IMAGEN */
 .shopify-thumb {
   width: 45px;
   height: 45px;
@@ -135,7 +145,10 @@
   border-radius: 8px;
 }
 
-/* BUTTONS */
+/* ============================================================
+   BUTTONS
+============================================================ */
+
 .shopify-outline-btn {
   border: 1px solid var(--border-color);
   background: var(--bg-card);
@@ -143,6 +156,7 @@
   border-radius: 9px;
   padding: 5px 10px;
 }
+
 .shopify-outline-btn:hover {
   background: var(--accent);
   color: white;
@@ -155,11 +169,11 @@
   border-radius: 9px;
   padding: 5px 10px;
 }
+
 .shopify-danger-btn:hover {
   background: #fecaca;
 }
 
-/* PAGINACIÓN */
 .shopify-paginacion-btn {
   background: var(--accent);
   color: white;
@@ -184,22 +198,19 @@
 }
 
 /* ============================================================
-   🟣 Skeleton Loader adaptado a DARK MODE
-   ============================================================ */
+   SKELETON LOADING (adaptado al dark mode)
+============================================================ */
 
 .shopify-skeleton-row {
   height: 40px;
   width: 100%;
   border-radius: 10px;
-
-  /* Fondo adaptado a theme */
   background: linear-gradient(
     90deg,
     var(--bg-card),
     rgba(255,255,255,0.06),
     var(--bg-card)
   );
-
   background-size: 200% 100%;
   animation: shopify-skeleton 1.4s ease-in-out infinite;
   border: 1px solid var(--border-color);
@@ -210,23 +221,27 @@
   to { background-position: -200% 0; }
 }
 
+/* ============================================================
+   MODALES
+============================================================ */
 
-/* MODALES */
 .shopify-modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.4);
+  background: rgba(0,0,0,0.55);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 20;
+  z-index: 9999;
 }
 
 .shopify-modal {
   background: var(--bg-card);
-  border-radius: 16px;
-  padding: 20px;
-  width: 480px;
+  border-radius: 14px;
+  padding: 18px 22px;
+  width: min(420px, 90%);
+  max-height: 90vh;
+  overflow-y: auto;
   box-shadow: var(--shadow-main);
   color: var(--text-main);
 }
@@ -247,33 +262,54 @@
   background: var(--border-color);
 }
 
-/* ============================
-   MODAL FIX: CENTRADO PERFECTO
-============================ */
+/* ============================================================
+   RESPONSIVE OPTIMIZADO
+============================================================ */
 
-.shopify-modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.55);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
+@media (max-width: 992px) {
+  .shopify-page {
+    padding: 12px;
+  }
+
+  .shopify-title {
+    font-size: 24px;
+    margin-bottom: 12px;
+  }
+
+  .shopify-card {
+    border-radius: 12px;
+  }
+
+  .shopify-table {
+    font-size: 13px;
+  }
+
+  .shopify-thumb {
+    width: 40px;
+    height: 40px;
+  }
 }
 
-.shopify-modal {
-  background: var(--bg-card);
-  border-radius: 14px;
-  padding: 18px 22px;
-  width: min(420px, 90%);
-  max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.35);
-}
+@media (max-width: 576px) {
+  .shopify-title {
+    font-size: 20px;
+  }
 
-.shopify-modal img {
-  max-width: 140px;
-  height: auto;
-  margin: 10px auto;
-  display: block;
+  .shopify-input,
+  .shopify-select {
+    width: 100%;
+  }
+
+  .shopify-table {
+    min-width: 560px;
+  }
+
+  .shopify-modal {
+    padding: 16px;
+    width: 95%;
+  }
+
+  .shopify-modal.small {
+    width: 92%;
+  }
 }
