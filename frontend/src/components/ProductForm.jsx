@@ -26,28 +26,72 @@ export default function ProductForm({ productId, onClose }) {
   };
 
   // ========================================================
+  // REMOVE BACKGROUND (RECORTE)
+  // ========================================================
+  const processImage = async (file) => {
+    if (!file) return null;
+
+    const blobToFile = (blob, name) => {
+      const filename = name.replace(/\.[^/.]+$/, "") + ".png";
+      return new File([blob], filename, { type: "image/png" });
+    };
+
+    try {
+      const mod = await import("@imgly/background-removal");
+      const removeBackground =
+        mod.removeBackground || mod.default || mod.imglyRemoveBackground;
+
+      if (typeof removeBackground === "function") {
+        const result = await removeBackground(file);
+        return result instanceof Blob ? blobToFile(result, file.name) : result;
+      }
+    } catch (_) {}
+
+    try {
+      const CDN =
+        "https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.7.0/dist/browser.mjs";
+      const remote = await import(/* @vite-ignore */ CDN);
+      const removeBackground =
+        remote.removeBackground ||
+        remote.default ||
+        remote.imglyRemoveBackground;
+
+      if (typeof removeBackground === "function") {
+        const result = await removeBackground(file);
+        return result instanceof Blob ? blobToFile(result, file.name) : result;
+      }
+    } catch (err) {
+      console.warn("Fallback failed", err);
+    }
+
+    return file; // fallback final
+  };
+
+  // ========================================================
   // LOAD PRODUCT WHEN EDITING
   // ========================================================
   useEffect(() => {
     if (!isEditing) return;
 
-    api.get(`/products/${productId}`).then((res) => {
-      const data = res.data;
+    api
+      .get(`/products/${productId}`)
+      .then((res) => {
+        const data = res.data;
 
-      setProduct({
-        name: data.name || "",
-        price: data.price || "",
-        category: data.category || "",
-        imageurl: data.imageurl || null,
-        hasTiers: data.has_tiers || false,
-        discountTiers: Array.isArray(data.discount_tiers)
-          ? data.discount_tiers
-          : [],
-      });
-    })
-    .catch(() =>
-      setAlert({ type: "danger", text: "No se pudo cargar el producto" })
-    );
+        setProduct({
+          name: data.name || "",
+          price: data.price || "",
+          category: data.category || "",
+          imageurl: data.imageurl || null,
+          hasTiers: data.has_tiers || false,
+          discountTiers: Array.isArray(data.discount_tiers)
+            ? data.discount_tiers
+            : [],
+        });
+      })
+      .catch(() =>
+        setAlert({ type: "danger", text: "No se pudo cargar el producto" })
+      );
   }, [productId, isEditing]);
 
   const showAlert = (type, text, timeout = 4000) => {
@@ -72,8 +116,10 @@ export default function ProductForm({ productId, onClose }) {
       let imageUrl = product.imageurl || null;
 
       if (imageFile) {
+        const cleanFile = await processImage(imageFile);
+
         const fd = new FormData();
-        fd.append("image", imageFile);
+        fd.append("image", cleanFile);
 
         const uploadRes = await api.post("/upload", fd, {
           headers: { "Content-Type": "multipart/form-data" },
@@ -109,7 +155,7 @@ export default function ProductForm({ productId, onClose }) {
   };
 
   // ========================================================
-  // TIERS HANDLERS (CORREGIDOS)
+  // TIERS HANDLERS
   // ========================================================
   const addTier = () => {
     setProduct({
@@ -138,7 +184,6 @@ export default function ProductForm({ productId, onClose }) {
       {alert && <div className={`alert alert-${alert.type}`}>{alert.text}</div>}
 
       <form onSubmit={handleSubmit}>
-        
         {/* Nombre */}
         <div className="mb-3">
           <label className="form-label">Nombre</label>
@@ -168,7 +213,9 @@ export default function ProductForm({ productId, onClose }) {
           <input
             className="form-control"
             value={product.category}
-            onChange={(e) => setProduct({ ...product, category: e.target.value })}
+            onChange={(e) =>
+              setProduct({ ...product, category: e.target.value })
+            }
           />
         </div>
 
@@ -195,7 +242,7 @@ export default function ProductForm({ productId, onClose }) {
           />
         </div>
 
-        {/* ESCALONADAS */}
+        {/* Escalonadas */}
         <div className="form-check mb-2">
           <input
             className="form-check-input"
@@ -205,7 +252,9 @@ export default function ProductForm({ productId, onClose }) {
               setProduct({ ...product, hasTiers: e.target.checked })
             }
           />
-          <label className="form-check-label">Este producto tiene precios escalonados</label>
+          <label className="form-check-label">
+            Este producto tiene precios escalonados
+          </label>
         </div>
 
         {product.hasTiers && (
@@ -268,7 +317,6 @@ export default function ProductForm({ productId, onClose }) {
             Cancelar
           </button>
         </div>
-
       </form>
     </div>
   );
