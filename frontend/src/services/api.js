@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const axiosClient = axios.create({
-  baseURL: "https://precio-promo-backend.onrender.com/api",
+  baseURL: import.meta.env.VITE_API_URL,
 });
 
 export default axiosClient;
