@@ -171,12 +171,12 @@ export default function ProductList({ onToggleTier }) {
   // ------------------------------
   // HELPERS
   // ------------------------------
-  const imgSrc = (url) =>
-    url
-      ? url.startsWith("http")
-        ? url
-        : `https://precio-promo-backend.onrender.com${url}`
-      : "/placeholder.png";
+const imgSrc = (url) =>
+  url
+    ? url.startsWith("http")
+      ? url
+      : `${import.meta.env.VITE_ASSETS_URL}${url}`
+    : "/placeholder.png";
 
   // ------------------------------
   // UI

@@ -19,11 +19,12 @@ export default function ProductForm({ productId, onClose }) {
   const [alert, setAlert] = useState(null);
   const [imageFile, setImageFile] = useState(null);
 
-  const normalizeImage = (url) => {
-    if (!url) return null;
-    if (url.startsWith("http")) return url;
-    return `https://precio-promo-backend.onrender.com${url}`;
-  };
+ const normalizeImage = (url) => {
+  if (!url) return null;
+  if (url.startsWith("http")) return url;
+  return `${import.meta.env.VITE_ASSETS_URL}${url}`;
+};
+
 
   // ========================================================
   // REMOVE BACKGROUND (RECORTE)

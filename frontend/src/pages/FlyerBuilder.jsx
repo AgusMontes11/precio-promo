@@ -28,13 +28,9 @@ export default function FlyerBuilder() {
     try {
       const res = await api.get("/products");
 
-      // ⛔ NO tocamos ni calculamos imageUrl
-      // ⛔ NO agregamos http://localhost
-      // ⛔ NO pisamos campos
-
       const prods = (res.data || []).map((p) => ({
         ...p,
-        imageurl: p.imageurl || null, // el único campo real que usa tu backend
+        imageurl: p.imageurl || null,
       }));
 
       setProducts(prods);
@@ -44,14 +40,12 @@ export default function FlyerBuilder() {
     }
   };
 
-  // SOLO un producto seleccionado
   const toggleSelect = (id) => {
     setSelected((prev) => (prev === id ? null : id));
   };
 
   const template = TEMPLATES.find((t) => t.id === templateId)?.src;
 
-  // Items para el FlyerGenerator
   const items = selected
     ? [products.find((p) => p.id === selected)].filter(Boolean)
     : [];
@@ -61,7 +55,6 @@ export default function FlyerBuilder() {
       <h3 className="mb-3 mt-3">Generador de Flyers</h3>
 
       <div className="row g-0">
-        {/* IZQUIERDA: selector + productos */}
         <div
           className="col-12 col-md-5 d-flex flex-column"
           style={{ height: "100vh" }}
@@ -104,7 +97,7 @@ export default function FlyerBuilder() {
                       p.imageurl
                         ? p.imageurl.startsWith("http")
                           ? p.imageurl
-                          : `https://precio-promo-backend.onrender.com${p.imageurl}`
+                          : `${import.meta.env.VITE_ASSETS_URL}${p.imageurl}`
                         : "/placeholder.png"
                     }
                     alt={p.name}
@@ -130,7 +123,6 @@ export default function FlyerBuilder() {
           </div>
         </div>
 
-        {/* DERECHA: preview */}
         <div className="col-12 col-md-7">
           <h5 className="mb-2">Preview</h5>
 

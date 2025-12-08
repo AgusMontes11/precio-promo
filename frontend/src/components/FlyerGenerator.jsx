@@ -127,7 +127,7 @@ function normalizeImg(product) {
 
   return url.startsWith("http")
     ? url
-    : `https://precio-promo-backend.onrender.com${url}`;
+    : `${import.meta.env.VITE_ASSETS_URL}${url}`;
 }
 
 // ============================================================

@@ -21,7 +21,7 @@ export default function Login() {
 
     try {
       const res = await fetch(
-        "https://precio-promo-backend.onrender.com/api/auth/login",
+        `${import.meta.env.VITE_AUTH_API_URL}/auth/login`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -35,11 +35,9 @@ export default function Login() {
 
       login(data.token, data.usuario);
 
-      // ✅ Transición suave al dashboard
       setTimeout(() => {
         navigate("/dashboard");
       }, 400);
-
     } catch (err) {
       setError(err.message);
     } finally {
