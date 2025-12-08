@@ -35,8 +35,7 @@ export default function ProductList({ onToggleTier }) {
       const res = await api.get("/products");
 
       const prods = res.data.map((p) => {
-        const discountTiers =
-          p.discountTiers ?? p.discount_tiers ?? [];
+        const discountTiers = p.discountTiers ?? p.discount_tiers ?? [];
 
         const hasTiersFlag =
           p.hasTiers ??
@@ -82,11 +81,11 @@ export default function ProductList({ onToggleTier }) {
     try {
       await api.put(`/products/${p.id}`, {
         name: updated.name,
-        price: updated.price,
-        category: updated.category,
+        price: Number(updated.price),
+        category: updated.category || null,
         imageurl: updated.imageurl ?? updated.imageUrl ?? null,
-        hasTiers: updated.hasTiers,
-        discountTiers: updated.discountTiers || [],
+        has_tiers: updated.hasTiers,
+        discount_tiers: updated.discountTiers || [],
       });
     } catch (err) {
       console.warn("No se pudo persistir hasTiers", err);
@@ -171,12 +170,12 @@ export default function ProductList({ onToggleTier }) {
   // ------------------------------
   // HELPERS
   // ------------------------------
-const imgSrc = (url) =>
-  url
-    ? url.startsWith("http")
-      ? url
-      : `${import.meta.env.VITE_ASSETS_URL}${url}`
-    : "/placeholder.png";
+  const imgSrc = (url) =>
+    url
+      ? url.startsWith("http")
+        ? url
+        : `${import.meta.env.VITE_ASSETS_URL}${url}`
+      : "/placeholder.png";
 
   // ------------------------------
   // UI

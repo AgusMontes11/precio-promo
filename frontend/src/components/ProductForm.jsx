@@ -19,12 +19,11 @@ export default function ProductForm({ productId, onClose }) {
   const [alert, setAlert] = useState(null);
   const [imageFile, setImageFile] = useState(null);
 
- const normalizeImage = (url) => {
-  if (!url) return null;
-  if (url.startsWith("http")) return url;
-  return `${import.meta.env.VITE_ASSETS_URL}${url}`;
-};
-
+  const normalizeImage = (url) => {
+    if (!url) return null;
+    if (url.startsWith("http")) return url;
+    return `${import.meta.env.VITE_ASSETS_URL}${url}`;
+  };
 
   // ========================================================
   // REMOVE BACKGROUND (RECORTE)
@@ -131,11 +130,11 @@ export default function ProductForm({ productId, onClose }) {
 
       const payload = {
         name: product.name,
-        price: product.price,
-        category: product.category,
+        price: Number(product.price),
+        category: product.category || null,
         imageurl: imageUrl,
-        hasTiers: product.hasTiers,
-        discountTiers: product.discountTiers,
+        has_tiers: product.hasTiers,
+        discount_tiers: product.discountTiers,
       };
 
       if (isEditing) {
@@ -144,7 +143,10 @@ export default function ProductForm({ productId, onClose }) {
         await api.post("/products", payload);
       }
 
-      showAlert("success", isEditing ? "Producto actualizado" : "Producto creado");
+      showAlert(
+        "success",
+        isEditing ? "Producto actualizado" : "Producto creado"
+      );
 
       setTimeout(() => onClose?.(), 900);
     } catch (err) {
@@ -263,7 +265,9 @@ export default function ProductForm({ productId, onClose }) {
             <strong>Escalonadas</strong>
 
             {product.discountTiers.length === 0 && (
-              <div className="text-muted small">No hay escalonadas cargadas</div>
+              <div className="text-muted small">
+                No hay escalonadas cargadas
+              </div>
             )}
 
             {product.discountTiers.map((tier, index) => (
