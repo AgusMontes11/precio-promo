@@ -1,7 +1,18 @@
 import axios from "axios";
 
-const axiosClient = axios.create({
-  baseURL: "https://backend-nuevo.montesagus2001.workers.dev",
+const api = axios.create({
+  baseURL: import.meta.env.VITE_API_URL,
 });
 
-export default axiosClient;
+// Interceptor para agregar token a todas las requests
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token");
+
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+
+  return config;
+});
+
+export default api;

@@ -42,7 +42,7 @@ export default function AppShell() {
         <Route
           path="/dashboard"
           element={
-            <PrivateRoute roles={["admin"]}>
+            <PrivateRoute roles={["admin", "promotor"]}>
               <Dashboard />
             </PrivateRoute>
           }
@@ -51,7 +51,7 @@ export default function AppShell() {
         <Route
           path="/products"
           element={
-            <PrivateRoute roles={["admin"]}>
+            <PrivateRoute roles={["admin", "promotor"]}>
               <ProductsPage />
             </PrivateRoute>
           }
