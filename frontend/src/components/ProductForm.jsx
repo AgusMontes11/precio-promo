@@ -1,6 +1,6 @@
-// src/components/ProductForm.jsx
 import React, { useEffect, useState } from "react";
 import api from "../services/api";
+import { uploadToCloudinary } from "../services/cloudinary";
 import "./ProductForm.css";
 
 export default function ProductForm({ productId, onClose }) {
@@ -64,7 +64,7 @@ export default function ProductForm({ productId, onClose }) {
       console.warn("Fallback failed", err);
     }
 
-    return file; // fallback final
+    return file;
   };
 
   // ========================================================
@@ -117,31 +117,7 @@ export default function ProductForm({ productId, onClose }) {
 
       if (imageFile) {
         const cleanFile = await processImage(imageFile);
-
-        const fd = new FormData();
-        fd.append("image", cleanFile);
-
-        const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
-        const preset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
-
-        const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
-
-        fd.append("file", cleanFile);
-        fd.append("upload_preset", preset);
-
-        const uploadRes = await fetch(cloudinaryUrl, {
-          method: "POST",
-          body: fd,
-        });
-
-        const data = await uploadRes.json();
-
-        if (!data.secure_url) {
-          throw new Error("Cloudinary no devolvió URL");
-        }
-
-        imageUrl = data.secure_url; //ACÁ YA TENÉS LA URL FINAL
-
+        imageUrl = await uploadToCloudinary(cleanFile);
       }
 
       const payload = {
@@ -203,7 +179,6 @@ export default function ProductForm({ productId, onClose }) {
       {alert && <div className={`alert alert-${alert.type}`}>{alert.text}</div>}
 
       <form onSubmit={handleSubmit}>
-        {/* Nombre */}
         <div className="mb-3">
           <label className="form-label">Nombre</label>
           <input
@@ -214,7 +189,6 @@ export default function ProductForm({ productId, onClose }) {
           />
         </div>
 
-        {/* Precio */}
         <div className="mb-3">
           <label className="form-label">Precio</label>
           <input
@@ -226,7 +200,6 @@ export default function ProductForm({ productId, onClose }) {
           />
         </div>
 
-        {/* Categoría */}
         <div className="mb-3">
           <label className="form-label">Categoría</label>
           <input
@@ -238,7 +211,6 @@ export default function ProductForm({ productId, onClose }) {
           />
         </div>
 
-        {/* Imagen actual */}
         {product.imageurl && (
           <div className="mb-3 text-center">
             <label className="form-label d-block">Imagen actual</label>
@@ -250,7 +222,6 @@ export default function ProductForm({ productId, onClose }) {
           </div>
         )}
 
-        {/* Subir imagen nueva */}
         <div className="mb-3">
           <label className="form-label">Imagen (archivo)</label>
           <input
@@ -261,7 +232,6 @@ export default function ProductForm({ productId, onClose }) {
           />
         </div>
 
-        {/* Escalonadas */}
         <div className="form-check mb-2">
           <input
             className="form-check-input"
@@ -279,12 +249,6 @@ export default function ProductForm({ productId, onClose }) {
         {product.hasTiers && (
           <div className="mb-3 p-2 border rounded">
             <strong>Escalonadas</strong>
-
-            {product.discountTiers.length === 0 && (
-              <div className="text-muted small">
-                No hay escalonadas cargadas
-              </div>
-            )}
 
             {product.discountTiers.map((tier, index) => (
               <div key={index} className="d-flex gap-2 mb-2">
@@ -328,7 +292,6 @@ export default function ProductForm({ productId, onClose }) {
           </div>
         )}
 
-        {/* Botones */}
         <div className="d-flex gap-2">
           <button className="btn btn-success" disabled={saving}>
             {saving ? "Guardando..." : "Guardar"}
