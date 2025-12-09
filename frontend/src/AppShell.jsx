@@ -1,3 +1,4 @@
+// src/AppShell.jsx
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import Navbar from "./components/Navbar";
 
@@ -19,12 +20,13 @@ export default function AppShell() {
 
   return (
     <>
-      {/* ✅ Navbar solo si hay usuario y no estamos en login */}
+      {/* Navbar solo si hay usuario y no estamos en login */}
       {user && location.pathname !== "/login" && <Navbar />}
 
       <Routes>
         <Route path="/login" element={<Login />} />
 
+        {/* raíz: si hay user → dashboard, sino → login */}
         <Route
           path="/"
           element={
@@ -36,10 +38,11 @@ export default function AppShell() {
           }
         />
 
+        {/* SOLO ADMIN */}
         <Route
           path="/dashboard"
           element={
-            <PrivateRoute roles={["admin", "supervisor"]}>
+            <PrivateRoute roles={["admin"]}>
               <Dashboard />
             </PrivateRoute>
           }
@@ -48,7 +51,7 @@ export default function AppShell() {
         <Route
           path="/products"
           element={
-            <PrivateRoute roles={["admin", "supervisor"]}>
+            <PrivateRoute roles={["admin"]}>
               <ProductsPage />
             </PrivateRoute>
           }
@@ -57,7 +60,7 @@ export default function AppShell() {
         <Route
           path="/products/new"
           element={
-            <PrivateRoute roles={["admin", "supervisor"]}>
+            <PrivateRoute roles={["admin"]}>
               <ProductForm />
             </PrivateRoute>
           }
@@ -66,7 +69,7 @@ export default function AppShell() {
         <Route
           path="/products/:id/edit"
           element={
-            <PrivateRoute roles={["admin", "supervisor"]}>
+            <PrivateRoute roles={["admin"]}>
               <ProductForm />
             </PrivateRoute>
           }
@@ -81,15 +84,17 @@ export default function AppShell() {
           }
         />
 
+        {/* ADMIN + PROMOTOR */}
         <Route
           path="/flyers"
           element={
-            <PrivateRoute roles={["admin", "supervisor", "promotor"]}>
+            <PrivateRoute roles={["admin", "promotor"]}>
               <FlyerBuilder />
             </PrivateRoute>
           }
         />
 
+        {/* fallback */}
         <Route
           path="*"
           element={
