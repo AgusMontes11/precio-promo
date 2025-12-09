@@ -250,7 +250,7 @@ export default function ProductList({ onToggleTier }) {
                   <th>Nombre</th>
                   <th>Precio</th>
                   <th>Categoría</th>
-                  <th style={{ width: 160 }}>Acciones</th>
+                  {!isPromotor && <th style={{ width: 160 }}>Acciones</th>}
                 </tr>
               </thead>
 

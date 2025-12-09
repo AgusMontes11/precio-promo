@@ -162,7 +162,8 @@ export default function PromotionBuilder({
                     {!isPromotor && (
                       <button
                         className="builder-add-btn mt-auto"
-                        onClick={() => addTier(p.id)}
+                        onClick={() => !isPromotor && removeTier(p.id, index)}
+                        disabled={isPromotor}
                       >
                         ＋ Agregar Escalonada
                       </button>
