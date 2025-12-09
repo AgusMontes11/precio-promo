@@ -9,7 +9,6 @@ export default function ProductList({ onToggleTier }) {
   const [loading, setLoading] = useState(true);
   const [alert, setAlert] = useState(null);
 
-  // modales
   const [editingProduct, setEditingProduct] = useState(null);
   const [deleteProduct, setDeleteProduct] = useState(null);
 
@@ -22,9 +21,9 @@ export default function ProductList({ onToggleTier }) {
   const ITEMS_PER_PAGE = 7;
   const [page, setPage] = useState(1);
 
-  // ------------------------------
+  // =====================================
   // CARGA DE PRODUCTOS
-  // ------------------------------
+  // =====================================
   useEffect(() => {
     loadProducts();
   }, []);
@@ -35,29 +34,28 @@ export default function ProductList({ onToggleTier }) {
       const res = await api.get("/products");
 
       const prods = res.data.map((p) => {
-        const discountTiers = p.discountTiers ?? p.discount_tiers ?? [];
+        const discountTiers = p.discount_tiers ?? p.discountTiers ?? [];
 
         const hasTiersFlag =
-          p.hasTiers ??
           p.has_tiers ??
+          p.hasTiers ??
           (Array.isArray(discountTiers) && discountTiers.length > 0);
 
         return {
           ...p,
           id: p.id ?? p._id,
-          imageUrl: p.imageurl ?? null,
+          imageUrl:
+            p.imageUrl ||
+            p.imageurl ||
+            p.imageURL ||
+            p.image ||
+            null, // <--- UNIFICADO
           hasTiers: hasTiersFlag,
           discountTiers,
         };
       });
 
       setProducts(prods);
-
-      console.log("PRODUCTOS CRUDOS:", prods);
-      console.log(
-        "IMAGENES:",
-        prods.map((p) => p.imageUrl)
-      );
     } catch (err) {
       console.error(err);
       setAlert({ type: "danger", text: "Error cargando productos." });
@@ -65,25 +63,22 @@ export default function ProductList({ onToggleTier }) {
     setLoading(false);
   };
 
-  // ------------------------------
-  // TOGGLE ESCALONADAS (checkbox)
-  // ------------------------------
+  // =====================================
+  // TOGGLE ESCALONADAS
+  // =====================================
   const toggleTier = async (p) => {
     const updated = { ...p, hasTiers: !p.hasTiers };
 
-    // actualizar en el estado local
     setProducts((prev) => prev.map((x) => (x.id === p.id ? updated : x)));
 
-    // avisar al padre (ProductsPage) para agregar/quitar en selectedProducts
     onToggleTier?.(updated);
 
-    // persistir sólo el flag y las escalonadas
     try {
       await api.put(`/products/${p.id}`, {
         name: updated.name,
         price: Number(updated.price),
         category: updated.category || null,
-        imageurl: updated.imageurl ?? updated.imageUrl ?? null,
+        imageUrl: updated.imageUrl ?? null, // <--- UNIFICADO
         has_tiers: updated.hasTiers,
         discount_tiers: updated.discountTiers || [],
       });
@@ -92,9 +87,9 @@ export default function ProductList({ onToggleTier }) {
     }
   };
 
-  // ------------------------------
+  // =====================================
   // DELETE
-  // ------------------------------
+  // =====================================
   const handleDelete = async (id) => {
     try {
       await api.delete(`/products/${id}`);
@@ -106,9 +101,9 @@ export default function ProductList({ onToggleTier }) {
     }
   };
 
-  // ------------------------------
-  // CATEGORÍAS AUTO
-  // ------------------------------
+  // =====================================
+  // CATEGORÍAS
+  // =====================================
   const categories = useMemo(() => {
     const set = new Set();
     products.forEach((p) => p.category && set.add(p.category));
@@ -121,9 +116,9 @@ export default function ProductList({ onToggleTier }) {
     );
   };
 
-  // ------------------------------
-  // FILTRADO + ORDENADO
-  // ------------------------------
+  // =====================================
+  // FILTROS + ORDEN
+  // =====================================
   const filtered = useMemo(() => {
     let data = [...products];
 
@@ -157,9 +152,9 @@ export default function ProductList({ onToggleTier }) {
     return data;
   }, [products, search, selectedCategories, sortMode]);
 
-  // ------------------------------
+  // =====================================
   // PAGINACIÓN
-  // ------------------------------
+  // =====================================
   const paginated = useMemo(() => {
     const start = (page - 1) * ITEMS_PER_PAGE;
     return filtered.slice(start, start + ITEMS_PER_PAGE);
@@ -167,19 +162,15 @@ export default function ProductList({ onToggleTier }) {
 
   const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
 
-  // ------------------------------
+  // =====================================
   // HELPERS
-  // ------------------------------
+  // =====================================
   const imgSrc = (url) =>
-    url
-      ? url.startsWith("http")
-        ? url
-        : url
-      : "/placeholder.png";
+    url && url.startsWith("http") ? url : "/placeholder.png";
 
-  // ------------------------------
+  // =====================================
   // UI
-  // ------------------------------
+  // =====================================
   return (
     <div className="shopify-page px-3 py-3">
       {/* HEADER */}
@@ -194,10 +185,9 @@ export default function ProductList({ onToggleTier }) {
         </button>
       </div>
 
-      {/* FILTER CARD */}
+      {/* FILTERS */}
       <div className="shopify-card p-3 mb-3">
         <div className="d-flex flex-wrap gap-3 align-items-center">
-          {/* BUSCADOR */}
           <input
             type="text"
             placeholder="Buscar productos..."
@@ -210,7 +200,6 @@ export default function ProductList({ onToggleTier }) {
             }}
           />
 
-          {/* SELECT ORDEN */}
           <select
             className="shopify-select"
             style={{ maxWidth: 200 }}
@@ -225,7 +214,7 @@ export default function ProductList({ onToggleTier }) {
           </select>
         </div>
 
-        {/* CATEGORY TAGS */}
+        {/* CATEGORY CHIPS */}
         <div className="d-flex flex-wrap gap-2 mt-3">
           {categories.map((cat) => (
             <span
@@ -241,23 +230,14 @@ export default function ProductList({ onToggleTier }) {
         </div>
       </div>
 
-      {/* ALERTS */}
+      {/* ALERT */}
       {alert && (
         <div className={`alert alert-${alert.type} shopify-alert`}>
           {alert.text}
         </div>
       )}
 
-      {/* SKELETON LOADER */}
-      {loading && (
-        <div className="p-4">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="shopify-skeleton-row mb-3"></div>
-          ))}
-        </div>
-      )}
-
-      {/* PRODUCT TABLE */}
+      {/* PRODUCT LIST */}
       {!loading && (
         <div className="shopify-card p-0 shopify-table-container">
           <div className="shopify-table-wrapper">

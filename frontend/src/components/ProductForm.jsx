@@ -10,7 +10,7 @@ export default function ProductForm({ productId, onClose }) {
     name: "",
     price: "",
     category: "",
-    imageurl: null,
+    imageUrl: null,       // <--- UNIFICADO
     hasTiers: false,
     discountTiers: [],
   });
@@ -21,12 +21,11 @@ export default function ProductForm({ productId, onClose }) {
 
   const normalizeImage = (url) => {
     if (!url) return null;
-    if (url.startsWith("http")) return url;
-    return url;
+    return url.startsWith("http") ? url : url;
   };
 
   // ========================================================
-  // REMOVE BACKGROUND (RECORTE)
+  // REMOVE BACKGROUND
   // ========================================================
   const processImage = async (file) => {
     if (!file) return null;
@@ -82,7 +81,12 @@ export default function ProductForm({ productId, onClose }) {
           name: data.name || "",
           price: data.price || "",
           category: data.category || "",
-          imageurl: data.imageurl || null,
+          imageUrl:
+            data.imageUrl ||
+            data.imageurl ||
+            data.imageURL ||
+            data.image ||
+            null,
           hasTiers: data.has_tiers || false,
           discountTiers: Array.isArray(data.discount_tiers)
             ? data.discount_tiers
@@ -113,7 +117,7 @@ export default function ProductForm({ productId, onClose }) {
     setSaving(true);
 
     try {
-      let imageUrl = product.imageurl || null;
+      let imageUrl = product.imageUrl || null;
 
       if (imageFile) {
         const cleanFile = await processImage(imageFile);
@@ -124,7 +128,7 @@ export default function ProductForm({ productId, onClose }) {
         name: product.name,
         price: Number(product.price),
         category: product.category || null,
-        imageurl: imageUrl,
+        imageUrl,                        // <--- UNIFICADO
         has_tiers: product.hasTiers,
         discount_tiers: product.discountTiers,
       };
@@ -211,11 +215,11 @@ export default function ProductForm({ productId, onClose }) {
           />
         </div>
 
-        {product.imageurl && (
+        {product.imageUrl && (
           <div className="mb-3 text-center">
             <label className="form-label d-block">Imagen actual</label>
             <img
-              src={normalizeImage(product.imageurl)}
+              src={normalizeImage(product.imageUrl)}
               alt="producto"
               style={{ width: 120, borderRadius: 10 }}
             />

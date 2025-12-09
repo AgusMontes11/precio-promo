@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import FlyerGenerator from "../components/FlyerGenerator";
 import api from "../services/api";
 
-// IMPORTS DE TEMPLATES (Vite renombra los archivos)
+// IMPORTS DE TEMPLATES
 import black from "../../public/4.png";
 import whiteFrame from "../../public/1.png";
 import diagonal from "../../public/2.png";
@@ -30,7 +30,13 @@ export default function FlyerBuilder() {
 
       const prods = (res.data || []).map((p) => ({
         ...p,
-        imageurl: p.imageurl || null,
+        id: p.id ?? p._id,
+        imageUrl:
+          p.imageUrl ||
+          p.imageurl ||
+          p.image ||
+          p.imageURL ||
+          null,
       }));
 
       setProducts(prods);
@@ -55,6 +61,7 @@ export default function FlyerBuilder() {
       <h3 className="mb-3 mt-3">Generador de Flyers</h3>
 
       <div className="row g-0">
+        {/* IZQUIERDA: selector + productos */}
         <div
           className="col-12 col-md-5 d-flex flex-column"
           style={{ height: "100vh" }}
@@ -94,10 +101,10 @@ export default function FlyerBuilder() {
                 >
                   <img
                     src={
-                      p.imageurl
-                        ? p.imageurl.startsWith("http")
-                          ? p.imageurl
-                          : `${import.meta.env.VITE_ASSETS_URL}${p.imageurl}`
+                      p.imageUrl
+                        ? p.imageUrl.startsWith("http")
+                          ? p.imageUrl
+                          : p.imageUrl
                         : "/placeholder.png"
                     }
                     alt={p.name}
@@ -123,6 +130,7 @@ export default function FlyerBuilder() {
           </div>
         </div>
 
+        {/* DERECHA: preview */}
         <div className="col-12 col-md-7">
           <h5 className="mb-2">Preview</h5>
 
