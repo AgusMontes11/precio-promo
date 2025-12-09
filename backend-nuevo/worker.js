@@ -4,7 +4,9 @@ export default {
     const path = url.pathname;
     const method = req.method;
 
-    // ✅ CORS
+    // =========================
+    // CORS
+    // =========================
     const corsHeaders = {
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,OPTIONS",
@@ -12,12 +14,10 @@ export default {
     };
 
     if (method === "OPTIONS") {
-      return new Response(null, {
-        status: 204,
-        headers: corsHeaders,
-      });
+      return new Response(null, { status: 204, headers: corsHeaders });
     }
 
+    // Headers para Supabase REST
     const sbHeaders = {
       apikey: env.SUPABASE_ANON_KEY,
       Authorization: `Bearer ${env.SUPABASE_ANON_KEY}`,
@@ -25,10 +25,10 @@ export default {
     };
 
     // =========================
-    // ✅ PRODUCTS
+    // PRODUCTS
     // =========================
 
-    // GET ALL
+    // GET ALL PRODUCTS
     if (method === "GET" && path === "/products") {
       const res = await fetch(
         `${env.SUPABASE_URL}/rest/v1/products?select=*`,
@@ -36,32 +36,47 @@ export default {
       );
 
       const text = await res.text();
-
       return new Response(text, {
         status: res.status,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    // CREATE
+    // GET PRODUCT BY ID
+    if (method === "GET" && path.startsWith("/products/")) {
+      const id = path.split("/")[2];
+
+      const res = await fetch(
+        `${env.SUPABASE_URL}/rest/v1/products?id=eq.${id}&select=*`,
+        { headers: sbHeaders }
+      );
+
+      const data = await res.json();
+
+      return new Response(JSON.stringify(data?.[0] || null), {
+        status: res.status,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // CREATE PRODUCT
     if (method === "POST" && path === "/products") {
       const body = await req.json();
 
       const res = await fetch(`${env.SUPABASE_URL}/rest/v1/products`, {
         method: "POST",
-        headers: sbHeaders,
+        headers: { ...sbHeaders, Prefer: "return=representation" },
         body: JSON.stringify(body),
       });
 
       const text = await res.text();
-
       return new Response(text, {
-        status: res.status, // ✅ STATUS REAL DE SUPABASE
+        status: res.status,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    // UPDATE
+    // UPDATE PRODUCT
     if (method === "PUT" && path.startsWith("/products/")) {
       const id = path.split("/")[2];
       const body = await req.json();
@@ -70,20 +85,19 @@ export default {
         `${env.SUPABASE_URL}/rest/v1/products?id=eq.${id}`,
         {
           method: "PATCH",
-          headers: sbHeaders,
+          headers: { ...sbHeaders, Prefer: "return=representation" },
           body: JSON.stringify(body),
         }
       );
 
       const text = await res.text();
-
       return new Response(text, {
-        status: res.status, // ✅ STATUS REAL
+        status: res.status,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    // DELETE
+    // DELETE PRODUCT
     if (method === "DELETE" && path.startsWith("/products/")) {
       const id = path.split("/")[2];
 
@@ -91,18 +105,23 @@ export default {
         `${env.SUPABASE_URL}/rest/v1/products?id=eq.${id}`,
         {
           method: "DELETE",
-          headers: sbHeaders,
+          headers: { ...sbHeaders, Prefer: "return=representation" },
         }
       );
 
-      return new Response(JSON.stringify({ deleted: res.ok }), {
-        status: res.status,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      const data = await res.text();
+
+      return new Response(
+        JSON.stringify({ deleted: res.ok }),
+        {
+          status: res.status,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
     }
 
     // =========================
-    // ✅ STATS
+    // STATS
     // =========================
 
     // TOTAL PRODUCTS
@@ -125,7 +144,7 @@ export default {
       );
     }
 
-    // GET FLYERS
+    // GET FLYER COUNT
     if (method === "GET" && path === "/stats/flyers") {
       const res = await fetch(
         `${env.SUPABASE_URL}/rest/v1/stats?select=flyers_generated&id=eq.1`,
@@ -145,7 +164,7 @@ export default {
       );
     }
 
-    // INCREMENT FLYERS
+    // INCREMENT FLYER COUNTER
     if (method === "POST" && path === "/stats/flyers/increment") {
       const getRes = await fetch(
         `${env.SUPABASE_URL}/rest/v1/stats?select=id,flyers_generated&id=eq.1`,
@@ -166,16 +185,18 @@ export default {
         }
       );
 
-      return new Response(JSON.stringify({ success: true }), {
-        status: updateRes.status,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return new Response(
+        JSON.stringify({ success: true }),
+        {
+          status: updateRes.status,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
     }
 
     // =========================
-    // ✅ FALLBACK
+    // FALLBACK
     // =========================
-
     return new Response("Not found", {
       status: 404,
       headers: corsHeaders,
