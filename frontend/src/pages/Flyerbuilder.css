@@ -1,0 +1,13 @@
+/* Modo claro (default) */
+.flyer-select {
+  background-color: #fff;
+  color: #000;
+  border: 1px solid #ccc;
+}
+
+/* Modo oscuro */
+.dark-mode .flyer-select {
+  background-color: #1e1e1e;
+  color: #fff;
+  border: 1px solid #555;
+}

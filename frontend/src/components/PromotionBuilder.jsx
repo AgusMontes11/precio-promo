@@ -146,12 +146,14 @@ export default function PromotionBuilder({
                               </td>
 
                               <td className="text-end">
+                                {!isPromotor && (
                                 <button
                                   className="builder-remove-btn"
                                   onClick={() => removeTier(p.id, index)}
                                 >
                                   ✕
                                 </button>
+                                )}
                               </td>
                             </tr>
                           ))}

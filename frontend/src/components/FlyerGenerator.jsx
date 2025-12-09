@@ -19,7 +19,7 @@ const TEMPLATE_CONFIG = {
   },
   white: {
     imageSizeRatio: 1.2,
-    imageTopRatio: 0.16,
+    imageTopRatio: 0.18,
     nameTopRatio: 0.66,
     priceTopRatio: 0.9,
     priceAbsolute: false,

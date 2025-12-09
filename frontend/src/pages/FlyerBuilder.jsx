@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import FlyerGenerator from "../components/FlyerGenerator";
 import api from "../services/api";
+import "./Flyerbuilder.css";
 
 // IMPORTS DE TEMPLATES
 import black from "../../public/4.png";
@@ -68,8 +69,10 @@ export default function FlyerBuilder() {
         >
           <div className="d-flex gap-2 mb-3">
             <select
-              className="form-select mb-2"
-              style={{ width: 220 }}
+              className="form-select mb-2 flyer-select"
+              style={{ 
+                width: 220,
+               }}
               value={templateId}
               onChange={(e) => setTemplateId(e.target.value)}
             >
@@ -112,7 +115,8 @@ export default function FlyerBuilder() {
                       width: "100%",
                       height: 130,
                       objectFit: "contain",
-                      background: "#f2f2f2",
+                      background: "rgba(242, 242, 242, 0.20)",
+                      border: "solid 0.1px #00000033",
                       borderRadius: 8,
                     }}
                     onError={(e) => {
