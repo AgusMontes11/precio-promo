@@ -121,11 +121,27 @@ export default function ProductForm({ productId, onClose }) {
         const fd = new FormData();
         fd.append("image", cleanFile);
 
-        const uploadRes = await api.post("/upload", fd, {
-          headers: { "Content-Type": "multipart/form-data" },
+        const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+        const preset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
+
+        const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
+
+        fd.append("file", cleanFile);
+        fd.append("upload_preset", preset);
+
+        const uploadRes = await fetch(cloudinaryUrl, {
+          method: "POST",
+          body: fd,
         });
 
-        imageUrl = uploadRes.data.file;
+        const data = await uploadRes.json();
+
+        if (!data.secure_url) {
+          throw new Error("Cloudinary no devolvió URL");
+        }
+
+        imageUrl = data.secure_url; ✅ ACÁ YA TENÉS LA URL FINAL
+
       }
 
       const payload = {
