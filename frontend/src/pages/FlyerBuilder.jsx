@@ -3,10 +3,10 @@ import FlyerGenerator from "../components/FlyerGenerator";
 import api from "../services/api";
 
 // IMPORTS DE TEMPLATES (Vite renombra los archivos)
-import black from "../templates/4.png";
-import whiteFrame from "../templates/1.png";
-import diagonal from "../templates/2.png";
-import texture from "../templates/7.png";
+import black from "../../public/4.png";
+import whiteFrame from "../../public/1.png";
+import diagonal from "../../public/2.png";
+import texture from "../../public/7.png";
 
 const TEMPLATES = [
   { id: "black", name: "Black", src: black },
