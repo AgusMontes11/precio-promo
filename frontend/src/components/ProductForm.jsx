@@ -140,7 +140,7 @@ export default function ProductForm({ productId, onClose }) {
           throw new Error("Cloudinary no devolvió URL");
         }
 
-        imageUrl = data.secure_url; ✅ ACÁ YA TENÉS LA URL FINAL
+        imageUrl = data.secure_url; //ACÁ YA TENÉS LA URL FINAL
 
       }
 
