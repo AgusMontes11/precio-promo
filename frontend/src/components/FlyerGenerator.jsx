@@ -125,9 +125,7 @@ function normalizeImg(product) {
 
   if (!url) return "/placeholder.png";
 
-  return url.startsWith("http")
-    ? url
-    : `${import.meta.env.VITE_ASSETS_URL}${url}`;
+  return url.startsWith("http") ? url : url;
 }
 
 // ============================================================

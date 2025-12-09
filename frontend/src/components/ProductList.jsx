@@ -174,7 +174,7 @@ export default function ProductList({ onToggleTier }) {
     url
       ? url.startsWith("http")
         ? url
-        : `${import.meta.env.VITE_ASSETS_URL}${url}`
+        : url
       : "/placeholder.png";
 
   // ------------------------------

@@ -22,7 +22,7 @@ export default function ProductForm({ productId, onClose }) {
   const normalizeImage = (url) => {
     if (!url) return null;
     if (url.startsWith("http")) return url;
-    return `${import.meta.env.VITE_ASSETS_URL}${url}`;
+    return url;
   };
 
   // ========================================================
