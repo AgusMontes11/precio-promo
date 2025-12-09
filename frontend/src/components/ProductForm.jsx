@@ -128,7 +128,7 @@ export default function ProductForm({ productId, onClose }) {
         name: product.name,
         price: Number(product.price),
         category: product.category || null,
-        imageUrl,                        // <--- UNIFICADO
+        imageUrl,                       
         has_tiers: product.hasTiers,
         discount_tiers: product.discountTiers,
       };

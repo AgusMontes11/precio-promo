@@ -3,8 +3,12 @@ import React, { useEffect, useState, useMemo } from "react";
 import api from "../services/api";
 import ProductForm from "./ProductForm";
 import "./productlist.css";
+import { useAuth } from "../context/AuthContext";
 
 export default function ProductList({ onToggleTier }) {
+  const { user } = useAuth();
+  const isPromotor = user?.role === "promotor";
+
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [alert, setAlert] = useState(null);
@@ -44,12 +48,7 @@ export default function ProductList({ onToggleTier }) {
         return {
           ...p,
           id: p.id ?? p._id,
-          imageUrl:
-            p.imageUrl ||
-            p.imageurl ||
-            p.imageURL ||
-            p.image ||
-            null, // <--- UNIFICADO
+          imageUrl: p.imageUrl || p.imageurl || p.imageURL || p.image || null, // <--- UNIFICADO
           hasTiers: hasTiersFlag,
           discountTiers,
         };
@@ -177,12 +176,14 @@ export default function ProductList({ onToggleTier }) {
       <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
         <h2 className="shopify-title mb-0">Productos de Panella</h2>
 
-        <button
-          className="btn btn-outline-primary btn-sm shopify-add-btn mb-1"
-          onClick={() => setEditingProduct({ id: null })}
-        >
-          + Nuevo Producto
-        </button>
+        {!isPromotor && (
+          <button
+            className="btn btn-outline-primary btn-sm shopify-add-btn mb-1"
+            onClick={() => setEditingProduct({ id: null })}
+          >
+            + Nuevo Producto
+          </button>
+        )}
       </div>
 
       {/* FILTERS */}
@@ -281,19 +282,22 @@ export default function ProductList({ onToggleTier }) {
                     <td>{p.category || "-"}</td>
 
                     <td>
+                      {!isPromotor && (
                       <button
                         className="btn-sm shopify-outline-btn me-2"
                         onClick={() => setEditingProduct(p)}
                       >
                         Editar
                       </button>
-
+                      )}
+                      {!isPromotor && (
                       <button
                         className="btn-sm shopify-danger-btn"
                         onClick={() => setDeleteProduct(p)}
                       >
                         Eliminar
                       </button>
+                      )}
                     </td>
                   </tr>
                 ))}

@@ -2,21 +2,22 @@
 import React from "react";
 import PromotionPreview from "./PromotionPreview";
 import "./PromotionBuilder.css";
+import { useAuth } from "../context/AuthContext";
 
 export default function PromotionBuilder({
   selectedProducts,
   editedTiers,
   onSaveTiers,
 }) {
+  const { user } = useAuth();
+  const isPromotor = user?.role === "promotor";
+
   // Determinar datos reales del producto
   const getTierData = (p) => {
     return (
       editedTiers[p.id] ?? {
         hasTiers: p.has_tiers || p.hasTiers || false,
-        discountTiers:
-          p.discount_tiers ||
-          p.discountTiers ||
-          [],
+        discountTiers: p.discount_tiers || p.discountTiers || [],
       }
     );
   };
@@ -44,10 +45,7 @@ export default function PromotionBuilder({
 
     onSaveTiers(productId, {
       hasTiers: true,
-      discountTiers: [
-        ...current.discountTiers,
-        { quantity: 1, discount: 0 },
-      ],
+      discountTiers: [...current.discountTiers, { quantity: 1, discount: 0 }],
     });
   };
 
@@ -70,7 +68,9 @@ export default function PromotionBuilder({
       <h5 className="builder-title">Configurar Escalonadas</h5>
 
       {selectedProducts.length === 0 ? (
-        <p className="builder-empty">Seleccioná productos para agregar escalonadas</p>
+        <p className="builder-empty">
+          Seleccioná productos para agregar escalonadas
+        </p>
       ) : (
         <div
           className={`${selectedProducts.length >= 3 ? "overflow-auto" : ""}`}
@@ -87,9 +87,7 @@ export default function PromotionBuilder({
 
                     <div
                       className={`flex-grow-1 ${
-                        tierData.discountTiers.length > 3
-                          ? "overflow-auto"
-                          : ""
+                        tierData.discountTiers.length > 3 ? "overflow-auto" : ""
                       }`}
                       style={{
                         maxHeight:
@@ -115,14 +113,16 @@ export default function PromotionBuilder({
                                   min="1"
                                   className="form-control form-control-sm builder-input"
                                   value={tier.quantity}
-                                  onChange={(e) =>
-                                    updateTier(
-                                      p.id,
-                                      index,
-                                      "quantity",
-                                      Number(e.target.value)
-                                    )
-                                  }
+                                  disabled={isPromotor}
+                                  onChange={(e) => {
+                                    if (!isPromotor)
+                                      updateTier(
+                                        p.id,
+                                        index,
+                                        "quantity",
+                                        Number(e.target.value)
+                                      );
+                                  }}
                                 />
                               </td>
 
@@ -132,14 +132,16 @@ export default function PromotionBuilder({
                                   min="0"
                                   className="form-control form-control-sm builder-input"
                                   value={tier.discount}
-                                  onChange={(e) =>
-                                    updateTier(
-                                      p.id,
-                                      index,
-                                      "discount",
-                                      Number(e.target.value)
-                                    )
-                                  }
+                                  disabled={isPromotor}
+                                  onChange={(e) => {
+                                    if (!isPromotor)
+                                      updateTier(
+                                        p.id,
+                                        index,
+                                        "discount",
+                                        Number(e.target.value)
+                                      );
+                                  }}
                                 />
                               </td>
 
@@ -157,12 +159,14 @@ export default function PromotionBuilder({
                       </table>
                     </div>
 
-                    <button
-                      className="builder-add-btn mt-auto"
-                      onClick={() => addTier(p.id)}
-                    >
-                      ＋ Agregar Escalonada
-                    </button>
+                    {!isPromotor && (
+                      <button
+                        className="builder-add-btn mt-auto"
+                        onClick={() => addTier(p.id)}
+                      >
+                        ＋ Agregar Escalonada
+                      </button>
+                    )}
                   </div>
                 </div>
               );
