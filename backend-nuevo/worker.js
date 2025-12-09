@@ -17,7 +17,7 @@ export default {
       return new Response(null, { status: 204, headers: corsHeaders });
     }
 
-    // Headers para Supabase REST
+    // Supabase headers
     const sbHeaders = {
       apikey: env.SUPABASE_ANON_KEY,
       Authorization: `Bearer ${env.SUPABASE_ANON_KEY}`,
@@ -27,14 +27,12 @@ export default {
     // =========================
     // AUTH HELPERS
     // =========================
-
     function parseToken(req) {
       const auth = req.headers.get("Authorization") || "";
       if (!auth.startsWith("Bearer ")) return null;
       return auth.replace("Bearer ", "").trim();
     }
 
-    // Token dummy tipo: dummy-<userId>-<timestamp>
     function decodeDummyToken(token) {
       if (!token || !token.startsWith("dummy-")) return null;
       const parts = token.split("-");
@@ -58,8 +56,7 @@ export default {
       const decoded = decodeDummyToken(token);
       if (!decoded) return null;
 
-      const user = await getUserById(decoded.id);
-      return user;
+      return await getUserById(decoded.id);
     }
 
     function requireRole(user, allowed) {
@@ -67,68 +64,57 @@ export default {
     }
 
     // =========================
-    // AUTH LOGIN
+    // LOGIN
     // =========================
     if (method === "POST" && path === "/auth/login") {
-      try {
-        const { email, password } = await req.json();
+      const { email, password } = await req.json();
 
-        if (!email || !password) {
-          return new Response(
-            JSON.stringify({ error: "Email y contraseña obligatorios" }),
-            { status: 400, headers: corsHeaders }
-          );
-        }
+      if (!email || !password) {
+        return new Response(JSON.stringify({ error: "Email y contraseña obligatorios" }), {
+          status: 400,
+          headers: corsHeaders,
+        });
+      }
 
-        // Buscar usuario
-        const queryUrl =
-          `${env.SUPABASE_URL}/rest/v1/usuarios?select=id,email,password,role` +
-          `&email=eq.${encodeURIComponent(email)}&limit=1`;
+      const res = await fetch(
+        `${env.SUPABASE_URL}/rest/v1/usuarios?select=id,email,password,role&email=eq.${encodeURIComponent(email)}&limit=1`,
+        { headers: sbHeaders }
+      );
 
-        const res = await fetch(queryUrl, { headers: sbHeaders });
-        const rows = await res.json();
-        const user = rows?.[0] || null;
+      const rows = await res.json();
+      const user = rows?.[0] || null;
 
-        if (!user || user.password !== password) {
-          return new Response(
-            JSON.stringify({ error: "Usuario o contraseña incorrectos" }),
-            { status: 401, headers: corsHeaders }
-          );
-        }
+      if (!user || user.password !== password) {
+        return new Response(JSON.stringify({ error: "Usuario o contraseña incorrectos" }), {
+          status: 401,
+          headers: corsHeaders,
+        });
+      }
 
-        const token = `dummy-${user.id}-${Date.now()}`;
+      const token = `dummy-${user.id}-${Date.now()}`;
 
-        const usuario = {
-          id: user.id,
-          email: user.email,
-          role: user.role || "promotor",
-        };
-
-        return new Response(JSON.stringify({ token, usuario }), {
+      return new Response(
+        JSON.stringify({
+          token,
+          usuario: {
+            id: user.id,
+            email: user.email,
+            role: user.role || "promotor",
+          },
+        }),
+        {
           status: 200,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      } catch (err) {
-        return new Response(
-          JSON.stringify({ error: "Error interno en login" }),
-          { status: 500, headers: corsHeaders }
-        );
-      }
+        }
+      );
     }
 
     // =========================
     // PRODUCTS
     // =========================
 
-    // GET ALL (admin y promotor)
+    // PUBLIC GET ALL
     if (method === "GET" && path === "/products") {
-      const user = await requireAuth(req);
-      if (!user)
-        return new Response(JSON.stringify({ error: "No autorizado" }), {
-          status: 401,
-          headers: corsHeaders,
-        });
-
       const res = await fetch(
         `${env.SUPABASE_URL}/rest/v1/products?select=*`,
         { headers: sbHeaders }
@@ -141,15 +127,8 @@ export default {
       });
     }
 
-    // GET BY ID
+    // PUBLIC GET BY ID
     if (method === "GET" && path.startsWith("/products/")) {
-      const user = await requireAuth(req);
-      if (!user)
-        return new Response(JSON.stringify({ error: "No autorizado" }), {
-          status: 401,
-          headers: corsHeaders,
-        });
-
       const id = path.split("/")[2];
 
       const res = await fetch(
@@ -157,22 +136,23 @@ export default {
         { headers: sbHeaders }
       );
 
-      const data = await res.json();
+      const rows = await res.json();
 
-      return new Response(JSON.stringify(data?.[0] || null), {
+      return new Response(JSON.stringify(rows?.[0] || null), {
         status: res.status,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    // CREATE (solo admin)
+    // CREATE PRODUCT (admin ONLY)
     if (method === "POST" && path === "/products") {
       const user = await requireAuth(req);
-      if (!requireRole(user, ["admin"]))
-        return new Response(
-          JSON.stringify({ error: "Solo admin puede crear productos" }),
-          { status: 403, headers: corsHeaders }
-        );
+      if (!requireRole(user, ["admin"])) {
+        return new Response(JSON.stringify({ error: "Solo admin puede crear productos" }), {
+          status: 403,
+          headers: corsHeaders,
+        });
+      }
 
       const body = await req.json();
 
@@ -189,14 +169,15 @@ export default {
       });
     }
 
-    // UPDATE (admin)
+    // UPDATE (admin ONLY)
     if (method === "PUT" && path.startsWith("/products/")) {
       const user = await requireAuth(req);
-      if (!requireRole(user, ["admin"]))
-        return new Response(
-          JSON.stringify({ error: "Solo admin puede editar" }),
-          { status: 403, headers: corsHeaders }
-        );
+      if (!requireRole(user, ["admin"])) {
+        return new Response(JSON.stringify({ error: "Solo admin puede editar" }), {
+          status: 403,
+          headers: corsHeaders,
+        });
+      }
 
       const id = path.split("/")[2];
       const body = await req.json();
@@ -217,14 +198,15 @@ export default {
       });
     }
 
-    // DELETE (admin)
+    // DELETE (admin ONLY)
     if (method === "DELETE" && path.startsWith("/products/")) {
       const user = await requireAuth(req);
-      if (!requireRole(user, ["admin"]))
-        return new Response(
-          JSON.stringify({ error: "Solo admin puede borrar" }),
-          { status: 403, headers: corsHeaders }
-        );
+      if (!requireRole(user, ["admin"])) {
+        return new Response(JSON.stringify({ error: "Solo admin puede borrar" }), {
+          status: 403,
+          headers: corsHeaders,
+        });
+      }
 
       const id = path.split("/")[2];
 
@@ -243,102 +225,92 @@ export default {
     }
 
     // =========================
-    // STATS (solo admin)
+    // STATS
     // =========================
 
+    // PUBLIC: total products
     if (method === "GET" && path === "/stats/products") {
-      const user = await requireAuth(req);
-      if (!requireRole(user, ["admin"]))
-        return new Response(
-          JSON.stringify({ error: "Solo admin puede ver stats" }),
-          { status: 403, headers: corsHeaders }
-        );
-
       const res = await fetch(
         `${env.SUPABASE_URL}/rest/v1/products?select=id`,
         { headers: sbHeaders }
       );
 
-      const data = await res.json();
+      const rows = await res.json();
 
       return new Response(
-        JSON.stringify({
-          totalProducts: Array.isArray(data) ? data.length : 0,
-        }),
+        JSON.stringify({ totalProducts: rows.length }),
         {
-          status: res.status,
+          status: 200,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         }
       );
     }
 
-    // GET FLYER COUNT
+    // GET FLYERS COUNT (admin only)
     if (method === "GET" && path === "/stats/flyers") {
       const user = await requireAuth(req);
-      if (!requireRole(user, ["admin"]))
-        return new Response(
-          JSON.stringify({ error: "Solo admin" }),
-          { status: 403, headers: corsHeaders }
-        );
+      if (!requireRole(user, ["admin", "promotor"])) {
+        return new Response(JSON.stringify({ error: "Solo admin y promotor" }), {
+          status: 403,
+          headers: corsHeaders,
+        });
+      }
 
       const res = await fetch(
         `${env.SUPABASE_URL}/rest/v1/stats?select=flyers_generated&id=eq.1`,
         { headers: sbHeaders }
       );
 
-      const data = await res.json();
+      const rows = await res.json();
 
       return new Response(
-        JSON.stringify({
-          flyersGenerated: data?.[0]?.flyers_generated || 0,
-        }),
+        JSON.stringify({ flyersGenerated: rows?.[0]?.flyers_generated || 0 }),
         {
-          status: res.status,
+          status: 200,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         }
       );
     }
 
-    // INCREMENT FLYER COUNTER
+    // INCREMENT FLYERS (admin only)
     if (method === "POST" && path === "/stats/flyers/increment") {
       const user = await requireAuth(req);
-      if (!requireRole(user, ["admin"]))
-        return new Response(
-          JSON.stringify({ error: "Solo admin" }),
-          { status: 403, headers: corsHeaders }
-        );
+      if (!requireRole(user, ["admin"])) {
+        return new Response(JSON.stringify({ error: "Solo admin" }), {
+          status: 403,
+          headers: corsHeaders,
+        });
+      }
 
       const getRes = await fetch(
-        `${env.SUPABASE_URL}/rest/v1/stats?select=id,flyers_generated&id=eq.1`,
+        `${env.SUPABASE_URL}/rest/v1/stats?id=eq.1&select=id,flyers_generated`,
         { headers: sbHeaders }
       );
 
-      const data = await getRes.json();
-      const current = data?.[0]?.flyers_generated || 0;
+      const rows = await getRes.json();
+      const current = rows?.[0]?.flyers_generated || 0;
 
       const updateRes = await fetch(
         `${env.SUPABASE_URL}/rest/v1/stats?id=eq.1`,
         {
           method: "PATCH",
           headers: sbHeaders,
-          body: JSON.stringify({
-            flyers_generated: current + 1,
-          }),
+          body: JSON.stringify({ flyers_generated: current + 1 }),
         }
       );
 
-      return new Response(JSON.stringify({ success: true }), {
-        status: updateRes.status,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return new Response(
+        JSON.stringify({ success: true }),
+        {
+          status: updateRes.status,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
     }
 
     // =========================
     // FALLBACK
     // =========================
-    return new Response("Not found", {
-      status: 404,
-      headers: corsHeaders,
-    });
+    return new Response("Not found", { status: 404, headers: corsHeaders });
   },
 };
