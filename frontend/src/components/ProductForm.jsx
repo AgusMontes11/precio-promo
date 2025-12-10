@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import api from "../services/api";
 import { uploadToCloudinary } from "../services/cloudinary";
 import "./css/ProductForm.css";
-import { removeBgFromFile } from "../utils/removeBg";
 
 export default function ProductForm({ productId, onClose }) {
   const isEditing = Boolean(productId);
@@ -11,7 +10,7 @@ export default function ProductForm({ productId, onClose }) {
     name: "",
     price: "",
     category: "",
-    imageUrl: null,       // <--- UNIFICADO
+    imageUrl: null,
     hasTiers: false,
     discountTiers: [],
   });
@@ -23,48 +22,6 @@ export default function ProductForm({ productId, onClose }) {
   const normalizeImage = (url) => {
     if (!url) return null;
     return url.startsWith("http") ? url : url;
-  };
-
-  // ========================================================
-  // REMOVE BACKGROUND
-  // ========================================================
-  const processImage = async (file) => {
-    if (!file) return null;
-
-    const blobToFile = (blob, name) => {
-      const filename = name.replace(/\.[^/.]+$/, "") + ".png";
-      return new File([blob], filename, { type: "image/png" });
-    };
-
-    try {
-      const mod = await import("@imgly/background-removal");
-      const removeBackground =
-        mod.removeBackground || mod.default || mod.imglyRemoveBackground;
-
-      if (typeof removeBackground === "function") {
-        const result = await removeBackground(file);
-        return result instanceof Blob ? blobToFile(result, file.name) : result;
-      }
-    } catch (_) {}
-
-    try {
-      const CDN =
-        "https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.7.0/dist/browser.mjs";
-      const remote = await import(/* @vite-ignore */ CDN);
-      const removeBackground =
-        remote.removeBackground ||
-        remote.default ||
-        remote.imglyRemoveBackground;
-
-      if (typeof removeBackground === "function") {
-        const result = await removeBackground(file);
-        return result instanceof Blob ? blobToFile(result, file.name) : result;
-      }
-    } catch (err) {
-      console.warn("Fallback failed", err);
-    }
-
-    return file;
   };
 
   // ========================================================
@@ -121,17 +78,15 @@ export default function ProductForm({ productId, onClose }) {
       let imageUrl = product.imageUrl || null;
 
       if (imageFile) {
-        // Quita el fondo en el navegador (rápido)
-        const processed = await removeBgFromFile(imageFile);
-        // Subí el resultado a Cloudinary
-        imageUrl = await uploadToCloudinary(processed);
+        // subir la imagen DIRECTA (sin recorte)
+        imageUrl = await uploadToCloudinary(imageFile);
       }
 
       const payload = {
         name: product.name,
         price: Number(product.price),
         category: product.category || null,
-        imageUrl,                       
+        imageUrl,
         has_tiers: product.hasTiers,
         discount_tiers: product.discountTiers,
       };
@@ -186,6 +141,7 @@ export default function ProductForm({ productId, onClose }) {
       {alert && <div className={`alert alert-${alert.type}`}>{alert.text}</div>}
 
       <form onSubmit={handleSubmit}>
+        {/* Nombre */}
         <div className="mb-3">
           <label className="form-label">Nombre</label>
           <input
@@ -196,6 +152,7 @@ export default function ProductForm({ productId, onClose }) {
           />
         </div>
 
+        {/* Precio */}
         <div className="mb-3">
           <label className="form-label">Precio</label>
           <input
@@ -207,6 +164,7 @@ export default function ProductForm({ productId, onClose }) {
           />
         </div>
 
+        {/* Categoría */}
         <div className="mb-3">
           <label className="form-label">Categoría</label>
           <input
@@ -218,6 +176,7 @@ export default function ProductForm({ productId, onClose }) {
           />
         </div>
 
+        {/* Imagen actual */}
         {product.imageUrl && (
           <div className="mb-3 text-center">
             <label className="form-label d-block">Imagen actual</label>
@@ -229,6 +188,7 @@ export default function ProductForm({ productId, onClose }) {
           </div>
         )}
 
+        {/* Nueva imagen */}
         <div className="mb-3">
           <label className="form-label">Imagen (archivo)</label>
           <input
@@ -239,6 +199,7 @@ export default function ProductForm({ productId, onClose }) {
           />
         </div>
 
+        {/* Tiers */}
         <div className="form-check mb-2">
           <input
             className="form-check-input"
@@ -299,6 +260,7 @@ export default function ProductForm({ productId, onClose }) {
           </div>
         )}
 
+        {/* Botones */}
         <div className="d-flex gap-2">
           <button className="btn btn-success" disabled={saving}>
             {saving ? "Guardando..." : "Guardar"}
