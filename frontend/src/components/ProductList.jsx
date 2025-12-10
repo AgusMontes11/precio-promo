@@ -22,12 +22,25 @@ export default function ProductList({ onToggleTier }) {
   const [sortMode, setSortMode] = useState("none");
 
   // PAGINACIÓN
-  const ITEMS_PER_PAGE = 7;
+  const [itemsPerPage, setItemsPerPage] = useState(7);
   const [page, setPage] = useState(1);
 
   // =====================================
   // CARGA DE PRODUCTOS
   // =====================================
+
+  useEffect(() => {
+    function updateItems() {
+      const isMobile = window.innerWidth <= 576; // breakpoint mobile
+      setItemsPerPage(isMobile ? 3 : 7);
+    }
+
+    updateItems();
+    window.addEventListener("resize", updateItems);
+
+    return () => window.removeEventListener("resize", updateItems);
+  }, []);
+
   useEffect(() => {
     loadProducts();
   }, []);
@@ -155,11 +168,11 @@ export default function ProductList({ onToggleTier }) {
   // PAGINACIÓN
   // =====================================
   const paginated = useMemo(() => {
-    const start = (page - 1) * ITEMS_PER_PAGE;
-    return filtered.slice(start, start + ITEMS_PER_PAGE);
+    const start = (page - 1) * itemsPerPage;
+    return filtered.slice(start, start + itemsPerPage);
   }, [filtered, page]);
 
-  const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
+  const totalPages = Math.ceil(filtered.length / itemsPerPage);
 
   // =====================================
   // HELPERS
