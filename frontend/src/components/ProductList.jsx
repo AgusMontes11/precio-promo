@@ -164,8 +164,10 @@ export default function ProductList({ onToggleTier }) {
   // =====================================
   // HELPERS
   // =====================================
-  const imgSrc = (url) =>
-    url && url.startsWith("http") ? url : "/placeholder.png";
+  const imgSrc = (url, id) => {
+    if (!url) return "/placeholder.png";
+    return `${url}?v=${id}`;
+  };
 
   // =====================================
   // UI
@@ -268,7 +270,7 @@ export default function ProductList({ onToggleTier }) {
 
                     <td>
                       <img
-                        src={imgSrc(p.imageUrl)}
+                        src={imgSrc(p.imageUrl, p.id)}
                         alt={p.name}
                         className="shopify-thumb"
                         onError={(e) => (e.target.src = "/placeholder.png")}
@@ -283,20 +285,20 @@ export default function ProductList({ onToggleTier }) {
 
                     <td>
                       {!isPromotor && (
-                      <button
-                        className="btn-sm shopify-outline-btn me-2"
-                        onClick={() => setEditingProduct(p)}
-                      >
-                        Editar
-                      </button>
+                        <button
+                          className="btn-sm shopify-outline-btn me-2"
+                          onClick={() => setEditingProduct(p)}
+                        >
+                          Editar
+                        </button>
                       )}
                       {!isPromotor && (
-                      <button
-                        className="btn-sm shopify-danger-btn"
-                        onClick={() => setDeleteProduct(p)}
-                      >
-                        Eliminar
-                      </button>
+                        <button
+                          className="btn-sm shopify-danger-btn"
+                          onClick={() => setDeleteProduct(p)}
+                        >
+                          Eliminar
+                        </button>
                       )}
                     </td>
                   </tr>
