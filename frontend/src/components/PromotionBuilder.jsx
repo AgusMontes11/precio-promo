@@ -67,113 +67,123 @@ export default function PromotionBuilder({
     <div className="shopify-container position-relative">
       <h5 className="builder-title">Configurar Escalonadas</h5>
 
-      {selectedProducts.length === 0 ? (
-        <p className="builder-empty">
-          Seleccioná productos para agregar escalonadas
-        </p>
-      ) : (
-        <div
-          className={`${selectedProducts.length >= 3 ? "overflow-auto" : ""}`}
-          style={{ maxHeight: selectedProducts.length >= 3 ? "360px" : "none" }}
-        >
-          <div className="row g-3">
-            {selectedProducts.map((p) => {
-              const tierData = getTierData(p);
+      {!isPromotor ? (
+        // ---------- SOLO ADMIN / SUPERVISOR ----------
+        <>
+          {selectedProducts.length === 0 ? (
+            <p className="builder-empty">
+              Seleccioná productos para agregar escalonadas
+            </p>
+          ) : (
+            <div
+              className={`${
+                selectedProducts.length >= 3 ? "overflow-auto" : ""
+              }`}
+              style={{
+                maxHeight: selectedProducts.length >= 3 ? "360px" : "none",
+              }}
+            >
+              <div className="row g-3">
+                {selectedProducts.map((p) => {
+                  const tierData = getTierData(p);
 
-              return (
-                <div key={p.id} className="col-12 col-md-6">
-                  <div className="shopify-card h-100 d-flex flex-column">
-                    <div className="builder-product-name mb-2">{p.name}</div>
+                  return (
+                    <div key={p.id} className="col-12 col-md-6">
+                      <div className="shopify-card h-100 d-flex flex-column">
+                        <div className="builder-product-name mb-2">
+                          {p.name}
+                        </div>
 
-                    <div
-                      className={`flex-grow-1 ${
-                        tierData.discountTiers.length > 3 ? "overflow-auto" : ""
-                      }`}
-                      style={{
-                        maxHeight:
-                          tierData.discountTiers.length > 3 ? "150px" : "auto",
-                        paddingRight: "3px",
-                      }}
-                    >
-                      <table className="table table-sm mb-2 builder-table">
-                        <thead className="sticky-header">
-                          <tr>
-                            <th className="builder-th">Cantidad</th>
-                            <th className="builder-th">Descuento %</th>
-                            <th></th>
-                          </tr>
-                        </thead>
+                        <div
+                          className={`flex-grow-1 ${
+                            tierData.discountTiers.length > 3
+                              ? "overflow-auto"
+                              : ""
+                          }`}
+                          style={{
+                            maxHeight:
+                              tierData.discountTiers.length > 3
+                                ? "150px"
+                                : "auto",
+                            paddingRight: "3px",
+                          }}
+                        >
+                          <table className="table table-sm mb-2 builder-table">
+                            <thead className="sticky-header">
+                              <tr>
+                                <th className="builder-th">Cantidad</th>
+                                <th className="builder-th">Descuento %</th>
+                                <th></th>
+                              </tr>
+                            </thead>
 
-                        <tbody>
-                          {tierData.discountTiers.map((tier, index) => (
-                            <tr key={index}>
-                              <td>
-                                <input
-                                  type="number"
-                                  min="1"
-                                  className="form-control form-control-sm builder-input"
-                                  value={tier.quantity}
-                                  disabled={isPromotor}
-                                  onChange={(e) => {
-                                    if (!isPromotor)
-                                      updateTier(
-                                        p.id,
-                                        index,
-                                        "quantity",
-                                        Number(e.target.value)
-                                      );
-                                  }}
-                                />
-                              </td>
+                            <tbody>
+                              {tierData.discountTiers.map((tier, index) => (
+                                <tr key={index}>
+                                  <td>
+                                    <input
+                                      type="number"
+                                      min="1"
+                                      className="form-control form-control-sm builder-input"
+                                      value={tier.quantity}
+                                      onChange={(e) =>
+                                        updateTier(
+                                          p.id,
+                                          index,
+                                          "quantity",
+                                          Number(e.target.value)
+                                        )
+                                      }
+                                    />
+                                  </td>
 
-                              <td>
-                                <input
-                                  type="number"
-                                  min="0"
-                                  className="form-control form-control-sm builder-input"
-                                  value={tier.discount}
-                                  disabled={isPromotor}
-                                  onChange={(e) => {
-                                    if (!isPromotor)
-                                      updateTier(
-                                        p.id,
-                                        index,
-                                        "discount",
-                                        Number(e.target.value)
-                                      );
-                                  }}
-                                />
-                              </td>
+                                  <td>
+                                    <input
+                                      type="number"
+                                      min="0"
+                                      className="form-control form-control-sm builder-input"
+                                      value={tier.discount}
+                                      onChange={(e) =>
+                                        updateTier(
+                                          p.id,
+                                          index,
+                                          "discount",
+                                          Number(e.target.value)
+                                        )
+                                      }
+                                    />
+                                  </td>
 
-                              <td className="text-end">
-                                {!isPromotor && (
-                                <button
-                                  className="builder-remove-btn"
-                                  onClick={() => removeTier(p.id, index)}
-                                >
-                                  ✕
-                                </button>
-                                )}
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
+                                  <td className="text-end">
+                                    <button
+                                      className="builder-remove-btn"
+                                      onClick={() => removeTier(p.id, index)}
+                                    >
+                                      ✕
+                                    </button>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </>
+      ) : (
+        // ---------- SOLO PROMOTOR ----------
+        <PromotionPreview
+          products={selectedProducts.map((p) => {
+            const t = getTierData(p);
+            return { ...p, ...t };
+          })}
+        />
       )}
-
-      <PromotionPreview
-        products={selectedProducts.map((p) => {
-          const t = getTierData(p);
-          return { ...p, ...t };
-        })}
-      />
     </div>
   );
 }
