@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, useState } from "react";
 import * as htmlToImage from "html-to-image";
+import Moveable from "react-moveable";
 import api from "../services/api";
 
 // ============================================================
@@ -133,10 +134,24 @@ function normalizeImg(product) {
 // ============================================================
 export default function FlyerGenerator({ template, items = [], layout = "single" }) {
   const previewRef = useRef(null);
+  const productImgRef = useRef(null);
+
   const [previewSize, setPreviewSize] = useState({ w: 0, h: 0 });
+
+  // posición/escala de la imagen del producto (movible)
+  const [imageTransform, setImageTransform] = useState({
+    x: null,
+    y: null,
+    scale: 1,
+  });
+
+  // estado para esconder los handlers al exportar
+  const [exporting, setExporting] = useState(false);
 
   const templateKey = guessTemplateKey(template);
   const cfg = TEMPLATE_CONFIG[templateKey] || TEMPLATE_CONFIG.black;
+
+  const currentProduct = items[0] || null;
 
   // ============================================================
   // Medir preview dinámicamente
@@ -148,8 +163,8 @@ export default function FlyerGenerator({ template, items = [], layout = "single"
       const rect = node.getBoundingClientRect();
       setPreviewSize({ w: rect.width, h: rect.height });
     }
-    updateSize();
 
+    updateSize();
     window.addEventListener("resize", updateSize);
     const tid = setTimeout(updateSize, 80);
 
@@ -159,6 +174,11 @@ export default function FlyerGenerator({ template, items = [], layout = "single"
     };
   }, [template, items]);
 
+  // Resetear posición de la imagen cuando cambia template o producto
+  useEffect(() => {
+    setImageTransform({ x: null, y: null, scale: 1 });
+  }, [templateKey, currentProduct?.id]);
+
   // ============================================================
   // EXPORTAR FLYER
   // ============================================================
@@ -166,6 +186,11 @@ export default function FlyerGenerator({ template, items = [], layout = "single"
     try {
       const element = previewRef.current;
       if (!element) return;
+
+      // ocultamos los handlers de Moveable
+      setExporting(true);
+      // pequeño delay para que React re-renderice sin Moveable
+      await new Promise((res) => setTimeout(res, 50));
 
       const dataUrl = await htmlToImage.toPng(element, {
         cacheBust: true,
@@ -182,6 +207,8 @@ export default function FlyerGenerator({ template, items = [], layout = "single"
       window.dispatchEvent(new Event("flyer-generated"));
     } catch (e) {
       console.error("Error exportando flyer:", e);
+    } finally {
+      setExporting(false);
     }
   };
 
@@ -197,28 +224,40 @@ export default function FlyerGenerator({ template, items = [], layout = "single"
     const size = Math.round(W * cfg.imageSizeRatio);
     const imageTop = Math.round(H * cfg.imageTopRatio);
     const nameTop = Math.round(H * cfg.nameTopRatio);
-    const priceTop = cfg.priceAbsolute ? null : Math.round(H * (cfg.priceTopRatio || 0.7));
+    const priceTop = cfg.priceAbsolute
+      ? null
+      : Math.round(H * (cfg.priceTopRatio || 0.7));
 
     const nameFont = Math.round(W * cfg.nameFontRatio);
     const priceFont = Math.round(W * cfg.priceFontRatio);
 
     const textShadow = cfg.dark ? "0 3px 10px rgba(255,255,255,0.85)" : "none";
 
+    // Posición base centrada (como tenías antes)
+    const baseLeft = (W - size) / 2;
+    const baseTop = imageTop;
+
+    const finalLeft = imageTransform.x ?? baseLeft;
+    const finalTop = imageTransform.y ?? baseTop;
+    const finalScale = imageTransform.scale ?? 1;
+
     return (
       <>
-        {/* IMAGEN */}
+        {/* IMAGEN MOVIBLE */}
         <img
+          ref={productImgRef}
           src={normalizeImg(product)}
           alt={product.name}
           style={{
             position: "absolute",
-            left: "50%",
-            top: `${imageTop}px`,
-            transform: "translateX(-50%)",
+            left: `${finalLeft}px`,
+            top: `${finalTop}px`,
             width: `${size}px`,
             height: `${size}px`,
             objectFit: "cover",
             borderRadius: 16,
+            transform: `scale(${finalScale})`,
+            cursor: "grab",
           }}
         />
 
@@ -290,6 +329,8 @@ export default function FlyerGenerator({ template, items = [], layout = "single"
     );
   };
 
+  const hasProduct = layout === "single" && !!currentProduct;
+
   return (
     <div>
       {/* PREVIEW */}
@@ -310,7 +351,43 @@ export default function FlyerGenerator({ template, items = [], layout = "single"
           marginTop: 10,
         }}
       >
-        {layout === "single" && items[0] && renderSinglePreview(items[0])}
+        {hasProduct && renderSinglePreview(currentProduct)}
+
+        {/* HANDLES DE MOVEABLE (solo cuando no estamos exportando) */}
+        {!exporting && hasProduct && productImgRef.current && (
+          <Moveable
+            target={productImgRef.current}
+            draggable={true}
+            scalable={true}
+            keepRatio={true}
+            throttleDrag={0}
+            edge={false}
+            origin={false}
+            renderDirections={["nw", "ne", "sw", "se", "n", "s", "e", "w"]}
+            onDrag={({ left, top }) => {
+              setImageTransform((prev) => ({
+                ...prev,
+                x: left,
+                y: top,
+              }));
+            }}
+            onScale={({ target, scale, drag }) => {
+              const newScale = scale[0];
+              setImageTransform((prev) => ({
+                ...prev,
+                scale: newScale,
+                x:
+                  drag?.beforeTranslate?.[0] ??
+                  prev.x ??
+                  parseFloat(target.style.left || "0"),
+                y:
+                  drag?.beforeTranslate?.[1] ??
+                  prev.y ??
+                  parseFloat(target.style.top || "0"),
+              }));
+            }}
+          />
+        )}
       </div>
 
       {/* BOTÓN DESCARGA */}

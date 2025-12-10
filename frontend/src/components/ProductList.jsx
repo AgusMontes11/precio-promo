@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useMemo } from "react";
 import api from "../services/api";
 import ProductForm from "./ProductForm";
-import "./productlist.css";
+import "./css/productlist.css";
 import { useAuth } from "../context/AuthContext";
 
 export default function ProductList({ onToggleTier }) {

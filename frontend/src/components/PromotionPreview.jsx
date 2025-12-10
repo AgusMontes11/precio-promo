@@ -1,6 +1,6 @@
 // src/components/PromotionPreview.jsx
 import React, { useState } from "react";
-import "./PromotionPreview.css";
+import "./css/PromotionPreview.css";
 
 export default function PromotionPreview({ products }) {
   const [toast, setToast] = useState(null);

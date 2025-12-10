@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import FlyerGenerator from "../components/FlyerGenerator";
 import api from "../services/api";
-import "./Flyerbuilder.css";
+import "./css/Flyerbuilder.css";
 
 // IMPORTS DE TEMPLATES
 import black from "../../public/4.png";

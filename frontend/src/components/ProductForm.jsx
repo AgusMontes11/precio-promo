@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import api from "../services/api";
 import { uploadToCloudinary } from "../services/cloudinary";
-import "./ProductForm.css";
+import "./css/ProductForm.css";
+import { removeBgFromFile } from "../utils/removeBg";
 
 export default function ProductForm({ productId, onClose }) {
   const isEditing = Boolean(productId);
@@ -120,8 +121,10 @@ export default function ProductForm({ productId, onClose }) {
       let imageUrl = product.imageUrl || null;
 
       if (imageFile) {
-        const cleanFile = await processImage(imageFile);
-        imageUrl = await uploadToCloudinary(cleanFile);
+        // Quita el fondo en el navegador (rápido)
+        const processed = await removeBgFromFile(imageFile);
+        // Subí el resultado a Cloudinary
+        imageUrl = await uploadToCloudinary(processed);
       }
 
       const payload = {

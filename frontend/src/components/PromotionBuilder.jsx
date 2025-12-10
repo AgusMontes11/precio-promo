@@ -1,7 +1,7 @@
 // src/components/PromotionBuilder.jsx
 import React from "react";
 import PromotionPreview from "./PromotionPreview";
-import "./PromotionBuilder.css";
+import "./css/PromotionBuilder.css";
 import { useAuth } from "../context/AuthContext";
 
 export default function PromotionBuilder({
@@ -160,16 +160,6 @@ export default function PromotionBuilder({
                         </tbody>
                       </table>
                     </div>
-
-                    {!isPromotor && (
-                      <button
-                        className="builder-add-btn mt-auto"
-                        onClick={() => !isPromotor && removeTier(p.id, index)}
-                        disabled={isPromotor}
-                      >
-                        ＋ Agregar Escalonada
-                      </button>
-                    )}
                   </div>
                 </div>
               );

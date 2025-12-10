@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Home, Image as ImageIcon, Boxes, Sun, Moon, LogOut } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
-import "./navbar.css";
+import "./css/navbar.css";
 
 export default function Navbar() {
   const { pathname } = useLocation();
