@@ -361,7 +361,7 @@ export default function ProductList({ onToggleTier }) {
 
       {/* PAGINACIÓN */}
       {!loading && totalPages > 1 && (
-        <div className="shopify-pagination d-flex align-items-center gap-3 flex-wrap">
+        <div className="shopify-pagination d-flex align-items-center gap-3">
           <button
             className="shopify-paginacion-btn"
             disabled={page === 1}
@@ -370,7 +370,7 @@ export default function ProductList({ onToggleTier }) {
             ← Anterior
           </button>
 
-          <span className="px-3 py-2 shopify-page-indicator">
+          <span className="shopify-page-indicator">
             Página {page} de {totalPages}
           </span>
 

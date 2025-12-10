@@ -329,3 +329,21 @@
     width: 92%;
   }
 }
+
+@media (max-width: 576px) {
+  .shopify-table {
+    min-width: unset !important;
+    width: 100% !important;
+  }
+}
+
+@media (max-width: 576px) {
+  .shopify-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: nowrap !important;
+    width: 100%;
+  }
+}
+
