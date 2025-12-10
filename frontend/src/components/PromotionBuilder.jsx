@@ -175,15 +175,15 @@ export default function PromotionBuilder({
             </div>
           )}
         </>
-      ) : (!isPromotor || isPromotor (
-        // ---------- TODOS ----------
+      ) : (
+        // ---------- PROMOTOR ----------
         <PromotionPreview
           products={selectedProducts.map((p) => {
             const t = getTierData(p);
             return { ...p, ...t };
           })}
         />
-      ))}
+      )}
     </div>
   );
 }

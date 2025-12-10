@@ -25,9 +25,20 @@ export default function ProductList({ onToggleTier }) {
   const [itemsPerPage, setItemsPerPage] = useState(7);
   const [page, setPage] = useState(1);
 
+  // EN MOVIL QUE SEAN SELECTS
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 576);
+
   // =====================================
   // CARGA DE PRODUCTOS
   // =====================================
+
+  useEffect(() => {
+    function handleResize() {
+      setIsMobile(window.innerWidth <= 576);
+    }
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useEffect(() => {
     function updateItems() {
@@ -229,8 +240,26 @@ export default function ProductList({ onToggleTier }) {
             <option value="priceDesc">Más caros</option>
           </select>
         </div>
+      </div>
 
-        {/* CATEGORY CHIPS */}
+      {/* CATEGORY FILTER – MOBILE SELECT / DESKTOP CHIPS */}
+      {isMobile ? (
+        <select
+          className="shopify-select mt-3"
+          value={selectedCategories[0] || ""}
+          onChange={(e) => {
+            const value = e.target.value;
+            setSelectedCategories(value ? [value] : []);
+          }}
+        >
+          <option value="">Todas las categorías</option>
+          {categories.map((cat) => (
+            <option key={cat} value={cat}>
+              {cat}
+            </option>
+          ))}
+        </select>
+      ) : (
         <div className="d-flex flex-wrap gap-2 mt-3">
           {categories.map((cat) => (
             <span
@@ -244,7 +273,7 @@ export default function ProductList({ onToggleTier }) {
             </span>
           ))}
         </div>
-      </div>
+      )}
 
       {/* ALERT */}
       {alert && (
@@ -332,7 +361,7 @@ export default function ProductList({ onToggleTier }) {
 
       {/* PAGINACIÓN */}
       {!loading && totalPages > 1 && (
-        <div className="d-flex justify-content-center mt-3 gap-2 flex-wrap">
+        <div className="shopify-pagination d-flex align-items-center gap-3 flex-wrap">
           <button
             className="shopify-paginacion-btn"
             disabled={page === 1}
