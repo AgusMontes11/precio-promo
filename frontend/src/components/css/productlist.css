@@ -272,8 +272,7 @@
 
 @media (max-width: 576px) {
   .shopify-pagination {
-    flex-wrap: nowrap !important;
-    justify-content: space-between;
+        justify-content: space-between;
     width: 100%;
   }
 
@@ -345,5 +344,9 @@
     flex-wrap: nowrap !important;
     width: 100%;
   }
+}
+
+ms-10 {
+  margin-left: 100rem;
 }
 

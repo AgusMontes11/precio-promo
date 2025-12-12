@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import FlyerGenerator from "../components/FlyerGenerator";
 import api from "../services/api";
 import "./css/Flyerbuilder.css";
+import { getCategories } from "../utils/getCategories";
 
 // IMPORTS DE TEMPLATES
 import black from "../../public/4.png";
@@ -32,12 +33,7 @@ export default function FlyerBuilder() {
       const prods = (res.data || []).map((p) => ({
         ...p,
         id: p.id ?? p._id,
-        imageUrl:
-          p.imageUrl ||
-          p.imageurl ||
-          p.image ||
-          p.imageURL ||
-          null,
+        imageUrl: p.imageUrl || p.imageurl || p.image || p.imageURL || null,
       }));
 
       setProducts(prods);
@@ -57,6 +53,15 @@ export default function FlyerBuilder() {
     ? [products.find((p) => p.id === selected)].filter(Boolean)
     : [];
 
+  // CATEGORIAS
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const categories = getCategories(products);
+
+  const filteredProducts = selectedCategory
+  ? products.filter((p) => p.category === selectedCategory)
+  : products;
+
+
   return (
     <div className="container-fluid px-5">
       <h3 className="mb-3 mt-3">Generador de Flyers</h3>
@@ -70,9 +75,9 @@ export default function FlyerBuilder() {
           <div className="d-flex gap-2 mb-3">
             <select
               className="form-select mb-2 flyer-select"
-              style={{ 
+              style={{
                 width: 220,
-               }}
+              }}
               value={templateId}
               onChange={(e) => setTemplateId(e.target.value)}
             >
@@ -82,13 +87,26 @@ export default function FlyerBuilder() {
                 </option>
               ))}
             </select>
+            <select
+              className="form-select mb-2 flyer-select"
+              style={{ width: 220 }}
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+            >
+              <option value="">Todas las categorías</option>
+              {categories.map((cat) => (
+                <option key={cat} value={cat}>
+                  {cat}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div
             className="row g-3"
             style={{ maxHeight: "74vh", overflowY: "auto", paddingRight: 6 }}
           >
-            {products.map((p) => (
+            {filteredProducts.map((p) => (
               <div key={p.id} className="col-4">
                 <div
                   className={`card p-2 ${

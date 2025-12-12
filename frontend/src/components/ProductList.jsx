@@ -260,7 +260,7 @@ export default function ProductList({ onToggleTier }) {
           ))}
         </select>
       ) : (
-        <div className="d-flex flex-wrap gap-2 mt-3">
+        <div className="d-flex flex-wrap gap-2 mt-3 p-2 pb-3">
           {categories.map((cat) => (
             <span
               key={cat}
@@ -361,16 +361,16 @@ export default function ProductList({ onToggleTier }) {
 
       {/* PAGINACIÓN */}
       {!loading && totalPages > 1 && (
-        <div className="shopify-pagination d-flex align-items-center gap-3">
+        <div className="shopify-pagination d-flex align-items-center gap-3 p-3 justify-content-center">
           <button
-            className="shopify-paginacion-btn"
+            className="shopify-paginacion-btn align-items-center"
             disabled={page === 1}
             onClick={() => setPage((p) => p - 1)}
           >
             ← Anterior
           </button>
 
-          <span className="shopify-page-indicator">
+          <span className="shopify-page-indicator align-items-center">
             Página {page} de {totalPages}
           </span>
 
