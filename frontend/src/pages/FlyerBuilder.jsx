@@ -70,13 +70,13 @@ export default function FlyerBuilder() {
         {/* IZQUIERDA: selector + productos */}
         <div
           className="col-12 col-md-5 d-flex flex-column"
-          style={{ height: "100vh" }}
+          style={{ height: "82vh" }}
         >
           <div className="d-flex gap-2 mb-3">
             <select
               className="form-select mb-2 flyer-select"
               style={{
-                width: 220,
+                width: "25vh",
               }}
               value={templateId}
               onChange={(e) => setTemplateId(e.target.value)}
@@ -88,8 +88,8 @@ export default function FlyerBuilder() {
               ))}
             </select>
             <select
-              className="form-select mb-2 flyer-select"
-              style={{ width: 220 }}
+              className="form-select mb-2 flyer-select ms-2"
+              style={{ width: "25vh"}}
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
             >
@@ -144,7 +144,7 @@ export default function FlyerBuilder() {
 
                   <div className="mt-2">
                     <div className="fw-bold small">{p.name}</div>
-                    <div className="small text-muted">${p.price}</div>
+                    <div className="small pt-2">${p.price}</div>
                   </div>
                 </div>
               </div>
@@ -154,7 +154,7 @@ export default function FlyerBuilder() {
 
         {/* DERECHA: preview */}
         <div className="col-12 col-md-7">
-          <h5 className="mb-2">Preview</h5>
+          <h5 className="mb-3 ps-2">Preview</h5>
 
           <div
             style={{

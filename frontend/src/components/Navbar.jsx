@@ -62,16 +62,6 @@ export default function Navbar() {
           </Link>
         </div>
 
-        {/* HAMBURGER (MOBILE ONLY) */}
-        <button
-          className="nav-hamburger d-lg-none"
-          onClick={() => setOpenMenu((prev) => !prev)}
-        >
-          <div className={`bar ${openMenu ? "open" : ""}`}></div>
-          <div className={`bar ${openMenu ? "open" : ""}`}></div>
-          <div className={`bar ${openMenu ? "open" : ""}`}></div>
-        </button>
-
         {/* DESKTOP MENU */}
         <div className="nav-center d-none d-lg-flex position-absolute start-50 translate-middle-x gap-3">
           {links.map((item) => {

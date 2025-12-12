@@ -245,7 +245,7 @@ export default function ProductList({ onToggleTier }) {
       {/* CATEGORY FILTER – MOBILE SELECT / DESKTOP CHIPS */}
       {isMobile ? (
         <select
-          className="shopify-select mt-3"
+          className="shopify-select mt-1 mb-3"
           value={selectedCategories[0] || ""}
           onChange={(e) => {
             const value = e.target.value;
@@ -282,13 +282,13 @@ export default function ProductList({ onToggleTier }) {
         </div>
       )}
 
-      {/* PRODUCT LIST */}
-      {!loading && (
-        <div className="shopify-card p-0 shopify-table-container">
-          <div className="shopify-table-wrapper">
-            <table className="table table-hover align-middle shopify-table">
-              <thead className="shopify-thead">
-                <tr>
+        {/* PRODUCT LIST */}
+        {!loading && (
+          <div className="shopify-card p-0 shopify-table-container">
+            <div className="shopify-table-wrapper">
+              <table className="table table-hover align-middle shopify-table">
+                <thead className="shopify-thead">
+                  <tr>
                   <th>Esc.</th>
                   <th>Imagen</th>
                   <th>Nombre</th>
@@ -360,29 +360,31 @@ export default function ProductList({ onToggleTier }) {
       )}
 
       {/* PAGINACIÓN */}
-      {!loading && totalPages > 1 && (
-        <div className="shopify-pagination d-flex align-items-center gap-3 p-3 justify-content-center">
-          <button
-            className="shopify-paginacion-btn align-items-center"
-            disabled={page === 1}
-            onClick={() => setPage((p) => p - 1)}
-          >
-            ← Anterior
-          </button>
+      <div className="pagination-wrapper">
+        {!loading && totalPages > 1 && (
+          <div className="shopify-pagination d-flex align-items-center gap-3 p-3 justify-content-center">
+            <button
+              className="shopify-paginacion-btn align-items-center"
+              disabled={page === 1}
+              onClick={() => setPage((p) => p - 1)}
+            >
+              ← Anterior
+            </button>
 
-          <span className="shopify-page-indicator align-items-center">
-            Página {page} de {totalPages}
-          </span>
+            <span className="shopify-page-indicator align-items-center">
+              Página {page} de {totalPages}
+            </span>
 
-          <button
-            className="shopify-paginacion-btn"
-            disabled={page === totalPages}
-            onClick={() => setPage((p) => p + 1)}
-          >
-            Siguiente →
-          </button>
-        </div>
-      )}
+            <button
+              className="shopify-paginacion-btn"
+              disabled={page === totalPages}
+              onClick={() => setPage((p) => p + 1)}
+            >
+              Siguiente →
+            </button>
+          </div>
+        )}
+      </div>
 
       {/* EDIT MODAL */}
       {editingProduct && (

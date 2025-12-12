@@ -365,7 +365,7 @@ export default function FlyerGenerator({ template, items = [], layout = "single"
             origin={false}
             renderDirections={["nw", "ne", "sw", "se", "n", "s", "e", "w"]}
             onDrag={({ left, top }) => {
-              setImageTransform((prev) => ({
+            setImageTransform((prev) => ({
                 ...prev,
                 x: left,
                 y: top,
@@ -391,7 +391,7 @@ export default function FlyerGenerator({ template, items = [], layout = "single"
       </div>
 
       {/* BOTÓN DESCARGA */}
-      <div className="mt-3 d-flex gap-2">
+      <div className="mt-4 mb-4 d-flex gap-2">
         <button className="btn btn-success" onClick={exportHighRes}>
           Descargar flyer (alta resolución)
         </button>
