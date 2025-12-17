@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Boxes, Image as ImageIcon, Sparkles, ArrowRight } from "lucide-react";
+import { Boxes, Image as ImageIcon, Medal, ArrowRight } from "lucide-react";
 import "./css/dashboard.css";
 import { Link } from "react-router-dom";
 import api from "../services/api";
@@ -27,9 +27,7 @@ function AnimatedNumber({ value }) {
     requestAnimationFrame(step);
   }, [value]);
 
-  return (
-    <span className="animated-number">{display}</span>
-  );
+  return <span className="animated-number">{display}</span>;
 }
 
 export default function Dashboard() {
@@ -76,7 +74,9 @@ export default function Dashboard() {
             <Boxes size={32} />
             <h3>Productos</h3>
             <p>Agregá, editá o eliminá productos.</p>
-            <div className="quick-go">Ir <ArrowRight size={16} /></div>
+            <div className="quick-go">
+              Ir <ArrowRight size={16} />
+            </div>
           </motion.div>
         </Link>
 
@@ -85,18 +85,22 @@ export default function Dashboard() {
             <ImageIcon size={32} />
             <h3>Flyers</h3>
             <p>Generá flyers con diseño profesional.</p>
-            <div className="quick-go">Ir <ArrowRight size={16} /></div>
+            <div className="quick-go">
+              Ir <ArrowRight size={16} />
+            </div>
           </motion.div>
         </Link>
 
-        <div className="quick-card disabled">
-          <motion.div className="quick-card-inner">
-            <Sparkles size={32} />
-            <h3>Próximamente</h3>
-            <p>Nuevas funciones en camino.</p>
-            <div className="quick-go"><ArrowRight size={16} /></div>
+        <Link to="/ranking" className="quick-card">
+          <motion.div className="quick-card-inner" whileHover={{ scale: 1.04 }}>
+            <Medal size={32} />
+            <h3>Ranking</h3>
+            <p>Seguimiento de desempeño y objetivos.</p>
+            <div className="quick-go">
+              Ir <ArrowRight size={16} />
+            </div>
           </motion.div>
-        </div>
+        </Link>
       </div>
 
       {/* STATS */}
@@ -108,7 +112,9 @@ export default function Dashboard() {
           <span>
             {totalProducts !== null ? (
               <AnimatedNumber value={totalProducts} />
-            ) : "—"}
+            ) : (
+              "—"
+            )}
           </span>
         </motion.div>
 

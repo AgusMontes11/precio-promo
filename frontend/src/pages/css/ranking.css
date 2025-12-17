@@ -1,0 +1,215 @@
+/* =========================
+   CONTENEDOR GENERAL
+========================= */
+
+.ranking-container {
+  padding: 16px 16px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.ranking-content {
+  width: 100%;
+  max-width: 1500px;
+}
+
+/* =========================
+   HERO / SWITCH (ULTRA FINO)
+========================= */
+
+.ranking-hero {
+  width: 100%;
+  padding: 8px 20px;
+  margin-bottom: 14px;
+  background: rgba(255, 255, 255, 0.025);
+  border-radius: 5px;
+  text-align: center;
+}
+
+.ranking-hero-switch {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  font-size: 0.8rem;
+  color: #9aa0a6;
+}
+
+.ranking-hero-switch h2 {
+  min-width: 100px;
+  text-align: center;
+  transition: color 0.25s, font-weight 0.25s;
+}
+
+.ranking-hero-switch h2.active {
+  color: #57957d;
+  font-weight: 600;
+}
+
+/* SWITCH */
+.hero-switch {
+  position: relative;
+  width: 92px;
+  height: 26px;
+  background: #335447;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.hero-knob {
+  position: absolute;
+  top: 4px;
+  left: 5px;
+  width: 18px;
+  height: 18px;
+  background: #ffffff;
+  border-radius: 50%;
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hero-switch.right .hero-knob {
+  transform: translateX(58px);
+}
+
+/* =========================
+   GRID DE TABLAS
+========================= */
+
+.ranking-grid {
+  display: grid;
+  grid-template-columns: 1.75fr 1fr;
+  gap: 28px;
+  align-items: flex-start;
+}
+
+/* =========================
+   SECCIONES
+========================= */
+
+.ranking-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.ranking-section h2 {
+  margin-bottom: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+/* =========================
+   TABLAS
+========================= */
+
+.ranking-table-wrapper {
+  background: var(--bg-card, #ffffff);
+  border-radius: 5px;
+  border: 1px solid rgba(0, 0, 0, 0.18);
+  overflow: hidden;
+}
+
+.ranking-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.76rem;
+}
+
+.ranking-table thead {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.ranking-table th,
+.ranking-table td {
+  padding: 8px 8px;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.ranking-table th {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #9aa0a6;
+}
+
+.ranking-table td.name {
+  text-align: left;
+  font-weight: 500;
+}
+
+.ranking-table tbody tr {
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.ranking-table tbody tr:hover {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+/* =========================
+   COLORES ALCANCE
+========================= */
+
+.ranking-table td.ok {
+  color: #2ecc71;
+  font-weight: 600;
+}
+
+.ranking-table td.warn {
+  color: #f1c40f;
+  font-weight: 600;
+}
+
+.ranking-table td.bad {
+  color: #e74c3c;
+  font-weight: 600;
+}
+
+/* =========================
+   LOADING
+========================= */
+
+.ranking-loading {
+  min-height: 260px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  color: #9aa0a6;
+  font-size: 0.9rem;
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+.loader {
+  width: 34px;
+  height: 34px;
+  border: 3px solid rgba(0, 0, 0, 0.15);
+  border-top-color: #000000;
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  0% { opacity: 0.4; }
+  50% { opacity: 1; }
+  100% { opacity: 0.4; }
+}
+
+/* =========================
+   RESPONSIVE (STACK)
+========================= */
+
+@media (max-width: 900px) {
+  .ranking-grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+}

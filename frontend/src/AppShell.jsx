@@ -8,6 +8,7 @@ import ProductForm from "./components/ProductForm";
 import FlyerBuilder from "./pages/FlyerBuilder";
 import PromotionBuilder from "./components/PromotionBuilder";
 import Login from "./pages/Login";
+import Ranking from "./pages/Ranking";
 
 import PrivateRoute from "./routes/PrivateRoute";
 import { useAuth } from "./context/AuthContext";
@@ -44,6 +45,15 @@ export default function AppShell() {
           element={
             <PrivateRoute roles={["admin", "promotor"]}>
               <Dashboard />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/ranking"
+          element={
+            <PrivateRoute roles={["admin", "promotor"]}>
+              <Ranking />
             </PrivateRoute>
           }
         />
