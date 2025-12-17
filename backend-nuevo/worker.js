@@ -70,14 +70,21 @@ export default {
       const { email, password } = await req.json();
 
       if (!email || !password) {
-        return new Response(JSON.stringify({ error: "Email y contraseña obligatorios" }), {
-          status: 400,
-          headers: corsHeaders,
-        });
+        return new Response(
+          JSON.stringify({ error: "Email y contraseña obligatorios" }),
+          {
+            status: 400,
+            headers: corsHeaders,
+          }
+        );
       }
 
       const res = await fetch(
-        `${env.SUPABASE_URL}/rest/v1/usuarios?select=id,email,password,role&email=eq.${encodeURIComponent(email)}&limit=1`,
+        `${
+          env.SUPABASE_URL
+        }/rest/v1/usuarios?select=id,email,password,role&email=eq.${encodeURIComponent(
+          email
+        )}&limit=1`,
         { headers: sbHeaders }
       );
 
@@ -85,10 +92,13 @@ export default {
       const user = rows?.[0] || null;
 
       if (!user || user.password !== password) {
-        return new Response(JSON.stringify({ error: "Usuario o contraseña incorrectos" }), {
-          status: 401,
-          headers: corsHeaders,
-        });
+        return new Response(
+          JSON.stringify({ error: "Usuario o contraseña incorrectos" }),
+          {
+            status: 401,
+            headers: corsHeaders,
+          }
+        );
       }
 
       const token = `dummy-${user.id}-${Date.now()}`;
@@ -115,10 +125,9 @@ export default {
 
     // PUBLIC GET ALL
     if (method === "GET" && path === "/products") {
-      const res = await fetch(
-        `${env.SUPABASE_URL}/rest/v1/products?select=*`,
-        { headers: sbHeaders }
-      );
+      const res = await fetch(`${env.SUPABASE_URL}/rest/v1/products?select=*`, {
+        headers: sbHeaders,
+      });
 
       const text = await res.text();
       return new Response(text, {
@@ -148,10 +157,13 @@ export default {
     if (method === "POST" && path === "/products") {
       const user = await requireAuth(req);
       if (!requireRole(user, ["admin"])) {
-        return new Response(JSON.stringify({ error: "Solo admin puede crear productos" }), {
-          status: 403,
-          headers: corsHeaders,
-        });
+        return new Response(
+          JSON.stringify({ error: "Solo admin puede crear productos" }),
+          {
+            status: 403,
+            headers: corsHeaders,
+          }
+        );
       }
 
       const body = await req.json();
@@ -173,10 +185,13 @@ export default {
     if (method === "PUT" && path.startsWith("/products/")) {
       const user = await requireAuth(req);
       if (!requireRole(user, ["admin"])) {
-        return new Response(JSON.stringify({ error: "Solo admin puede editar" }), {
-          status: 403,
-          headers: corsHeaders,
-        });
+        return new Response(
+          JSON.stringify({ error: "Solo admin puede editar" }),
+          {
+            status: 403,
+            headers: corsHeaders,
+          }
+        );
       }
 
       const id = path.split("/")[2];
@@ -202,10 +217,13 @@ export default {
     if (method === "DELETE" && path.startsWith("/products/")) {
       const user = await requireAuth(req);
       if (!requireRole(user, ["admin"])) {
-        return new Response(JSON.stringify({ error: "Solo admin puede borrar" }), {
-          status: 403,
-          headers: corsHeaders,
-        });
+        return new Response(
+          JSON.stringify({ error: "Solo admin puede borrar" }),
+          {
+            status: 403,
+            headers: corsHeaders,
+          }
+        );
       }
 
       const id = path.split("/")[2];
@@ -237,23 +255,23 @@ export default {
 
       const rows = await res.json();
 
-      return new Response(
-        JSON.stringify({ totalProducts: rows.length }),
-        {
-          status: 200,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
-      );
+      return new Response(JSON.stringify({ totalProducts: rows.length }), {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     // GET FLYERS COUNT (admin only)
     if (method === "GET" && path === "/stats/flyers") {
       const user = await requireAuth(req);
       if (!requireRole(user, ["admin", "promotor"])) {
-        return new Response(JSON.stringify({ error: "Solo admin y promotor" }), {
-          status: 403,
-          headers: corsHeaders,
-        });
+        return new Response(
+          JSON.stringify({ error: "Solo admin y promotor" }),
+          {
+            status: 403,
+            headers: corsHeaders,
+          }
+        );
       }
 
       const res = await fetch(
@@ -299,13 +317,77 @@ export default {
         }
       );
 
-      return new Response(
-        JSON.stringify({ success: true }),
-        {
-          status: updateRes.status,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
-      );
+      return new Response(JSON.stringify({ success: true }), {
+        status: updateRes.status,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // =========================
+    // RANKING (Google Sheets)
+    // =========================
+    if (method === "GET" && path === "/ranking") {
+      try {
+        const sheetId = env.GOOGLE_SHEET_ID;
+        const sheetName =
+          url.searchParams.get("sheet") || "RankingUng";
+        const apiKey = env.GOOGLE_API_KEY;
+
+        const baseUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values`;
+
+        const promotoresRes = await fetch(
+          `${baseUrl}/${sheetName}!A1:F17?key=${apiKey}`
+        );
+        const supervisoresRes = await fetch(
+          `${baseUrl}/${sheetName}!A19:F21?key=${apiKey}`
+        );
+
+        const promotoresJson = await promotoresRes.json();
+        const supervisoresJson = await supervisoresRes.json();
+
+        const parseBlock = (values, rol) => {
+          const [headers, ...rows] = values;
+
+          return rows.map((row) => {
+            const obj = {};
+
+            headers.forEach((h, i) => {
+              const key = h
+                .toString()
+                .toLowerCase()
+                .trim()
+                .replace(/\s+/g, "") // elimina espacios
+                .replace(/[^a-z0-9]/g, ""); // elimina símbolos
+
+              obj[key] = row[i];
+            });
+
+            return { ...obj, rol };
+          });
+        };
+
+        const promotores = parseBlock(promotoresJson.values, "promotor");
+        const supervisores = parseBlock(supervisoresJson.values, "supervisor");
+
+        return new Response(
+          JSON.stringify({
+            promotores,
+            supervisores,
+          }),
+          {
+            status: 200,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          }
+        );
+      } catch (err) {
+        return new Response(
+          JSON.stringify({
+            error: "Error leyendo ranking",
+            details: err?.message || err,
+          }),
+          { status: 500, headers: corsHeaders }
+        );
+      }
     }
 
     // =========================
