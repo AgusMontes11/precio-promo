@@ -9,6 +9,7 @@ import FlyerBuilder from "./pages/FlyerBuilder";
 import PromotionBuilder from "./components/PromotionBuilder";
 import Login from "./pages/Login";
 import Ranking from "./pages/Ranking";
+import CncPage from "./pages/CncPage";
 
 import PrivateRoute from "./routes/PrivateRoute";
 import { useAuth } from "./context/AuthContext";
@@ -17,7 +18,10 @@ export default function AppShell() {
   const { user, loading } = useAuth();
   const location = useLocation();
 
-  if (loading) return null;
+  // Evita pantalla blanca mientras carga auth
+  if (loading) {
+    return <div style={{ padding: 20 }}>Cargando...</div>;
+  }
 
   return (
     <>
@@ -25,9 +29,10 @@ export default function AppShell() {
       {user && location.pathname !== "/login" && <Navbar />}
 
       <Routes>
+        {/* LOGIN */}
         <Route path="/login" element={<Login />} />
 
-        {/* raíz: si hay user → dashboard, sino → login */}
+        {/* RAÍZ */}
         <Route
           path="/"
           element={
@@ -39,7 +44,17 @@ export default function AppShell() {
           }
         />
 
-        {/* SOLO ADMIN */}
+        {/* CNC (admin + promotor) */}
+        <Route
+          path="/cnc"
+          element={
+            <PrivateRoute roles={["admin", "promotor"]}>
+              <CncPage />
+            </PrivateRoute>
+          }
+        />
+
+        {/* DASHBOARD */}
         <Route
           path="/dashboard"
           element={
@@ -49,6 +64,7 @@ export default function AppShell() {
           }
         />
 
+        {/* RANKING */}
         <Route
           path="/ranking"
           element={
@@ -58,6 +74,7 @@ export default function AppShell() {
           }
         />
 
+        {/* PRODUCTOS */}
         <Route
           path="/products"
           element={
@@ -85,6 +102,7 @@ export default function AppShell() {
           }
         />
 
+        {/* PROMOCIONES */}
         <Route
           path="/promos"
           element={
@@ -94,7 +112,7 @@ export default function AppShell() {
           }
         />
 
-        {/* ADMIN + PROMOTOR */}
+        {/* FLYERS */}
         <Route
           path="/flyers"
           element={
@@ -104,7 +122,7 @@ export default function AppShell() {
           }
         />
 
-        {/* fallback */}
+        {/* FALLBACK */}
         <Route
           path="*"
           element={
