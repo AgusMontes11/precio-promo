@@ -179,7 +179,6 @@
   gap: 14px;
   color: #9aa0a6;
   font-size: 0.9rem;
-  animation: pulse 1.4s ease-in-out infinite;
 }
 
 .loader {
@@ -198,9 +197,15 @@
 }
 
 @keyframes pulse {
-  0% { opacity: 0.4; }
-  50% { opacity: 1; }
-  100% { opacity: 0.4; }
+  0% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.4;
+  }
 }
 
 /* =========================

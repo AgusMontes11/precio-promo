@@ -1,21 +1,20 @@
-// src/api/cnc.js
-
-const API_URL = import.meta.env.VITE_API_URL;
-// ejemplo: https://backend-nuevo.montesagus2001.workers.dev
+const API_URL = "https://backend-nuevo.montesagus2001.workers.dev";
 
 export async function getCncData({ sheet, token }) {
   const res = await fetch(
     `${API_URL}/cnc/data?sheet=${encodeURIComponent(sheet)}`,
     {
+      method: "GET",
       headers: {
+        "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
     }
   );
 
   if (!res.ok) {
-    const text = await res.text();
-    throw new Error(text || "Error obteniendo CNC");
+    const error = await res.json().catch(() => ({}));
+    throw new Error(error.error || "No autorizado");
   }
 
   return res.json();

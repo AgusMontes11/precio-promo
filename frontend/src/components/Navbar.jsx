@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Home, Image as ImageIcon, Boxes, Sun, Moon, LogOut } from "lucide-react";
+import { Home, Image as ImageIcon, Users, Boxes, Sun, Moon, LogOut } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import "./css/navbar.css";
 
@@ -34,6 +34,7 @@ export default function Navbar() {
     { to: "/dashboard", label: "Inicio", icon: <Home size={20} /> },
     { to: "/flyers", label: "Flyers", icon: <ImageIcon size={20} /> },
     { to: "/products", label: "Productos", icon: <Boxes size={20} /> },
+    { to: "/cnc", label: "CNC", icon: <Users size={20} /> },
   ];
 
   // Mobile menu

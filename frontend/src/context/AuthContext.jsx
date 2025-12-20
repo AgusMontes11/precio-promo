@@ -1,24 +1,21 @@
-// src/context/AuthContext.jsx
 import { createContext, useContext, useEffect, useState } from "react";
 
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);   // usuario completo
-  const [role, setRole] = useState(null);   // "admin" o "promotor"
+  const [user, setUser] = useState(null);
+  const [role, setRole] = useState(null);
+  const [token, setToken] = useState(null); // 🔥 ESTE FALTABA
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const storedToken = localStorage.getItem("token");
     const rawUser = localStorage.getItem("usuario");
 
-    if (token && rawUser) {
+    if (storedToken && rawUser) {
       try {
         const parsed = JSON.parse(rawUser);
 
-        // Soporta:
-        // - usuario.role
-        // - usuario.user_metadata.role (por si viene de Supabase)
         const detectedRole =
           parsed.role ||
           parsed.user_metadata?.role ||
@@ -26,6 +23,7 @@ export function AuthProvider({ children }) {
 
         setUser(parsed);
         setRole(detectedRole);
+        setToken(storedToken); // 🔥 ACÁ TAMBIÉN
       } catch (err) {
         console.error("Error parseando usuario:", err);
       }
@@ -45,6 +43,7 @@ export function AuthProvider({ children }) {
 
     setUser(usuario);
     setRole(detectedRole);
+    setToken(token); // 🔥 FUNDAMENTAL
   };
 
   const logout = () => {
@@ -52,10 +51,20 @@ export function AuthProvider({ children }) {
     localStorage.removeItem("usuario");
     setUser(null);
     setRole(null);
+    setToken(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, role, login, logout, loading }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        role,
+        token,     // 🔥 AHORA SÍ EXISTE
+        login,
+        logout,
+        loading,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
