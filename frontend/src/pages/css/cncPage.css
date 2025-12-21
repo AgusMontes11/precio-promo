@@ -1,0 +1,231 @@
+/* =========================================================
+   VARIABLES BASE (LIGHT / DARK)
+   Asume que el data-theme ya lo manejás en el body o html
+========================================================= */
+
+:root {
+  --bg-page: #f5f7fa;
+  --bg-card: #ffffff;
+  --bg-muted: #e9edf2;
+
+  --text-main: #1f2933;
+  --text-muted: #6b7280;
+
+  --border-color: #d1d5db;
+  --accent: #2563eb;
+}
+
+[data-theme="dark"] {
+  --bg-page: #0f172a;
+  --bg-card: #1b2430;
+  --bg-muted: #2f3b4a;
+
+  --text-main: #ffffff;
+  --text-muted: #9aa0a6;
+
+  --border-color: #2f3b4a;
+  --accent: #3b82f6;
+}
+
+/* =========================================================
+   PAGE WRAPPER
+========================================================= */
+
+.cnc-page {
+  padding: 24px;
+  min-height: calc(100vh - 70px);
+}
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.cnc-header {
+  margin-bottom: 20px;
+}
+
+.cnc-header h1 {
+  font-size: 1.6rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.cnc-header p {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+}
+
+/* =========================================================
+   TOP ROW (SELECTOR + UPLOAD)
+========================================================= */
+
+.cnc-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 20px;
+}
+
+/* =========================================================
+   TABS (SELECTOR DE HOJAS)
+========================================================= */
+
+.cnc-tabs {
+  display: flex;
+  gap: 10px;
+}
+
+.cnc-tab {
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border-color);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cnc-tab:hover {
+  color: var(--text-main);
+  border-color: var(--accent);
+}
+
+.cnc-tab.active {
+  color: var(--text-main);
+  border-color: var(--accent);
+}
+
+/* =========================================================
+   UPLOAD EXCEL (ADMIN)
+========================================================= */
+
+.cnc-upload {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.cnc-upload form {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cnc-upload input[type="file"] {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.cnc-upload button {
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+  color: var(--text-main);
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.cnc-upload button:hover {
+  background: var(--accent);
+  color: #fff;
+}
+
+.cnc-upload-msg {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* ===============================
+   CNC TABLE – ESTILO RANKING
+================================ */
+
+.cnc-card {
+  background: var(--bg-card);
+  border-radius: 14px;
+  padding: 8px 0;
+  border: none;
+}
+
+/* tabla */
+.cnc-table {
+  width: 100%;
+  border-collapse: separate !important;
+  border-spacing: 0;
+  font-size: 0.9rem;
+}
+
+/* header */
+.cnc-table thead th {
+  padding: 14px 18px;
+  text-align: left;
+  font-weight: 600;
+  color: var(--text-main);;
+  background: transparent;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* filas */
+.cnc-table tbody tr {
+  transition: background 0.15s ease;
+}
+
+.cnc-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+/* celdas */
+.cnc-table td {
+  padding: 14px 18px;
+  color: var(--text-main);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+/* última fila */
+.cnc-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* empty */
+.cnc-empty {
+  padding: 20px;
+  text-align: center;
+  color: #9aa4b2;
+}
+
+
+/* =========================================================
+   STATES
+========================================================= */
+
+.cnc-loading,
+.cnc-empty,
+.cnc-error {
+  padding: 16px;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.cnc-error {
+  color: #dc2626;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 768px) {
+  .cnc-top-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .cnc-upload {
+    margin-left: 0;
+    width: 100%;
+  }
+}

@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 import { getCncData } from "../services/cnc";
 import { useAuth } from "../context/AuthContext";
 import CncTable from "../components/CncTable";
+import "./css/cncPage.css";
+
+const SHEETS = ["CNC UNG", "CNC Gatorade", "CNC H2Oh Still"];
 
 export default function CncPage() {
   const { user, role } = useAuth();
@@ -27,7 +30,7 @@ export default function CncPage() {
       setError(null);
 
       const data = await getCncData({ sheet, token });
-      setCnc(data.cnc);
+      setCnc(data?.cnc || []);
     } catch (err) {
       setError(err.message || "Error cargando CNC");
     } finally {
@@ -40,7 +43,7 @@ export default function CncPage() {
     if (!file) return;
 
     try {
-      setUploadMsg("Subiendo archivo...");
+      setUploadMsg("Subiendo archivo…");
 
       const formData = new FormData();
       formData.append("file", file);
@@ -57,7 +60,6 @@ export default function CncPage() {
       );
 
       const data = await res.json();
-
       if (!res.ok) throw new Error(data.error || "Error subiendo CNC");
 
       setUploadMsg(`✔ ${data.rowsInserted} filas cargadas`);
@@ -68,6 +70,7 @@ export default function CncPage() {
     }
   }
 
+  // 🔒 filtro por promotor
   const visibleCnc =
     role === "admin"
       ? cnc
@@ -76,37 +79,70 @@ export default function CncPage() {
         );
 
   return (
-    <div style={{ padding: 24 }}>
-      <h2>CNC</h2>
+    <div className="cnc-page">
+      {/* HEADER */}
+      <div className="cnc-header">
+        <h1>CNC</h1>
+        <p>Clientes No Compradores del día</p>
+      </div>
 
-      {/* Selector de hoja */}
-      <select
-        value={sheet}
-        onChange={(e) => setSheet(e.target.value)}
-      >
-        <option value="CNC UNG">CNC UNG</option>
-        <option value="CNC Gatorade">CNC GATORADE</option>
-      </select>
+      {/* TABS + UPLOAD */}
+      <div className="cnc-top-row">
+        <div className="cnc-tabs">
+          {SHEETS.map((s) => (
+            <button
+              key={s}
+              className={`cnc-tab ${sheet === s ? "active" : ""}`}
+              onClick={() => setSheet(s)}
+            >
+              {s}
+            </button>
+          ))}
+        </div>
 
-      {/* UPLOAD SOLO ADMIN */}
-      {role === "admin" && (
-        <form onSubmit={handleUpload} style={{ marginTop: 16 }}>
-          <input
-            type="file"
-            accept=".xlsx,.xls"
-            onChange={(e) => setFile(e.target.files[0])}
+        {role === "admin" && (
+          <div className="cnc-upload">
+            <form onSubmit={handleUpload}>
+              <input
+                type="file"
+                accept=".xlsx,.xls"
+                onChange={(e) => setFile(e.target.files[0])}
+              />
+              <button type="submit">Subir Excel</button>
+            </form>
+
+            {uploadMsg && (
+              <span className="cnc-upload-msg">{uploadMsg}</span>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* CONTENIDO */}
+      <div className="cnc-card">
+        {loading && <CncLoader />}
+        {error && <p className="cnc-error">{error}</p>}
+
+        {!loading && !error && (
+          <CncTable
+            data={visibleCnc}
+            role={role}   // 🔑 CLAVE
           />
-          <button type="submit">Subir Excel</button>
-          {uploadMsg && <p>{uploadMsg}</p>}
-        </form>
-      )}
+        )}
+      </div>
+    </div>
+  );
+}
 
-      {loading && <p>Cargando...</p>}
-      {error && <p style={{ color: "red" }}>{error}</p>}
+/* ===============================
+   LOADER
+================================ */
 
-      {!loading && !error && (
-        <CncTable data={visibleCnc} />
-      )}
+function CncLoader() {
+  return (
+    <div className="cnc-loader">
+      <div className="spinner" />
+      <span>Cargando CNC…</span>
     </div>
   );
 }

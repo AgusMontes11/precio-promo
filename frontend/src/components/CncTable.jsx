@@ -1,32 +1,47 @@
-// src/components/CncTable.jsx
+import "../pages/css/cncPage.css"
 
-export default function CncTable({ data }) {
-  if (data.length === 0) {
-    return <p>No hay CNC para mostrar</p>;
+export default function CncTable({ data, role }) {
+  if (!data.length) {
+    return <p className="cnc-empty">No hay CNC para mostrar</p>;
   }
 
   return (
-    <table border="1" cellPadding="8" style={{ marginTop: 16 }}>
-      <thead>
-        <tr>
-          <th>Código</th>
-          <th>Cliente</th>
-          <th>Promotor</th>
-          <th>Canal</th>
-          <th>Días</th>
-        </tr>
-      </thead>
-      <tbody>
-        {data.map((c) => (
-          <tr key={c.id}>
-            <td>{c.codigo}</td>
-            <td>{c.cliente}</td>
-            <td>{c.promotor_nombre}</td>
-            <td>{c.canal}</td>
-            <td>{c.dias.join(", ")}</td>
+    <div className="cnc-table-wrapper">
+      <table className="cnc-table">
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Cliente</th>
+
+            {role === "admin" && <th>Promotor</th>}
+
+            <th>Canal</th>
+            <th>Días</th>
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+
+        <tbody>
+          {data.map((row) => (
+            <tr key={row.id}>
+              <td className="cnc-code">{row.codigo}</td>
+              <td>{row.cliente}</td>
+
+              {role === "admin" && (
+                <td className="cnc-promotor">
+                  {row.promotor_nombre}
+                </td>
+              )}
+
+              <td className="cnc-canal">{row.canal}</td>
+              <td className="cnc-dias">
+                {Array.isArray(row.dias)
+                  ? row.dias.join(", ")
+                  : row.dias}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }

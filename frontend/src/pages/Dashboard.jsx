@@ -4,6 +4,16 @@ import { Boxes, Image as ImageIcon, Medal, ArrowRight } from "lucide-react";
 import "./css/dashboard.css";
 import { Link } from "react-router-dom";
 import api from "../services/api";
+import { useAuth } from "../context/AuthContext";
+
+function capitalizeName(name = "") {
+  return name
+    .toLowerCase()
+    .split(" ")
+    .filter(Boolean)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}
 
 function AnimatedNumber({ value }) {
   const [display, setDisplay] = useState(0);
@@ -54,6 +64,8 @@ export default function Dashboard() {
     return () => window.removeEventListener("flyer-generated", handler);
   }, []);
 
+  const { user } = useAuth();
+
   return (
     <motion.div
       className="dashboard-container fade-in"
@@ -61,12 +73,16 @@ export default function Dashboard() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
     >
-      {/* HEADER */}
       <div className="dashboard-header">
-        <h1>Panel Principal</h1>
+        <h1>
+          Hola,
+          {user?.nombre_promotor && (
+            <span> {capitalizeName(user.nombre_promotor)}</span>
+          )}
+        </h1>
+
         <p>Gestioná tus productos, generá flyers y administrá tu catálogo.</p>
       </div>
-
       {/* QUICK CARDS */}
       <div className="quick-actions">
         <Link to="/products" className="quick-card">
@@ -101,11 +117,20 @@ export default function Dashboard() {
             </div>
           </motion.div>
         </Link>
-      </div>
 
+        <Link to="/cnc" className="quick-card">
+          <motion.div className="quick-card-inner" whileHover={{ scale: 1.04 }}>
+            <Medal size={32} />
+            <h3>Clientes foco</h3>
+            <p>Clientes con descuentos adicionales.</p>
+            <div className="quick-go">
+              Ir <ArrowRight size={16} />
+            </div>
+          </motion.div>
+        </Link>
+      </div>
       {/* STATS */}
       <h2 className="stats-title">Estadísticas</h2>
-
       <div className="stats-grid">
         <motion.div className="stat-box" whileHover={{ scale: 1.03 }}>
           <h4>Total de productos</h4>
