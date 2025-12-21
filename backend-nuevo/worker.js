@@ -242,6 +242,27 @@ export default {
         );
       }
 
+      // 🔥 NUEVO: borrar CNC del mes antes de insertar
+      const deleteRes = await fetch(
+        `${env.SUPABASE_URL}/rest/v1/cnc_records?uploaded_month=eq.${uploadedMonth}`,
+        {
+          method: "DELETE",
+          headers: sbHeaders,
+        }
+      );
+
+      if (!deleteRes.ok) {
+        const err = await deleteRes.text();
+        return new Response(
+          JSON.stringify({
+            error: "Error limpiando CNC del mes",
+            detail: err,
+          }),
+          { status: 500, headers: corsHeaders }
+        );
+      }
+
+      // ✅ Insertar datos nuevos
       const res = await fetch(`${env.SUPABASE_URL}/rest/v1/cnc_records`, {
         method: "POST",
         headers: { ...sbHeaders, Prefer: "return=minimal" },
