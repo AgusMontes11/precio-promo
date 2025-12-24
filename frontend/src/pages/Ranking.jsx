@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { getPromotorImage } from "../constants/promotorImages";
 import "./css/ranking.css";
 
-const WORKER_URL =
-  "https://backend-nuevo.montesagus2001.workers.dev/ranking";
+const WORKER_URL = "https://backend-nuevo.montesagus2001.workers.dev/ranking";
 
 export default function Ranking() {
   const [mode, setMode] = useState(
@@ -67,6 +67,10 @@ export default function Ranking() {
   }
 
   const { promotores = [], supervisores = [] } = data || {};
+  // TOP 3 promotores por alcance
+  const top3Promotores = [...promotores]
+    .sort((a, b) => parseInt(b.alcance) - parseInt(a.alcance))
+    .slice(0, 3);
 
   const getClassByAlcance = (alcance) => {
     const n = parseInt(alcance);
@@ -109,6 +113,24 @@ export default function Ranking() {
     </div>
   );
 
+  const renderPodio = () => (
+    <div className="podium">
+      {top3Promotores.map((p, index) => (
+        <div key={p.promotor} className={`podium-item pos-${index + 1}`}>
+          <div className="podium-rank">{index + 1}</div>
+
+          <img
+            src={getPromotorImage(p.promotor)}
+            alt={p.promotor}
+            className="podium-avatar"
+          />
+
+          <span className="podium-name">{p.promotor}</span>
+        </div>
+      ))}
+    </div>
+  );
+
   return (
     <div className="ranking-container">
       <div className="ranking-content">
@@ -119,7 +141,9 @@ export default function Ranking() {
 
             <button
               className={`hero-switch ${mode === "cza" ? "right" : "left"}`}
-              onClick={() => setMode((m) => (m === "actual" ? "cza" : "actual"))}
+              onClick={() =>
+                setMode((m) => (m === "actual" ? "cza" : "actual"))
+              }
             >
               <div className="hero-knob" />
             </button>
@@ -138,8 +162,15 @@ export default function Ranking() {
             transition={{ duration: 0.35, ease: "easeOut" }}
           >
             <div className="ranking-grid">
-              <div className="ranking-col">{renderTable(promotores, "Promotores")}</div>
-              <div className="ranking-col">{renderTable(supervisores, "Supervisores")}</div>
+              <div className="ranking-col">
+                {renderTable(promotores, "Promotores")}
+              </div>
+
+              <div className="ranking-col ranking-side">
+                {renderTable(supervisores, "Supervisores")}
+                <br /><br /><br /><br /><br />  
+                {top3Promotores.length === 3 && renderPodio()}
+              </div>
             </div>
           </motion.div>
         </AnimatePresence>
