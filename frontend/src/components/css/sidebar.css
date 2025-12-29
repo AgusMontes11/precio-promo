@@ -1,0 +1,188 @@
+/* =====================================================
+   VARIABLES DE TEMA (UNA SOLA FUENTE DE VERDAD)
+===================================================== */
+
+body {
+  --sidebar-bg: #f9fafc;
+  --sidebar-text: #1f2937;
+  --sidebar-link: #1f2937;
+  --sidebar-link-hover: rgba(0, 0, 0, 0.06);
+  --sidebar-link-active-bg: #dfe8ff;
+  --sidebar-link-active-text: #1a3cff;
+
+  --sidebar-btn-bg: rgba(0, 0, 0, 0.06);
+  --sidebar-btn-hover: rgba(0, 0, 0, 0.12);
+  --sidebar-border: rgba(0, 0, 0, 0.08);
+}
+
+body.dark-theme {
+  --sidebar-bg: #0f1115;
+  --sidebar-text: #eaeaea;
+  --sidebar-link: #cfd3da;
+  --sidebar-link-hover: rgba(255, 255, 255, 0.06);
+  --sidebar-link-active-bg: rgba(59, 123, 255, 0.18);
+  --sidebar-link-active-text: #ffffff;
+
+  --sidebar-btn-bg: rgba(255, 255, 255, 0.06);
+  --sidebar-btn-hover: rgba(255, 255, 255, 0.12);
+  --sidebar-border: rgba(255, 255, 255, 0.08);
+}
+
+/* =====================================================
+   OVERLAY
+===================================================== */
+
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(1px);
+  z-index: 998;
+}
+
+/* =====================================================
+   SIDEBAR CONTAINER
+===================================================== */
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100dvh;
+  width: 280px;
+  background: var(--sidebar-bg);
+  color: var(--sidebar-text);
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  padding: 14px;
+  box-shadow: 8px 0 24px rgba(0, 0, 0, 0.15);
+}
+
+/* =====================================================
+   HEADER
+===================================================== */
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 800;
+  font-size: 15px;
+}
+
+.sidebar-brand img {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+}
+
+.sidebar-close {
+  border: none;
+  background: var(--sidebar-btn-bg);
+  border-radius: 8px;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  color: var(--sidebar-text);
+}
+
+.sidebar-close:hover {
+  background: var(--sidebar-btn-hover);
+}
+
+/* =====================================================
+   LINKS
+===================================================== */
+
+.sidebar-links {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  color: var(--sidebar-link);
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.sidebar-link:hover {
+  background: var(--sidebar-link-hover);
+}
+
+.sidebar-link.active {
+  background: var(--sidebar-link-active-bg);
+  color: var(--sidebar-link-active-text);
+}
+
+/* =====================================================
+   FOOTER
+===================================================== */
+
+.sidebar-footer {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 14px;
+  border-top: 1px solid var(--sidebar-border);
+}
+
+.sidebar-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: none;
+  background: var(--sidebar-btn-bg);
+  color: var(--sidebar-text);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.sidebar-btn:hover {
+  background: var(--sidebar-btn-hover);
+}
+
+.sidebar-btn.danger {
+  background: rgba(231, 76, 60, 0.15);
+  color: #b42318;
+}
+
+body.dark-theme .sidebar-btn.danger {
+  color: #ffb3ad;
+}
+
+.sidebar-btn.danger:hover {
+  background: rgba(231, 76, 60, 0.25);
+}
+
+/* =====================================================
+   MOBILE ONLY
+===================================================== */
+
+@media (min-width: 992px) {
+  .sidebar,
+  .sidebar-overlay {
+    display: none;
+  }
+}

@@ -250,3 +250,106 @@ body.dark .pro-navbar {
 .mobile-menu-item.active {
   color: #007bff;
 }
+
+/* =========================
+   MOBILE NAVBAR
+========================= */
+
+.nav-mobile-left,
+.nav-mobile-right {
+  display: flex;
+  align-items: center;
+}
+
+.nav-hamburger-btn {
+  background: none;
+  border: none;
+  margin-left: 14px;
+  color: var(--nav-btn-text);
+}
+
+.nav-user-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  margin-right: 14px;
+  object-fit: cover;
+  border: 2px solid #3c7bff;
+}
+
+/* =========================
+   SIDEBAR
+========================= */
+
+.mobile-sidebar {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: #0f1115;
+  display: flex;
+  flex-direction: column;
+  padding: 18px;
+}
+
+.sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 700;
+  font-size: 18px;
+  margin-bottom: 22px;
+}
+
+.sidebar-links {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #e8e8e8;
+  text-decoration: none;
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sidebar-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid #333;
+  background: #1b1d1f;
+  color: #eee;
+  font-weight: 600;
+}
+
+.sidebar-btn.logout {
+  border-color: #ff4d4d;
+  color: #ff4d4d;
+}
+
+/* =========================
+   MOBILE USER AVATAR
+========================= */
+
+.nav-user-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: center top; /* 👈 CLAVE */
+  border: 2px solid #3c7bff;
+  background: #0f1115;
+}

@@ -166,9 +166,9 @@ export default function Ranking() {
                 {renderTable(promotores, "Promotores")}
               </div>
 
-              <div className="ranking-col ranking-side">
+              <div className="ranking-col">
                 {renderTable(supervisores, "Supervisores")}
-                <br /><br /><br />  
+                <br />
                 {top3Promotores.length === 3 && renderPodio()}
               </div>
             </div>

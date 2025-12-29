@@ -35,6 +35,39 @@ export const PROMOTOR_IMAGES = {
     "VILCHEZ MARIO":vilchez,
 };
 
+export const PROMOTOR_LOGO = {
+    //"FLORES JOSE": floresjose,
+    //"MUSRI DIEGO": musri,
+    //"LUNA GONZALO": luna,
+    //"SEVILLA FIORELLA":sevilla,
+    //"TORO FRANCO":toro,
+    //"ORTIZ PABLO":ortiz,
+    //"SANCHEZ RONALDO LUCAS PITON":piton,
+    //"RIOS MAXIMILIANO":rios,
+    gmontes:montes,
+    //"CAMARGO MOIRA":camargo,
+    //"BARLOTTA MARTIN":barlotta,
+    //"VILLEGAS SEBASTIAN":villegas,
+    //"FLORES JOAQUIN":floresjoaquin,
+    //"ROJOS YUNES JUAN JOSE":rojos,
+    //"ANTIPAN JESUS ANTONIO":antipan,
+    //"VILCHEZ MARIO":vilchez,
+};
+
 export function getPromotorImage(nombre) {
   return PROMOTOR_IMAGES[nombre] || "/default-avatar.png";
+}
+
+const normalize = (str = "") =>
+  str
+    .trim()
+    .toUpperCase()
+    .replace(/\s+/g, " ");
+
+export function getPromotorImageByUser(user) {
+  if (!user?.nombre_promotor) return "/default-avatar.png";
+
+  const key = normalize(user.nombre_promotor);
+
+  return PROMOTOR_IMAGES[key] || "/default-avatar.png";
 }
