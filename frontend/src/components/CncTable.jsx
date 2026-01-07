@@ -14,8 +14,8 @@ export default function CncTable({ data, role }) {
             <th>Cliente</th>
 
             {role === "admin" && <th>Promotor</th>}
+            {role === "admin" && <th>Canal</th>}
 
-            <th>Canal</th>
             <th>Días</th>
           </tr>
         </thead>
@@ -32,7 +32,12 @@ export default function CncTable({ data, role }) {
                 </td>
               )}
 
-              <td className="cnc-canal">{row.canal}</td>
+               {role === "admin" && (
+                <td className="cnc-canal">
+                  {row.canal}
+                </td>
+              )}
+              
               <td className="cnc-dias">
                 {Array.isArray(row.dias)
                   ? row.dias.join(", ")

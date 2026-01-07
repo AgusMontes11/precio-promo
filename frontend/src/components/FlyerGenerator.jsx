@@ -3,9 +3,6 @@ import * as htmlToImage from "html-to-image";
 import Moveable from "react-moveable";
 import api from "../services/api";
 
-// ============================================================
-// CONFIGURACIÓN DE TEMPLATES
-// ============================================================
 const TEMPLATE_CONFIG = {
   black: {
     imageSizeRatio: 0.85,
@@ -50,18 +47,13 @@ const TEMPLATE_CONFIG = {
   },
 };
 
-// Vite renombra las imágenes a algo como "4-asd98asd.png"
-// Por eso buscamos por prefijo del archivo original.
 const TEMPLATE_KEY_BY_NAME = {
-  "4": "black",
-  "1": "white",
-  "2": "diag",
-  "7": "texture",
+  4: "black",
+  1: "white",
+  2: "diag",
+  7: "texture",
 };
 
-// ============================================================
-// Helpers
-// ============================================================
 function CurvedText({ text, radius, fontSize, color, shadow }) {
   return (
     <svg
@@ -95,7 +87,6 @@ function CurvedText({ text, radius, fontSize, color, shadow }) {
   );
 }
 
-// Detecta correctamente la key del template con imports de Vite
 function guessTemplateKey(templateSrc) {
   if (!templateSrc) return "black";
 
@@ -112,10 +103,9 @@ function guessTemplateKey(templateSrc) {
     }
   }
 
-  return "black"; // fallback
+  return "black";
 }
 
-// Normaliza la imagen del producto
 function normalizeImg(product) {
   const url =
     product?.imageUrl ||
@@ -129,33 +119,32 @@ function normalizeImg(product) {
   return url.startsWith("http") ? url : url;
 }
 
-// ============================================================
-// COMPONENTE PRINCIPAL
-// ============================================================
-export default function FlyerGenerator({ template, items = [], layout = "single" }) {
+export default function FlyerGenerator({
+  template,
+  items = [],
+  layout = "single",
+}) {
   const previewRef = useRef(null);
   const productImgRef = useRef(null);
 
   const [previewSize, setPreviewSize] = useState({ w: 0, h: 0 });
-
-  // posición/escala de la imagen del producto (movible)
   const [imageTransform, setImageTransform] = useState({
     x: null,
     y: null,
     scale: 1,
   });
 
-  // estado para esconder los handlers al exportar
   const [exporting, setExporting] = useState(false);
+
+  // NUEVO: estado y ref para editar el valor del precio
+  const [editedPrice, setEditedPrice] = useState("");
+  const priceRef = useRef(null);
 
   const templateKey = guessTemplateKey(template);
   const cfg = TEMPLATE_CONFIG[templateKey] || TEMPLATE_CONFIG.black;
 
   const currentProduct = items[0] || null;
 
-  // ============================================================
-  // Medir preview dinámicamente
-  // ============================================================
   useEffect(() => {
     function updateSize() {
       const node = previewRef.current;
@@ -174,22 +163,16 @@ export default function FlyerGenerator({ template, items = [], layout = "single"
     };
   }, [template, items]);
 
-  // Resetear posición de la imagen cuando cambia template o producto
   useEffect(() => {
     setImageTransform({ x: null, y: null, scale: 1 });
   }, [templateKey, currentProduct?.id]);
 
-  // ============================================================
-  // EXPORTAR FLYER
-  // ============================================================
   const exportHighRes = async () => {
     try {
       const element = previewRef.current;
       if (!element) return;
 
-      // ocultamos los handlers de Moveable
       setExporting(true);
-      // pequeño delay para que React re-renderice sin Moveable
       await new Promise((res) => setTimeout(res, 50));
 
       const dataUrl = await htmlToImage.toPng(element, {
@@ -212,9 +195,6 @@ export default function FlyerGenerator({ template, items = [], layout = "single"
     }
   };
 
-  // ============================================================
-  // RENDER DEL PREVIEW
-  // ============================================================
   const renderSinglePreview = (product) => {
     if (!product || previewSize.w === 0) return null;
 
@@ -233,7 +213,6 @@ export default function FlyerGenerator({ template, items = [], layout = "single"
 
     const textShadow = cfg.dark ? "0 3px 10px rgba(255,255,255,0.85)" : "none";
 
-    // Posición base centrada (como tenías antes)
     const baseLeft = (W - size) / 2;
     const baseTop = imageTop;
 
@@ -243,7 +222,6 @@ export default function FlyerGenerator({ template, items = [], layout = "single"
 
     return (
       <>
-        {/* IMAGEN MOVIBLE */}
         <img
           ref={productImgRef}
           src={normalizeImg(product)}
@@ -261,7 +239,6 @@ export default function FlyerGenerator({ template, items = [], layout = "single"
           }}
         />
 
-        {/* NOMBRE (curvo solo en white) */}
         {templateKey === "white" ? (
           <div
             style={{
@@ -302,8 +279,14 @@ export default function FlyerGenerator({ template, items = [], layout = "single"
           </div>
         )}
 
-        {/* PRECIO */}
+        {/* PRECIO EDITABLE (NUEVO) */}
         <div
+          ref={priceRef}
+          contentEditable
+          suppressContentEditableWarning
+          onInput={(e) =>
+            setEditedPrice(e.currentTarget.textContent.replace(/[^0-9]/g, ""))
+          }
           style={{
             position: "absolute",
             ...(cfg.priceAbsolute
@@ -321,9 +304,20 @@ export default function FlyerGenerator({ template, items = [], layout = "single"
             fontWeight: 800,
             fontSize: `${priceFont}px`,
             textShadow,
+            padding: "6px 12px",
+            background: "rgba(255, 255, 255, 0)",
+            borderRadius: 8,
+            outline: "none",
+            minWidth: 90,
+            textAlign: "center",
+            cursor: "text",
           }}
         >
-          ${Number(product.price).toLocaleString("es-AR")}
+          <span style={{ color: "#006400", fontWeight: 800, fontSize: `${priceFont}px`, textShadow }}>$</span>
+          
+          {editedPrice
+            ? Number(editedPrice).toLocaleString("es-AR")
+            : Number(product.price).toLocaleString("es-AR")}
         </div>
       </>
     );
@@ -333,7 +327,6 @@ export default function FlyerGenerator({ template, items = [], layout = "single"
 
   return (
     <div>
-      {/* PREVIEW */}
       <div
         ref={previewRef}
         id="flyer-preview"
@@ -353,7 +346,6 @@ export default function FlyerGenerator({ template, items = [], layout = "single"
       >
         {hasProduct && renderSinglePreview(currentProduct)}
 
-        {/* HANDLES DE MOVEABLE (solo cuando no estamos exportando) */}
         {!exporting && hasProduct && productImgRef.current && (
           <Moveable
             target={productImgRef.current}
@@ -365,7 +357,7 @@ export default function FlyerGenerator({ template, items = [], layout = "single"
             origin={false}
             renderDirections={["nw", "ne", "sw", "se", "n", "s", "e", "w"]}
             onDrag={({ left, top }) => {
-            setImageTransform((prev) => ({
+              setImageTransform((prev) => ({
                 ...prev,
                 x: left,
                 y: top,
@@ -390,7 +382,6 @@ export default function FlyerGenerator({ template, items = [], layout = "single"
         )}
       </div>
 
-      {/* BOTÓN DESCARGA */}
       <div className="mt-4 mb-4 d-flex gap-2">
         <button className="btn btn-success" onClick={exportHighRes}>
           Descargar flyer (alta resolución)

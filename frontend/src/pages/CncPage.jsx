@@ -4,13 +4,13 @@ import { useAuth } from "../context/AuthContext";
 import CncTable from "../components/CncTable";
 import "./css/cncPage.css";
 
-const SHEETS = ["CNC UNG", "CNC Gatorade", "CNC H2Oh Still"];
+const SHEETS = ["CNC UNG mes anterior", "CNC 500CC", "CNC H2Oh Still", "CNC Gatorade"];
 
 export default function CncPage() {
   const { user, role } = useAuth();
   const token = localStorage.getItem("token");
 
-  const [sheet, setSheet] = useState("CNC UNG");
+  const [sheet, setSheet] = useState("CNC UNG mes anterior");
   const [cnc, setCnc] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
