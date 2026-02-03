@@ -9,7 +9,18 @@
   --text-muted: #6b7280;
   --border-color: #e6e9ef;
   --accent: #2563eb;
-  --shadow-main: 0 6px 18px rgba(12,20,30,0.06);
+  --accent-contrast: #ffffff;
+  --success: #16a34a;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --shadow-main: 0 8px 24px rgba(12, 20, 30, 0.08);
+  --shadow-soft: 0 6px 16px rgba(12, 20, 30, 0.06);
+  --ring: 0 0 0 3px rgba(37, 99, 235, 0.18);
+  --transition-fast: 150ms ease;
+  --transition-med: 250ms ease;
 }
 
 .dark-theme {
@@ -19,7 +30,10 @@
   --text-muted: #9ca3af;
   --border-color: #2f3a4a;
   --accent: #3b82f6;
-  --shadow-main: 0 10px 30px rgba(0,0,0,0.35);
+  --accent-contrast: #0b1220;
+  --shadow-main: 0 14px 34px rgba(0, 0, 0, 0.45);
+  --shadow-soft: 0 10px 24px rgba(0, 0, 0, 0.35);
+  --ring: 0 0 0 3px rgba(59, 130, 246, 0.3);
 }
 
 
@@ -31,11 +45,27 @@ body {
   background: var(--bg-main);
   font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
   color: var(--text-main);
-  transition: background 0.3s ease, color 0.3s ease;
+  transition: background var(--transition-med), color var(--transition-med);
+  line-height: 1.5;
 }
 
 * {
-  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+  box-sizing: border-box;
+  transition: background-color var(--transition-med), color var(--transition-med), border-color var(--transition-med), box-shadow var(--transition-med);
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  letter-spacing: -0.01em;
 }
 
 /* ================================
@@ -53,6 +83,8 @@ body {
 .table {
   color: var(--text-main);
   background: var(--bg-card);
+  border-radius: var(--radius-md);
+  overflow: hidden;
 }
 
 .table th,
@@ -74,11 +106,15 @@ body {
    ================================ */
 
 .card {
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   background: var(--bg-card);
   box-shadow: var(--shadow-main);
   border: 1px solid var(--border-color);
   color: var(--text-main);
+}
+
+.card:hover {
+  box-shadow: var(--shadow-soft);
 }
 
 /* ================================
@@ -116,10 +152,17 @@ body {
   background: var(--bg-card) !important;
   color: var(--text-main) !important;
   border-color: var(--border-color) !important;
+  border-radius: var(--radius-sm);
+  transition: box-shadow var(--transition-fast), border-color var(--transition-fast);
 }
 
 .form-control::placeholder {
   color: var(--text-muted);
+}
+
+.form-control:focus {
+  border-color: var(--accent) !important;
+  box-shadow: var(--ring) !important;
 }
 
 /* ================================
@@ -129,21 +172,45 @@ body {
 .btn-primary {
   background-color: var(--accent);
   border-color: var(--accent);
+  color: var(--accent-contrast);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 6px 14px rgba(37, 99, 235, 0.18);
 }
 
 .btn-dark {
   background-color: #0f172a;
   border-color: #0f172a;
+  border-radius: var(--radius-sm);
 }
 
 .btn-outline-dark {
   color: var(--text-main);
   border-color: var(--border-color);
+  border-radius: var(--radius-sm);
 }
 
 .dark-theme .btn-outline-dark {
   border-color: var(--border-color);
   color: var(--text-main);
+}
+
+.btn:hover,
+.btn:focus-visible {
+  transform: translateY(-1px);
+}
+
+.btn:focus-visible {
+  outline: none;
+  box-shadow: var(--ring);
+}
+
+.btn-outline-danger {
+  color: var(--danger);
+  border-color: rgba(239, 68, 68, 0.5);
+}
+
+.btn-outline-danger:hover {
+  background: rgba(239, 68, 68, 0.08);
 }
 
 /* ================================
@@ -154,4 +221,39 @@ body {
   background: var(--bg-card);
   color: var(--text-main);
   border-color: var(--border-color);
+  border-radius: var(--radius-md);
+}
+
+/* ================================
+   🧩 UTILIDADES
+   ================================ */
+
+.text-muted {
+  color: var(--text-muted) !important;
+}
+
+.shadow-soft {
+  box-shadow: var(--shadow-soft);
+}
+
+.rounded-lg {
+  border-radius: var(--radius-lg);
+}
+
+/* ================================
+   🔹 SCROLLBAR
+   ================================ */
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, 0.35);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.55);
 }

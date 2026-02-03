@@ -18,32 +18,34 @@ import llanes from "../assets/llanes.png";
 import colombo from "../assets/colombo.png";
 import grillo from "../assets/grillo.png";
 import grisolia from "../assets/grisolia.png";
+import morales from "../assets/morales.png";
 
 export const PROMOTOR_IMAGES = {
-    "FLORES JOSE": floresjose,
-    "MUSRI DIEGO": musri,
-    "SEVILLA FIORELLA":sevilla,
-    "TORO FRANCO":toro,
-    "ORTIZ PABLO":ortiz,
-    "SANCHEZ RONALDO LUCAS PITON":piton,
-    "RIOS MAXIMILIANO":rios,
-    "MONTES GABRIEL":montes,
-    "CAMARGO MOIRA":camargo,
-    "BARLOTTA MARTIN":barlotta,
-    "VILLEGAS SEBASTIAN":villegas,
-    "FLORES JOAQUIN":floresjoaquin,
-    "ROJOS YUNES JUAN JOSE":rojos,
-    "ANTIPAN JESUS JUAN ANTONIO":antipan,
-    "VILCHEZ MARIO":vilchez,
-    "JUAN PAULO":juanpa,
-    "LLANES JUAN PABLO":llanes,
-    "COLOMBO RENZO":colombo,
-    "GRILLO GIULIANO":grillo,
-    "GRISOLIA FRANCO":grisolia,
+  "FLORES JOSE": { image: floresjose, number: 1 },
+  "MUSRI DIEGO": { image: musri, number: 5 },
+  "SEVILLA FIORELLA": { image: sevilla, number: 4 },
+  "TORO FRANCO": { image: toro, number: 11 },
+  "ORTIZ PABLO": { image: ortiz, number: 23 },
+  "SANCHEZ RONALDO LUCAS PITON": { image: piton, number: 12 },
+  "RIOS MAXIMILIANO": { image: rios, number: 6 },
+  "MONTES GABRIEL": { image: montes, number: 10 },
+  "CAMARGO MOIRA": { image: camargo, number: 25 },
+  "BARLOTTA MARTIN": { image: barlotta, number: 3 },
+  "FLORES JOAQUIN": { image: floresjoaquin, number: 26 },
+  "VILLEGAS ALEJANDRO SEBASTIAN": { image: villegas, number: 2 },
+  "ROJOS YUNES JUAN JOSE": { image: rojos, number: 6392 },
+  "ANTIPAN JESUS JUAN ANTONIO": { image: antipan, number: 9 },
+  "VILCHEZ MARIO": { image: vilchez, number: 7 },
+  "JUAN PAULO": { image: juanpa, number: 19 },
+  "LLANES JUAN PABLO": { image: llanes, number: "JEFE DE VENTAS" },
+  "COLOMBO RENZO": { image: colombo, number: "LIDER NABS" },
+  "GRILLO GIULIANO": { image: grillo, number: "SUPERVISOR" },
+  "MORALES MAURICIO": { image: morales, number: "SUPERVISOR" },
+  "GRISOLIA FRANCO": { image: grisolia, number: "SUPERVISOR DEMAND" },
 };
 
 export function getPromotorImage(nombre) {
-  return PROMOTOR_IMAGES[nombre] || "/default-avatar.png";
+  return PROMOTOR_IMAGES[nombre]?.image || "/default-avatar.png";
 }
 
 const normalize = (str = "") =>
@@ -57,5 +59,25 @@ export function getPromotorImageByUser(user) {
 
   const key = normalize(user.nombre_promotor);
 
-  return PROMOTOR_IMAGES[key] || "/default-avatar.png";
+  return PROMOTOR_IMAGES[key]?.image || "/default-avatar.png";
+}
+
+export function getPromotorLabelByUser(user) {
+  if (!user?.nombre_promotor) return "Promotor";
+
+  const key = normalize(user.nombre_promotor);
+  const number = PROMOTOR_IMAGES[key]?.number;
+  const role = user?.role;
+
+  if (typeof number === "string" && number.trim() !== "") {
+    return number;
+  }
+
+  if (role && role !== "promotor") {
+    return role;
+  }
+
+  if (!number) return "Promotor";
+
+  return `Promotor ${number}`;
 }

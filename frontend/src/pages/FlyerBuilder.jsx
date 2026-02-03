@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import FlyerGenerator from "../components/FlyerGenerator";
 import api from "../services/api";
 import "./css/Flyerbuilder.css";
@@ -21,6 +21,7 @@ export default function FlyerBuilder() {
   const [products, setProducts] = useState([]);
   const [selected, setSelected] = useState(null);
   const [templateId, setTemplateId] = useState("black");
+  const previewRef = useRef(null);
 
   const loadProducts = useCallback(async () => {
     try {
@@ -45,7 +46,15 @@ export default function FlyerBuilder() {
   }, [loadProducts]);
 
   const toggleSelect = (id) => {
-    setSelected((prev) => (prev === id ? null : id));
+    setSelected((prev) => {
+      const next = prev === id ? null : id;
+      if (next) {
+        requestAnimationFrame(() => {
+          previewRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+      }
+      return next;
+    });
   };
 
   const template = TEMPLATES.find((t) => t.id === templateId)?.src;
@@ -93,7 +102,7 @@ export default function FlyerBuilder() {
             style={{ maxHeight: "74vh", overflowY: "auto", paddingRight: 6 }}
           >
             {filteredProducts.map((p) => (
-              <div key={p.id} className="col-4">
+              <div key={p.id} className="col-6">
                 <div
                   className={`card p-2 ${
                     selected === p.id ? "border-primary" : ""
@@ -139,7 +148,7 @@ export default function FlyerBuilder() {
         </div>
 
         {/* DERECHA: preview */}
-        <div className="col-12 col-md-7">
+        <div ref={previewRef} className="col-12 col-md-7 ps-4">
           <h5 className="mb-3 ps-2">Preview</h5>
           <select
             className="form-select mb-2 flyer-select"

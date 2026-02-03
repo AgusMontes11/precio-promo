@@ -136,9 +136,9 @@ export default function FlyerGenerator({
 
   const [exporting, setExporting] = useState(false);
 
-  // NUEVO: estado y ref para editar el valor del precio
+  // NUEVO: estado para editar el valor del precio
   const [editedPrice, setEditedPrice] = useState("");
-  const priceRef = useRef(null);
+  const [isEditingPrice, setIsEditingPrice] = useState(false);
 
   const templateKey = guessTemplateKey(template);
   const cfg = TEMPLATE_CONFIG[templateKey] || TEMPLATE_CONFIG.black;
@@ -165,7 +165,13 @@ export default function FlyerGenerator({
 
   useEffect(() => {
     setImageTransform({ x: null, y: null, scale: 1 });
-  }, [templateKey, currentProduct?.id]);
+    if (currentProduct?.price !== undefined && currentProduct?.price !== null) {
+      setEditedPrice(String(currentProduct.price));
+    } else {
+      setEditedPrice("0");
+    }
+    setIsEditingPrice(false);
+  }, [templateKey, currentProduct?.id, currentProduct?.price]);
 
   const exportHighRes = async () => {
     try {
@@ -279,14 +285,8 @@ export default function FlyerGenerator({
           </div>
         )}
 
-        {/* PRECIO EDITABLE (NUEVO) */}
+        {/* PRECIO EDITABLE */}
         <div
-          ref={priceRef}
-          contentEditable
-          suppressContentEditableWarning
-          onInput={(e) =>
-            setEditedPrice(e.currentTarget.textContent.replace(/[^0-9]/g, ""))
-          }
           style={{
             position: "absolute",
             ...(cfg.priceAbsolute
@@ -298,8 +298,11 @@ export default function FlyerGenerator({
                   left: 0,
                   top: `${priceTop}px`,
                   width: "100%",
-                  textAlign: "center",
+                  justifyContent: "center",
                 }),
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
             color: "#006400",
             fontWeight: 800,
             fontSize: `${priceFont}px`,
@@ -307,17 +310,52 @@ export default function FlyerGenerator({
             padding: "6px 12px",
             background: "rgba(255, 255, 255, 0)",
             borderRadius: 8,
-            outline: "none",
             minWidth: 90,
-            textAlign: "center",
             cursor: "text",
           }}
         >
-          <span style={{ color: "#006400", fontWeight: 800, fontSize: `${priceFont}px`, textShadow }}>$</span>
-          
-          {editedPrice
-            ? Number(editedPrice).toLocaleString("es-AR")
-            : Number(product.price).toLocaleString("es-AR")}
+          <span
+            style={{
+              color: "#006400",
+              fontWeight: 800,
+              fontSize: `${priceFont}px`,
+              textShadow,
+            }}
+          >
+            $
+          </span>
+          <input
+            type="text"
+            inputMode="numeric"
+            value={
+              isEditingPrice
+                ? editedPrice
+                : Number(editedPrice || 0).toLocaleString("es-AR")
+            }
+            onFocus={() => {
+              setIsEditingPrice(true);
+              setEditedPrice((prev) => prev.replace(/[^0-9]/g, ""));
+            }}
+            onBlur={() => {
+              setIsEditingPrice(false);
+              setEditedPrice((prev) => (prev === "" ? "0" : prev));
+            }}
+            onChange={(e) => {
+              const next = e.target.value.replace(/[^0-9]/g, "");
+              setEditedPrice(next);
+            }}
+            style={{
+              border: "none",
+              outline: "none",
+              background: "transparent",
+              color: "#006400",
+              fontWeight: 800,
+              fontSize: `${priceFont}px`,
+              textShadow,
+              textAlign: cfg.priceAbsolute ? "left" : "center",
+              width: cfg.priceAbsolute ? "140px" : "100%",
+            }}
+          />
         </div>
       </>
     );

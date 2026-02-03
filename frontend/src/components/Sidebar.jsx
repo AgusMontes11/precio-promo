@@ -35,7 +35,7 @@ export default function Sidebar({ open, onClose }) {
     { to: "/products", label: "Productos", icon: <Boxes size={18} /> },
     { to: "/flyers", label: "Flyers", icon: <ImageIcon size={18} /> },
     { to: "/ranking", label: "Ranking", icon: <Users size={18} /> },
-    { to: "/cnc", label: "CCC", icon: <Users size={18} /> },
+    { to: "/cnc", label: "CNC", icon: <Users size={18} /> },
   ];
 
   return (

@@ -657,11 +657,11 @@ export default {
       );
     }
 
-    // INCREMENT FLYERS (admin only)
+    // INCREMENT FLYERS (admin + promotor)
     if (method === "POST" && path === "/stats/flyers/increment") {
       const user = await requireAuth(req);
-      if (!requireRole(user, ["admin"])) {
-        return new Response(JSON.stringify({ error: "Solo admin" }), {
+      if (!requireRole(user, ["admin", "promotor"])) {
+        return new Response(JSON.stringify({ error: "Solo admin o promotor" }), {
           status: 403,
           headers: corsHeaders,
         });

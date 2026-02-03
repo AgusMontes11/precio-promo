@@ -302,4 +302,21 @@
     width: 104px;
     height: 104px;
   }
+
+  /* SWITCH (mobile fix) */
+  .hero-switch {
+    width: 116px;
+    height: 24px;
+  }
+
+  .hero-knob {
+    top: 3px;
+    left: 4px;
+    width: 18px;
+    height: 18px;
+  }
+
+  .hero-switch.right .hero-knob {
+    transform: translateX(50px);
+  }
 }

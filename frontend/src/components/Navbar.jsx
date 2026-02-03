@@ -17,7 +17,10 @@ import { useAuth } from "../context/useAuth";
 import Sidebar from "./Sidebar";
 
 // 👇 USAMOS TU ARCHIVO EXISTENTE
-import { getPromotorImageByUser } from "../constants/promotorImages";
+import {
+  getPromotorImageByUser,
+  getPromotorLabelByUser,
+} from "../constants/promotorImages";
 
 import "./css/navbar.css";
 
@@ -65,9 +68,13 @@ export default function Navbar() {
   ========================= */
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [avatarOpen, setAvatarOpen] = useState(false);
   const MotionNav = motion.nav;
   const MotionDiv = motion.div;
   const MotionButton = motion.button;
+
+  const avatarSrc = getPromotorImageByUser(user);
+  const promotorLabel = getPromotorLabelByUser(user);
 
   return (
     <>
@@ -186,11 +193,18 @@ export default function Navbar() {
               RIGHT — MOBILE USER AVATAR
           ========================= */}
           <div className="d-lg-none ms-auto me-3">
-            <img
-              src={getPromotorImageByUser(user)}
-              alt={user?.nombre_promotor}
-              className="nav-user-avatar"
-            />
+            <button
+              type="button"
+              className="nav-avatar-button"
+              onClick={() => setAvatarOpen(true)}
+              aria-label="Ver promotor"
+            >
+              <img
+                src={avatarSrc}
+                alt={user?.nombre_promotor}
+                className="nav-user-avatar"
+              />
+            </button>
           </div>
         </div>
       </MotionNav>
@@ -204,6 +218,21 @@ export default function Navbar() {
         theme={theme}
         toggleTheme={toggleTheme}
       />
+
+      {avatarOpen && (
+        <div
+          className="avatar-modal-backdrop"
+          onClick={() => setAvatarOpen(false)}
+        >
+          <div
+            className="avatar-modal"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <img src={avatarSrc} alt={user?.nombre_promotor} />
+            <div className="avatar-modal-title">{promotorLabel}</div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
