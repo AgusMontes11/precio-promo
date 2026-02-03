@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { getCncData } from "../services/cnc";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/useAuth";
 import CncTable from "../components/CncTable";
 import "./css/cncPage.css";
 

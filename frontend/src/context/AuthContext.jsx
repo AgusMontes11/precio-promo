@@ -1,36 +1,30 @@
-import { createContext, useContext, useEffect, useState } from "react";
-
-const AuthContext = createContext();
+import { useState } from "react";
+import { AuthContext } from "./AuthContextBase";
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
-  const [role, setRole] = useState(null);
-  const [token, setToken] = useState(null); // 🔥 ESTE FALTABA
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
+  const readStoredAuth = () => {
     const storedToken = localStorage.getItem("token");
     const rawUser = localStorage.getItem("usuario");
 
-    if (storedToken && rawUser) {
-      try {
-        const parsed = JSON.parse(rawUser);
-
-        const detectedRole =
-          parsed.role ||
-          parsed.user_metadata?.role ||
-          null;
-
-        setUser(parsed);
-        setRole(detectedRole);
-        setToken(storedToken); // 🔥 ACÁ TAMBIÉN
-      } catch (err) {
-        console.error("Error parseando usuario:", err);
-      }
+    if (!storedToken || !rawUser) {
+      return { user: null, role: null, token: null };
     }
 
-    setLoading(false);
-  }, []);
+    try {
+      const parsed = JSON.parse(rawUser);
+      const detectedRole = parsed.role || parsed.user_metadata?.role || null;
+      return { user: parsed, role: detectedRole, token: storedToken };
+    } catch (error) {
+      console.error("Error parseando usuario:", error);
+      return { user: null, role: null, token: null };
+    }
+  };
+
+  const initialAuth = readStoredAuth();
+  const [user, setUser] = useState(initialAuth.user);
+  const [role, setRole] = useState(initialAuth.role);
+  const [token, setToken] = useState(initialAuth.token);
+  const [loading] = useState(false);
 
   const login = (token, usuario) => {
     const detectedRole =
@@ -59,7 +53,7 @@ export function AuthProvider({ children }) {
       value={{
         user,
         role,
-        token,     // 🔥 AHORA SÍ EXISTE
+        token, // 🔥 AHORA SÍ EXISTE
         login,
         logout,
         loading,
@@ -69,5 +63,3 @@ export function AuthProvider({ children }) {
     </AuthContext.Provider>
   );
 }
-
-export const useAuth = () => useContext(AuthContext);

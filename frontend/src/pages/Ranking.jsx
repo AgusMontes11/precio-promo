@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { getPromotorImage } from "../constants/promotorImages";
 import "./css/ranking.css";
@@ -15,26 +15,21 @@ export default function Ranking() {
   // loader SOLO la primera vez que entrás a /ranking
   const [isInitialLoad, setIsInitialLoad] = useState(true);
 
-  // dirección para la animación (se calcula fuera del render)
-  const [direction, setDirection] = useState(1);
-  const prevModeRef = useRef(mode);
+  const MotionDiv = motion.div;
+  const [direction, setDirection] = useState(0);
 
   // persistir modo
   useEffect(() => {
     localStorage.setItem("rankingMode", mode);
   }, [mode]);
 
-  // calcular dirección al cambiar de modo (FUERA del render)
-  useEffect(() => {
-    const prev = prevModeRef.current;
-
-    let dir = 0;
-    if (prev === "actual" && mode === "cza") dir = 1;
-    if (prev === "cza" && mode === "actual") dir = -1;
-
-    setDirection(dir);
-    prevModeRef.current = mode;
-  }, [mode]);
+  const handleToggleMode = () => {
+    setMode((prev) => {
+      const next = prev === "actual" ? "cza" : "actual";
+      setDirection(next === "cza" ? 1 : -1);
+      return next;
+    });
+  };
 
   // fetch datos según modo (sin poner data=null al cambiar, así no hay loader)
   useEffect(() => {
@@ -141,9 +136,7 @@ export default function Ranking() {
 
             <button
               className={`hero-switch ${mode === "cza" ? "right" : "left"}`}
-              onClick={() =>
-                setMode((m) => (m === "actual" ? "cza" : "actual"))
-              }
+              onClick={handleToggleMode}
             >
               <div className="hero-knob" />
             </button>
@@ -154,7 +147,7 @@ export default function Ranking() {
 
         {/* CONTENT ANIMADO */}
         <AnimatePresence mode="wait">
-          <motion.div
+          <MotionDiv
             key={mode}
             initial={{ opacity: 0, x: 40 * direction }}
             animate={{ opacity: 1, x: 0 }}
@@ -172,7 +165,7 @@ export default function Ranking() {
                 {top3Promotores.length === 3 && renderPodio()}
               </div>
             </div>
-          </motion.div>
+          </MotionDiv>
         </AnimatePresence>
       </div>
     </div>

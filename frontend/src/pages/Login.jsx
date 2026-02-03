@@ -1,7 +1,7 @@
 // src/pages/Login.jsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/useAuth";
 import { motion } from "framer-motion";
 import "./css/login.css";
 
@@ -10,6 +10,8 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const MotionDiv = motion.div;
+  const MotionButton = motion.button;
 
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -47,7 +49,7 @@ export default function Login() {
 
   return (
     <div className="login-bg">
-      <motion.div
+      <MotionDiv
         initial={{ opacity: 0, scale: 0.92, y: 30 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
@@ -73,15 +75,15 @@ export default function Login() {
             onChange={(e) => setPassword(e.target.value)}
           />
 
-          <motion.button
+          <MotionButton
             whileTap={{ scale: 0.95 }}
             className="btn btn-dark w-100"
             disabled={loading}
           >
             {loading ? "Entrando..." : "Entrar"}
-          </motion.button>
+          </MotionButton>
         </form>
-      </motion.div>
+      </MotionDiv>
     </div>
   );
 }

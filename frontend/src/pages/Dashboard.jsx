@@ -4,7 +4,7 @@ import { Boxes, Image as ImageIcon, Medal, ArrowRight } from "lucide-react";
 import "./css/dashboard.css";
 import { Link } from "react-router-dom";
 import api from "../services/api";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/useAuth";
 
 function capitalizeName(name = "") {
   return name
@@ -43,6 +43,7 @@ function AnimatedNumber({ value }) {
 export default function Dashboard() {
   const [totalProducts, setTotalProducts] = useState(null);
   const [flyersGenerated, setFlyersGenerated] = useState(0);
+  const MotionDiv = motion.div;
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -67,7 +68,7 @@ export default function Dashboard() {
   const { user } = useAuth();
 
   return (
-    <motion.div
+    <MotionDiv
       className="dashboard-container fade-in"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
@@ -86,53 +87,53 @@ export default function Dashboard() {
       {/* QUICK CARDS */}
       <div className="quick-actions">
         <Link to="/products" className="quick-card">
-          <motion.div className="quick-card-inner" whileHover={{ scale: 1.04 }}>
+          <MotionDiv className="quick-card-inner" whileHover={{ scale: 1.04 }}>
             <Boxes size={32} />
             <h3>Productos</h3>
             <p>Agregá, editá o eliminá productos.</p>
             <div className="quick-go">
               Ir <ArrowRight size={16} />
             </div>
-          </motion.div>
+          </MotionDiv>
         </Link>
 
         <Link to="/flyers" className="quick-card">
-          <motion.div className="quick-card-inner" whileHover={{ scale: 1.04 }}>
+          <MotionDiv className="quick-card-inner" whileHover={{ scale: 1.04 }}>
             <ImageIcon size={32} />
             <h3>Flyers</h3>
             <p>Generá flyers con diseño profesional.</p>
             <div className="quick-go">
               Ir <ArrowRight size={16} />
             </div>
-          </motion.div>
+          </MotionDiv>
         </Link>
 
         <Link to="/ranking" className="quick-card">
-          <motion.div className="quick-card-inner" whileHover={{ scale: 1.04 }}>
+          <MotionDiv className="quick-card-inner" whileHover={{ scale: 1.04 }}>
             <Medal size={32} />
             <h3>Ranking</h3>
             <p>Seguimiento de desempeño y objetivos.</p>
             <div className="quick-go">
               Ir <ArrowRight size={16} />
             </div>
-          </motion.div>
+          </MotionDiv>
         </Link>
 
         <Link to="/cnc" className="quick-card">
-          <motion.div className="quick-card-inner" whileHover={{ scale: 1.04 }}>
+          <MotionDiv className="quick-card-inner" whileHover={{ scale: 1.04 }}>
             <Medal size={32} />
             <h3>Clientes foco</h3>
             <p>Clientes con descuentos adicionales.</p>
             <div className="quick-go">
               Ir <ArrowRight size={16} />
             </div>
-          </motion.div>
+          </MotionDiv>
         </Link>
       </div>
       {/* STATS */}
       <h2 className="stats-title">Estadísticas</h2>
       <div className="stats-grid">
-        <motion.div className="stat-box" whileHover={{ scale: 1.03 }}>
+        <MotionDiv className="stat-box" whileHover={{ scale: 1.03 }}>
           <h4>Total de productos</h4>
           <span>
             {totalProducts !== null ? (
@@ -141,20 +142,20 @@ export default function Dashboard() {
               "—"
             )}
           </span>
-        </motion.div>
+        </MotionDiv>
 
-        <motion.div className="stat-box" whileHover={{ scale: 1.03 }}>
+        <MotionDiv className="stat-box" whileHover={{ scale: 1.03 }}>
           <h4>Flyers generados</h4>
           <span>
             <AnimatedNumber value={flyersGenerated} />
           </span>
-        </motion.div>
+        </MotionDiv>
 
-        <motion.div className="stat-box" whileHover={{ scale: 1.03 }}>
+        <MotionDiv className="stat-box" whileHover={{ scale: 1.03 }}>
           <h4>Actualizaciones pendientes</h4>
           <span>0</span>
-        </motion.div>
+        </MotionDiv>
       </div>
-    </motion.div>
+    </MotionDiv>
   );
 }

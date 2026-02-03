@@ -1,9 +1,9 @@
 // src/components/ProductList.jsx
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import api from "../services/api";
 import ProductForm from "./ProductForm";
 import "./css/productlist.css";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/useAuth";
 
 export default function ProductList({ onToggleTier }) {
   const { user } = useAuth();
@@ -52,11 +52,7 @@ export default function ProductList({ onToggleTier }) {
     return () => window.removeEventListener("resize", updateItems);
   }, []);
 
-  useEffect(() => {
-    loadProducts();
-  }, []);
-
-  const loadProducts = async () => {
+  const loadProducts = useCallback(async () => {
     setLoading(true);
     try {
       const res = await api.get("/products");
@@ -84,7 +80,12 @@ export default function ProductList({ onToggleTier }) {
       setAlert({ type: "danger", text: "Error cargando productos." });
     }
     setLoading(false);
-  };
+  }, []);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadProducts();
+  }, [loadProducts]);
 
   // =====================================
   // TOGGLE ESCALONADAS
@@ -119,7 +120,8 @@ export default function ProductList({ onToggleTier }) {
       setProducts((prev) => prev.filter((p) => p.id !== id));
       setDeleteProduct(null);
       setAlert({ type: "success", text: "Producto eliminado" });
-    } catch (err) {
+    } catch (error) {
+      console.error("Error eliminando producto", error);
       setAlert({ type: "danger", text: "Error eliminando producto" });
     }
   };
@@ -181,7 +183,7 @@ export default function ProductList({ onToggleTier }) {
   const paginated = useMemo(() => {
     const start = (page - 1) * itemsPerPage;
     return filtered.slice(start, start + itemsPerPage);
-  }, [filtered, page]);
+  }, [filtered, itemsPerPage, page]);
 
   const totalPages = Math.ceil(filtered.length / itemsPerPage);
 

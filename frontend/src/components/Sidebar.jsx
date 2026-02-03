@@ -12,8 +12,8 @@ import {
   X,
 } from "lucide-react";
 
-import { useAuth } from "../context/AuthContext";
-import { useTheme } from "../context/ThemeContext";
+import { useAuth } from "../context/useAuth";
+import { useTheme } from "../context/useTheme";
 import "./css/sidebar.css";
 
 export default function Sidebar({ open, onClose }) {
@@ -21,6 +21,8 @@ export default function Sidebar({ open, onClose }) {
   const navigate = useNavigate();
   const { logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const MotionDiv = motion.div;
+  const MotionAside = motion.aside;
 
   const handleLogout = () => {
     onClose();            // 1️⃣ cerramos sidebar
@@ -41,7 +43,7 @@ export default function Sidebar({ open, onClose }) {
       {open && (
         <>
           {/* OVERLAY */}
-          <motion.div
+          <MotionDiv
             className="sidebar-overlay"
             onClick={onClose}
             initial={{ opacity: 0 }}
@@ -50,7 +52,7 @@ export default function Sidebar({ open, onClose }) {
           />
 
           {/* SIDEBAR */}
-          <motion.aside
+          <MotionAside
             className="sidebar"
             initial={{ x: "-100%" }}
             animate={{ x: 0 }}
@@ -89,11 +91,6 @@ export default function Sidebar({ open, onClose }) {
 
             {/* FOOTER */}
             <div className="sidebar-footer">
-              <button className="sidebar-btn" onClick={toggleTheme}>
-                {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
-                {theme === "dark" ? "Modo claro" : "Modo oscuro"}
-              </button>
-
               <button
                 className="sidebar-btn danger"
                 onClick={handleLogout}
@@ -102,7 +99,7 @@ export default function Sidebar({ open, onClose }) {
                 Cerrar sesión
               </button>
             </div>
-          </motion.aside>
+          </MotionAside>
         </>
       )}
     </AnimatePresence>

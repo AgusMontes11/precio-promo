@@ -4,13 +4,14 @@ import { motion, AnimatePresence } from "framer-motion";
 
 export default function InstallBanner() {
   const { prompt, install, clearPrompt } = useInstallPrompt();
+  const MotionDiv = motion.div;
 
   // Si no hay prompt, no mostramos nada
   if (!prompt) return null;
 
   return (
     <AnimatePresence>
-      <motion.div
+      <MotionDiv
         initial={{ y: 100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: 100, opacity: 0 }}
@@ -50,7 +51,7 @@ export default function InstallBanner() {
             No ahora
           </button>
         </div>
-      </motion.div>
+      </MotionDiv>
     </AnimatePresence>
   );
 }

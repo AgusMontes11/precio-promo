@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import FlyerGenerator from "../components/FlyerGenerator";
 import api from "../services/api";
 import "./css/Flyerbuilder.css";
@@ -22,11 +22,7 @@ export default function FlyerBuilder() {
   const [selected, setSelected] = useState(null);
   const [templateId, setTemplateId] = useState("black");
 
-  useEffect(() => {
-    loadProducts();
-  }, []);
-
-  const loadProducts = async () => {
+  const loadProducts = useCallback(async () => {
     try {
       const res = await api.get("/products");
 
@@ -41,7 +37,12 @@ export default function FlyerBuilder() {
       console.error(err);
       alert("Error cargando productos");
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadProducts();
+  }, [loadProducts]);
 
   const toggleSelect = (id) => {
     setSelected((prev) => (prev === id ? null : id));
@@ -58,9 +59,8 @@ export default function FlyerBuilder() {
   const categories = getCategories(products);
 
   const filteredProducts = selectedCategory
-  ? products.filter((p) => p.category === selectedCategory)
-  : products;
-
+    ? products.filter((p) => p.category === selectedCategory)
+    : products;
 
   return (
     <div className="container-fluid px-5">
@@ -75,21 +75,7 @@ export default function FlyerBuilder() {
           <div className="d-flex gap-2 mb-3">
             <select
               className="form-select mb-2 flyer-select"
-              style={{
-                width: "25vh",
-              }}
-              value={templateId}
-              onChange={(e) => setTemplateId(e.target.value)}
-            >
-              {TEMPLATES.map((t) => (
-                <option key={t.id} value={t.id}>
-                  {t.name}
-                </option>
-              ))}
-            </select>
-            <select
-              className="form-select mb-2 flyer-select ms-2"
-              style={{ width: "25vh"}}
+              style={{ width: "35vh" }}
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
             >
@@ -155,7 +141,20 @@ export default function FlyerBuilder() {
         {/* DERECHA: preview */}
         <div className="col-12 col-md-7">
           <h5 className="mb-3 ps-2">Preview</h5>
-
+          <select
+            className="form-select mb-2 flyer-select"
+            style={{
+              width: "20vh",
+            }}
+            value={templateId}
+            onChange={(e) => setTemplateId(e.target.value)}
+          >
+            {TEMPLATES.map((t) => (
+              <option key={t.id} value={t.id}>
+                {t.name}
+              </option>
+            ))}
+          </select>
           <div
             style={{
               display: "flex",

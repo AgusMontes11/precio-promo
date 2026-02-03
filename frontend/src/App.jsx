@@ -9,7 +9,7 @@ import InstallBanner from "./components/InstallBanner";
 
 export default function App() {
   useEffect(() => {
-    const savedTheme = localStorage.getItem("theme") || "light";
+    const savedTheme = localStorage.getItem("theme") || "dark";
     if (savedTheme === "dark") {
       document.body.classList.add("dark-theme");
     } else {

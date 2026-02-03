@@ -13,7 +13,7 @@ import {
   Menu,
 } from "lucide-react";
 
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/useAuth";
 import Sidebar from "./Sidebar";
 
 // 👇 USAMOS TU ARCHIVO EXISTENTE
@@ -65,10 +65,13 @@ export default function Navbar() {
   ========================= */
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const MotionNav = motion.nav;
+  const MotionDiv = motion.div;
+  const MotionButton = motion.button;
 
   return (
     <>
-      <motion.nav
+      <MotionNav
         initial={{ opacity: 0, y: -14 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3, ease: "easeOut" }}
@@ -120,7 +123,7 @@ export default function Navbar() {
 
               return (
                 <Link key={item.to} to={item.to} className="nav-link">
-                  <motion.div
+                  <MotionDiv
                     whileHover={{ scale: 1.06, y: -2 }}
                     whileTap={{ scale: 0.95 }}
                     className={`nav-item ${active ? "active" : ""}`}
@@ -129,7 +132,7 @@ export default function Navbar() {
                     <span>{item.label}</span>
 
                     {active && (
-                      <motion.div
+                      <MotionDiv
                         layoutId="activeIndicator"
                         className="active-indicator"
                         transition={{
@@ -139,7 +142,7 @@ export default function Navbar() {
                         }}
                       />
                     )}
-                  </motion.div>
+                  </MotionDiv>
                 </Link>
               );
             })}
@@ -149,7 +152,7 @@ export default function Navbar() {
               RIGHT — DESKTOP ACTIONS
           ========================= */}
           <div className="nav-right ms-auto d-none d-lg-flex align-items-center gap-2">
-            <motion.button
+            <MotionButton
               onClick={toggleTheme}
               whileTap={{ scale: 0.9 }}
               className="btn btn-outline-dark d-flex align-items-center gap-2 px-3 py-1"
@@ -163,9 +166,9 @@ export default function Navbar() {
             >
               {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
               {theme === "dark" ? "Modo claro" : "Modo oscuro"}
-            </motion.button>
+            </MotionButton>
 
-            <motion.button
+            <MotionButton
               onClick={handleLogout}
               whileTap={{ scale: 0.9 }}
               className="btn btn-outline-danger d-flex align-items-center gap-2 px-3 py-1"
@@ -176,7 +179,7 @@ export default function Navbar() {
             >
               <LogOut size={16} />
               Salir
-            </motion.button>
+            </MotionButton>
           </div>
 
           {/* =========================
@@ -190,7 +193,7 @@ export default function Navbar() {
             />
           </div>
         </div>
-      </motion.nav>
+      </MotionNav>
 
       {/* =========================
           SIDEBAR (MOBILE)

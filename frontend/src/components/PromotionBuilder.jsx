@@ -2,7 +2,7 @@
 import React from "react";
 import PromotionPreview from "./PromotionPreview";
 import "./css/PromotionBuilder.css";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/useAuth";
 
 export default function PromotionBuilder({
   selectedProducts,
@@ -34,18 +34,6 @@ export default function PromotionBuilder({
     onSaveTiers(productId, {
       hasTiers: true,
       discountTiers: newTiers,
-    });
-  };
-
-  // Agregar
-  const addTier = (productId) => {
-    const current = getTierData(
-      selectedProducts.find((x) => x.id === productId)
-    );
-
-    onSaveTiers(productId, {
-      hasTiers: true,
-      discountTiers: [...current.discountTiers, { quantity: 1, discount: 0 }],
     });
   };
 
