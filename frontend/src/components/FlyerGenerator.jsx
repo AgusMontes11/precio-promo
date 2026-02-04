@@ -286,6 +286,13 @@ export default function FlyerGenerator({
         )}
 
         {/* PRECIO EDITABLE */}
+        {(() => {
+          const displayPrice = isEditingPrice
+            ? editedPrice
+            : Number(editedPrice || 0).toLocaleString("es-AR");
+          const priceChars = Math.max(displayPrice.length, 1) + 1;
+
+          return (
         <div
           style={{
             position: "absolute",
@@ -327,11 +334,7 @@ export default function FlyerGenerator({
           <input
             type="text"
             inputMode="numeric"
-            value={
-              isEditingPrice
-                ? editedPrice
-                : Number(editedPrice || 0).toLocaleString("es-AR")
-            }
+            value={displayPrice}
             onFocus={() => {
               setIsEditingPrice(true);
               setEditedPrice((prev) => prev.replace(/[^0-9]/g, ""));
@@ -352,11 +355,13 @@ export default function FlyerGenerator({
               fontWeight: 800,
               fontSize: `${priceFont}px`,
               textShadow,
-              textAlign: cfg.priceAbsolute ? "left" : "center",
-              width: cfg.priceAbsolute ? "140px" : "100%",
+              textAlign: cfg.priceAbsolute ? "left" : "left",
+              width: cfg.priceAbsolute ? "140px" : `${priceChars}ch`,
             }}
           />
         </div>
+          );
+        })()}
       </>
     );
   };

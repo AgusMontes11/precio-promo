@@ -7,6 +7,7 @@ import {
   Image as ImageIcon,
   Users,
   Boxes,
+  ClipboardList,
   Sun,
   Moon,
   LogOut,
@@ -61,6 +62,11 @@ export default function Navbar() {
     { to: "/flyers", label: "Flyers", icon: <ImageIcon size={20} /> },
     { to: "/products", label: "Productos", icon: <Boxes size={20} /> },
     { to: "/cnc", label: "CNC", icon: <Users size={20} /> },
+    {
+      to: "/plan-comercial",
+      label: "Plan comercial",
+      icon: <ClipboardList size={20} />,
+    },
   ];
 
   /* =========================

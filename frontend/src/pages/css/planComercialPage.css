@@ -1,0 +1,241 @@
+:root {
+  --plan-bg-page: #f5f7fa;
+  --plan-bg-card: #ffffff;
+  --plan-bg-muted: #e9edf2;
+
+  --plan-text-main: #1f2933;
+  --plan-text-muted: #6b7280;
+
+  --plan-border-color: #d1d5db;
+  --plan-accent: #2563eb;
+}
+
+[data-theme="dark"],
+body.dark-theme {
+  --plan-bg-page: #0f172a;
+  --plan-bg-card: #1b2430;
+  --plan-bg-muted: #2f3b4a;
+
+  --plan-text-main: #ffffff;
+  --plan-text-muted: #9aa0a6;
+
+  --plan-border-color: #2f3b4a;
+  --plan-accent: #3b82f6;
+}
+
+.plan-page {
+  padding: 24px;
+  min-height: calc(100vh - 70px);
+}
+
+.plan-header {
+  margin-bottom: 20px;
+}
+
+.plan-header h1 {
+  font-size: 1.6rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.plan-header p {
+  font-size: 0.95rem;
+  color: var(--plan-text-muted);
+}
+
+.plan-top-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.plan-tabs {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.plan-tab {
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--plan-border-color);
+  background: transparent;
+  color: var(--plan-text-muted);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.plan-tab:hover {
+  color: var(--plan-text-main);
+  border-color: var(--plan-accent);
+}
+
+.plan-tab.active {
+  color: var(--plan-text-main);
+  border-color: var(--plan-accent);
+}
+
+.plan-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: flex-end;
+  margin-left: auto;
+}
+
+.plan-btn {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--plan-border-color);
+  background: var(--plan-bg-card);
+  color: var(--plan-text-main);
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.2s ease;
+}
+
+.plan-btn:hover:enabled {
+  background: var(--plan-accent);
+  color: #fff;
+}
+
+.plan-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.plan-upload {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-end;
+}
+
+.plan-upload form {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.plan-upload input[type="file"] {
+  font-size: 0.85rem;
+  color: var(--plan-text-muted);
+}
+
+.plan-upload button {
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  border-radius: 6px;
+  border: 1px solid var(--plan-border-color);
+  background: var(--plan-bg-card);
+  color: var(--plan-text-main);
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.plan-upload button:hover {
+  background: var(--plan-accent);
+  color: #fff;
+}
+
+.plan-upload-msg {
+  font-size: 0.8rem;
+  color: var(--plan-text-muted);
+}
+
+.plan-card {
+  background: var(--plan-bg-card);
+  border-radius: 14px;
+  padding: 8px 0;
+  border: none;
+}
+
+.plan-table {
+  width: 100%;
+  border-collapse: separate !important;
+  border-spacing: 0;
+  font-size: 0.9rem;
+}
+
+.plan-table thead th {
+  padding: 14px 18px;
+  text-align: left;
+  font-weight: 600;
+  color: var(--plan-text-main);
+  background: transparent;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.plan-table tbody tr {
+  transition: background 0.15s ease;
+}
+
+.plan-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.plan-table td {
+  padding: 14px 18px;
+  color: var(--plan-text-main);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  vertical-align: top;
+}
+
+.plan-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.plan-empty,
+.plan-error {
+  padding: 16px;
+  font-size: 0.9rem;
+  color: var(--plan-text-muted);
+}
+
+.plan-error {
+  color: #dc2626;
+}
+
+.plan-loader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px;
+  color: var(--plan-text-muted);
+}
+
+.spinner {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid var(--plan-border-color);
+  border-top-color: var(--plan-accent);
+  animation: plan-spin 0.8s linear infinite;
+}
+
+@keyframes plan-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 768px) {
+  .plan-top-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .plan-actions {
+    align-items: flex-start;
+    width: 100%;
+  }
+
+  .plan-upload {
+    align-items: flex-start;
+    width: 100%;
+  }
+}

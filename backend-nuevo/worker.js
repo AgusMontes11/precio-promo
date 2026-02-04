@@ -149,6 +149,54 @@ export default {
       return v?.toString().trim() || null;
     }
 
+    const PLAN_PROMOTOR_KEYS = [
+      "promotor",
+      "promotora",
+      "vendedor",
+      "usuario",
+      "responsable",
+      "nombrepromotor",
+      "nombrepromotora",
+    ];
+
+    const PLAN_DAY_KEYS = [
+      "dia",
+      "dias",
+      "diasemana",
+      "diadelasemana",
+      "day",
+      "weekday",
+    ];
+
+    function rowHasValues(row = []) {
+      return row.some((cell) => {
+        const value = cell?.toString?.().trim?.() ?? "";
+        return value !== "";
+      });
+    }
+
+    function findHeaderRowIndex(raw = []) {
+      return raw.findIndex((row) => {
+        const nonEmpty = row.filter((cell) => {
+          const value = cell?.toString?.().trim?.() ?? "";
+          return value !== "";
+        });
+        return nonEmpty.length >= 2;
+      });
+    }
+
+    function buildRowJson(headersOriginal, row) {
+      const rowJson = {};
+
+      headersOriginal.forEach((header, index) => {
+        const key = header?.toString?.().trim?.() || "";
+        if (!key) return;
+        rowJson[key] = row?.[index] ?? "";
+      });
+
+      return rowJson;
+    }
+
     /* =========================
        CNC UPLOADS
     ========================= */
@@ -345,6 +393,225 @@ export default {
           status: 200,
           headers: corsHeaders,
         }
+      );
+    }
+
+    /* =========================
+       PLAN COMERCIAL UPLOADS
+    ========================= */
+    if (method === "POST" && path === "/plan-comercial/upload") {
+      const user = await requireAuth(req);
+      if (!requireRole(user, ["admin"])) {
+        return new Response(JSON.stringify({ error: "Solo admin" }), {
+          status: 403,
+          headers: corsHeaders,
+        });
+      }
+
+      const formData = await req.formData();
+      const file = formData.get("file");
+
+      if (!file) {
+        return new Response(JSON.stringify({ error: "Archivo requerido" }), {
+          status: 400,
+          headers: corsHeaders,
+        });
+      }
+
+      const buffer = await file.arrayBuffer();
+      const workbook = XLSX.read(buffer, { type: "array" });
+
+      const uploadedMonth = getCurrentMonth();
+      const inserts = [];
+
+      workbook.SheetNames.forEach((sheetName) => {
+        const sheet = workbook.Sheets[sheetName];
+
+        const raw = XLSX.utils.sheet_to_json(sheet, {
+          header: 1,
+          defval: "",
+        });
+
+        const headerRowIndex = findHeaderRowIndex(raw);
+        if (headerRowIndex === -1) return;
+
+        const headersOriginal = raw[headerRowIndex].map((h) =>
+          h?.toString?.().trim?.()
+        );
+        const normalizedHeaders = headersOriginal.map((h) =>
+          normalizeKey(h || "")
+        );
+
+        const promotorIndex = normalizedHeaders.findIndex((h) =>
+          PLAN_PROMOTOR_KEYS.includes(h)
+        );
+        const dayIndex = normalizedHeaders.findIndex((h) =>
+          PLAN_DAY_KEYS.includes(h)
+        );
+
+        raw.slice(headerRowIndex + 1).forEach((row) => {
+          if (!rowHasValues(row)) return;
+
+          const rowJson = buildRowJson(headersOriginal, row);
+
+          const promotorValue =
+            promotorIndex >= 0 ? row[promotorIndex] : null;
+          const dayValue = dayIndex >= 0 ? row[dayIndex] : null;
+
+          const dias = dayValue ? normalizeDays(dayValue) : DAY_MAP;
+
+          inserts.push({
+            sheet_name: sheetName,
+            uploaded_month: uploadedMonth,
+            promotor_nombre: normalizeText(promotorValue),
+            dias,
+            row_json: rowJson,
+          });
+        });
+      });
+
+      if (inserts.length === 0) {
+        return new Response(
+          JSON.stringify({ error: "No se encontraron filas válidas" }),
+          { status: 400, headers: corsHeaders }
+        );
+      }
+
+      const deleteRes = await fetch(
+        `${env.SUPABASE_URL}/rest/v1/plan_comercial_records?uploaded_month=eq.${uploadedMonth}`,
+        {
+          method: "DELETE",
+          headers: sbHeaders,
+        }
+      );
+
+      if (!deleteRes.ok) {
+        const err = await deleteRes.text();
+        return new Response(
+          JSON.stringify({
+            error: "Error limpiando Plan Comercial del mes",
+            detail: err,
+          }),
+          { status: 500, headers: corsHeaders }
+        );
+      }
+
+      const res = await fetch(
+        `${env.SUPABASE_URL}/rest/v1/plan_comercial_records`,
+        {
+          method: "POST",
+          headers: { ...sbHeaders, Prefer: "return=minimal" },
+          body: JSON.stringify(inserts),
+        }
+      );
+
+      if (!res.ok) {
+        const err = await res.text();
+        return new Response(
+          JSON.stringify({
+            error: "Error guardando Plan Comercial",
+            detail: err,
+          }),
+          { status: 500, headers: corsHeaders }
+        );
+      }
+
+      return new Response(
+        JSON.stringify({
+          success: true,
+          uploadedMonth,
+          rowsInserted: inserts.length,
+        }),
+        { status: 200, headers: corsHeaders }
+      );
+    }
+
+    /* =========================
+       PLAN COMERCIAL SHEETS
+    ========================= */
+    if (method === "GET" && path === "/plan-comercial/sheets") {
+      const user = await requireAuth(req);
+      if (!user) {
+        return new Response(JSON.stringify({ error: "No autorizado" }), {
+          status: 401,
+          headers: corsHeaders,
+        });
+      }
+
+      const month = getCurrentMonth();
+
+      let query =
+        `${env.SUPABASE_URL}/rest/v1/plan_comercial_records` +
+        `?select=sheet_name&uploaded_month=eq.${month}`;
+
+      if (user.role !== "admin") {
+        query += `&promotor_nombre=eq.${encodeURIComponent(
+          user.nombre_promotor
+        )}`;
+      }
+
+      const res = await fetch(query, { headers: sbHeaders });
+      const rows = await res.json();
+
+      const sheets = Array.from(
+        new Set(rows.map((row) => row.sheet_name).filter(Boolean))
+      );
+
+      return new Response(JSON.stringify({ sheets }), {
+        status: 200,
+        headers: corsHeaders,
+      });
+    }
+
+    /* =========================
+       PLAN COMERCIAL DATA
+    ========================= */
+    if (method === "GET" && path === "/plan-comercial/data") {
+      const user = await requireAuth(req);
+      if (!user) {
+        return new Response(JSON.stringify({ error: "No autorizado" }), {
+          status: 401,
+          headers: corsHeaders,
+        });
+      }
+
+      const sheet = url.searchParams.get("sheet");
+      if (!sheet) {
+        return new Response(
+          JSON.stringify({ error: "Falta parámetro sheet" }),
+          { status: 400, headers: corsHeaders }
+        );
+      }
+
+      const month = getCurrentMonth();
+
+      let query =
+        `${env.SUPABASE_URL}/rest/v1/plan_comercial_records` +
+        `?sheet_name=eq.${encodeURIComponent(sheet)}` +
+        `&uploaded_month=eq.${month}`;
+
+      if (user.role !== "admin") {
+        query += `&promotor_nombre=eq.${encodeURIComponent(
+          user.nombre_promotor
+        )}`;
+      }
+
+      const res = await fetch(query, { headers: sbHeaders });
+      const rows = await res.json();
+
+      const filtered = rows.filter((r) => {
+        if (Array.isArray(r.dias)) return r.dias.includes(todayCode);
+        return true;
+      });
+
+      return new Response(
+        JSON.stringify({
+          sheet,
+          dia: todayCode,
+          total: filtered.length,
+          rows: filtered,
+        }),
+        { status: 200, headers: corsHeaders }
       );
     }
 
