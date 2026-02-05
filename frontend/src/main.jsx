@@ -29,6 +29,9 @@ ReactDOM.createRoot(document.getElementById("root")).render(
 
 const bootSplash = document.getElementById("boot-splash");
 if (bootSplash) {
-  bootSplash.classList.add("is-hidden");
-  window.setTimeout(() => bootSplash.remove(), 300);
+  const minVisibleMs = 500;
+  window.setTimeout(() => {
+    bootSplash.classList.add("is-hidden");
+    window.setTimeout(() => bootSplash.remove(), 300);
+  }, minVisibleMs);
 }
