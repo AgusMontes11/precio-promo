@@ -37,11 +37,7 @@ export default function Sidebar({ open, onClose }) {
     { to: "/flyers", label: "Flyers", icon: <ImageIcon size={18} /> },
     { to: "/ranking", label: "Ranking", icon: <Users size={18} /> },
     { to: "/cnc", label: "CNC", icon: <Users size={18} /> },
-    {
-      to: "/plan-comercial",
-      label: "Plan comercial",
-      icon: <ClipboardList size={18} />,
-    },
+    { to: "/matinal", label: "Plan comercial", icon: <ClipboardList size={18} /> },
   ];
 
   return (

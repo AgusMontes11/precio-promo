@@ -1,33 +1,4 @@
 /* =========================================================
-   VARIABLES BASE (LIGHT / DARK)
-   Asume que el data-theme ya lo manejás en el body o html
-========================================================= */
-
-:root {
-  --bg-page: #f5f7fa;
-  --bg-card: #ffffff;
-  --bg-muted: #e9edf2;
-
-  --text-main: #1f2933;
-  --text-muted: #6b7280;
-
-  --border-color: #d1d5db;
-  --accent: #2563eb;
-}
-
-[data-theme="dark"] {
-  --bg-page: #0f172a;
-  --bg-card: #1b2430;
-  --bg-muted: #2f3b4a;
-
-  --text-main: #ffffff;
-  --text-muted: #9aa0a6;
-
-  --border-color: #2f3b4a;
-  --accent: #3b82f6;
-}
-
-/* =========================================================
    PAGE WRAPPER
 ========================================================= */
 
@@ -65,36 +36,60 @@
   justify-content: space-between;
   gap: 24px;
   margin-bottom: 20px;
+  flex-wrap: wrap;
 }
 
 /* =========================================================
-   TABS (SELECTOR DE HOJAS)
+   SELECTOR
 ========================================================= */
 
-.cnc-tabs {
+.cnc-filter {
   display: flex;
-  gap: 10px;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 220px;
 }
 
-.cnc-tab {
-  padding: 8px 14px;
-  border-radius: 999px;
-  border: 1px solid var(--border-color);
-  background: transparent;
+.cnc-filter-label {
+  font-size: 0.8rem;
   color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.cnc-select-wrapper {
+  position: relative;
+}
+
+.cnc-select-wrapper::after {
+  content: "▾";
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
   font-size: 0.9rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
 }
 
-.cnc-tab:hover {
+.cnc-select {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
   color: var(--text-main);
-  border-color: var(--accent);
+  font-size: 0.95rem;
+  box-shadow: var(--shadow-soft);
+  outline: none;
+  appearance: none;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  padding-right: 34px;
 }
 
-.cnc-tab.active {
-  color: var(--text-main);
+.cnc-select:focus {
   border-color: var(--accent);
+  box-shadow: var(--ring);
 }
 
 /* =========================================================
@@ -120,19 +115,19 @@
 }
 
 .cnc-upload button {
-  padding: 6px 12px;
+  padding: 8px 14px;
   font-size: 0.85rem;
-  border-radius: 6px;
-  border: 1px solid var(--border-color);
-  background: var(--bg-card);
-  color: var(--text-main);
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2, #4f46e5));
+  color: var(--accent-contrast);
   cursor: pointer;
-  transition: background 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .cnc-upload button:hover {
-  background: var(--accent);
-  color: #fff;
+  transform: translateY(-1px);
+  box-shadow: var(--glow);
 }
 
 .cnc-upload-msg {
@@ -148,7 +143,8 @@
   background: var(--bg-card);
   border-radius: 14px;
   padding: 8px 0;
-  border: none;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-main);
 }
 
 /* tabla */
@@ -164,9 +160,9 @@
   padding: 14px 18px;
   text-align: left;
   font-weight: 600;
-  color: var(--text-main);;
+  color: var(--text-main);
   background: transparent;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid var(--border-color);
 }
 
 /* filas */
@@ -175,14 +171,14 @@
 }
 
 .cnc-table tbody tr:hover {
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(96, 165, 250, 0.08);
 }
 
 /* celdas */
 .cnc-table td {
   padding: 14px 18px;
   color: var(--text-main);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid var(--border-color);
 }
 
 /* última fila */
@@ -226,6 +222,10 @@
 
   .cnc-upload {
     margin-left: 0;
+    width: 100%;
+  }
+
+  .cnc-filter {
     width: 100%;
   }
 }

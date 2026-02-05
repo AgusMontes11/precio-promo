@@ -82,19 +82,20 @@ export default function FlyerBuilder() {
           style={{ height: "82vh" }}
         >
           <div className="d-flex gap-2 mb-3">
-            <select
-              className="form-select mb-2 flyer-select"
-              style={{ width: "35vh" }}
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-            >
-              <option value="">Todas las categorías</option>
-              {categories.map((cat) => (
-                <option key={cat} value={cat}>
-                  {cat}
-                </option>
-              ))}
-            </select>
+            <div className="flyer-select-wrapper">
+              <select
+                className="form-select mb-2 flyer-select"
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+              >
+                <option value="">Todas las categorías</option>
+                {categories.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
           <div
@@ -150,20 +151,19 @@ export default function FlyerBuilder() {
         {/* DERECHA: preview */}
         <div ref={previewRef} className="col-12 col-md-7 ps-4">
           <h5 className="mb-3 ps-2">Preview</h5>
-          <select
-            className="form-select mb-2 flyer-select"
-            style={{
-              width: "20vh",
-            }}
-            value={templateId}
-            onChange={(e) => setTemplateId(e.target.value)}
-          >
-            {TEMPLATES.map((t) => (
-              <option key={t.id} value={t.id}>
-                {t.name}
-              </option>
-            ))}
-          </select>
+          <div className="flyer-select-wrapper">
+            <select
+              className="form-select mb-2 flyer-select"
+              value={templateId}
+              onChange={(e) => setTemplateId(e.target.value)}
+            >
+              {TEMPLATES.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.name}
+                </option>
+              ))}
+            </select>
+          </div>
           <div
             style={{
               display: "flex",

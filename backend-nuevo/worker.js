@@ -19,7 +19,9 @@ export default {
       return new Response(null, { status: 204, headers: corsHeaders });
     }
 
-    /* =========================
+    try {
+
+     /* =========================
        SUPABASE HEADERS
     ========================= */
     const sbHeaders = {
@@ -122,13 +124,6 @@ export default {
     const DAY_MAP = ["DOM", "LUN", "MAR", "MIE", "JUE", "VIE", "SAB"];
     const todayCode = DAY_MAP[new Date().getDay()];
 
-    function normalizeDays(raw) {
-      return raw
-        .toString()
-        .split(",")
-        .map((d) => d.trim().toUpperCase());
-    }
-
     function getCurrentMonth() {
       const d = new Date();
       return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
@@ -149,24 +144,106 @@ export default {
       return v?.toString().trim() || null;
     }
 
-    const PLAN_PROMOTOR_KEYS = [
-      "promotor",
-      "promotora",
-      "vendedor",
-      "usuario",
-      "responsable",
-      "nombrepromotor",
-      "nombrepromotora",
+    function normalizePromotorName(value) {
+      return value
+        ?.toString()
+        .trim()
+        .toUpperCase()
+        .replace(/\s+/g, " ");
+    }
+
+    const PROMOTOR_ID_BY_NAME = {
+      "FLORES JOSE": 1,
+      "MUSRI DIEGO": 5,
+      "SEVILLA FIORELLA": 4,
+      "TORO FRANCO": 11,
+      "ORTIZ PABLO": 23,
+      "SANCHEZ RONALDO LUCAS PITON": 12,
+      "RIOS MAXIMILIANO": 6,
+      "MONTES GABRIEL": 10,
+      "CAMARGO MOIRA": 25,
+      "BARLOTTA MARTIN": 3,
+      "FLORES JOAQUIN": 26,
+      "VILLEGAS ALEJANDRO SEBASTIAN": 2,
+      "ROJOS YUNES JUAN JOSE": 6392,
+      "ANTIPAN JESUS JUAN ANTONIO": 9,
+      "VILCHEZ MARIO": 7,
+      "JUAN PAULO": 19,
+    };
+
+    function getPromotorIdByName(value) {
+      const key = normalizePromotorName(value);
+      const id = PROMOTOR_ID_BY_NAME[key];
+      return typeof id === "number" ? id : null;
+    }
+
+    const MATINAL_ID_KEYS = ["idvend", "idvendedor", "idpromotor"];
+    const MATINAL_FREQ_KEYS = ["frecuencia", "dia", "dias", "diasemana"];
+    const MATINAL_CODIGO_KEYS = ["codigopdv", "codigo", "codpdv", "pdv"];
+    const MATINAL_RAZON_KEYS = [
+      "razonsocial",
+      "razon",
+      "cliente",
+      "razonsoc",
     ];
 
-    const PLAN_DAY_KEYS = [
-      "dia",
-      "dias",
-      "diasemana",
-      "diadelasemana",
-      "day",
-      "weekday",
-    ];
+    const DAY_ALIASES = {
+      LU: "LUN",
+      LUN: "LUN",
+      MA: "MAR",
+      MAR: "MAR",
+      MI: "MIE",
+      MIE: "MIE",
+      JU: "JUE",
+      JUE: "JUE",
+      VI: "VIE",
+      VIE: "VIE",
+      SA: "SAB",
+      SAB: "SAB",
+      DO: "DOM",
+      DOM: "DOM",
+    };
+
+    const COMBO_ALIASES = {
+      LUJU: ["LUN", "JUE"],
+      MAVI: ["MAR", "VIE"],
+      MISA: ["MIE", "SAB"],
+    };
+
+    function normalizeFrequency(value) {
+      if (!value) return [];
+
+      const raw = value.toString().toUpperCase();
+      const tokens = raw
+        .split(/[,;/]/)
+        .map((t) => t.trim())
+        .filter(Boolean);
+
+      const days = [];
+
+      tokens.forEach((token) => {
+        const clean = token.replace(/[^A-Z]/g, "");
+        if (!clean) return;
+
+        if (COMBO_ALIASES[clean]) {
+          days.push(...COMBO_ALIASES[clean]);
+          return;
+        }
+
+        const matches = clean.match(
+          /LU|LUN|MA|MAR|MI|MIE|JU|JUE|VI|VIE|SA|SAB|DO|DOM/g
+        );
+
+        if (matches?.length) {
+          matches.forEach((m) => {
+            const mapped = DAY_ALIASES[m];
+            if (mapped) days.push(mapped);
+          });
+        }
+      });
+
+      return Array.from(new Set(days));
+    }
 
     function rowHasValues(row = []) {
       return row.some((cell) => {
@@ -175,26 +252,18 @@ export default {
       });
     }
 
-    function findHeaderRowIndex(raw = []) {
+    function findMatinalHeaderRow(raw = []) {
       return raw.findIndex((row) => {
-        const nonEmpty = row.filter((cell) => {
-          const value = cell?.toString?.().trim?.() ?? "";
-          return value !== "";
-        });
-        return nonEmpty.length >= 2;
+        const normalized = row.map((cell) => normalizeKey(cell || ""));
+        const hasId = normalized.some((k) => MATINAL_ID_KEYS.includes(k));
+        const hasFreq = normalized.some((k) => MATINAL_FREQ_KEYS.includes(k));
+        const hasCodigo = normalized.some((k) =>
+          MATINAL_CODIGO_KEYS.includes(k)
+        );
+        const hasRazon = normalized.some((k) => MATINAL_RAZON_KEYS.includes(k));
+
+        return hasId && hasFreq && hasCodigo && hasRazon;
       });
-    }
-
-    function buildRowJson(headersOriginal, row) {
-      const rowJson = {};
-
-      headersOriginal.forEach((header, index) => {
-        const key = header?.toString?.().trim?.() || "";
-        if (!key) return;
-        rowJson[key] = row?.[index] ?? "";
-      });
-
-      return rowJson;
     }
 
     /* =========================
@@ -397,9 +466,9 @@ export default {
     }
 
     /* =========================
-       PLAN COMERCIAL UPLOADS
+       MATINAL UPLOAD
     ========================= */
-    if (method === "POST" && path === "/plan-comercial/upload") {
+    if (method === "POST" && path === "/matinal/upload") {
       const user = await requireAuth(req);
       if (!requireRole(user, ["admin"])) {
         return new Response(JSON.stringify({ error: "Solo admin" }), {
@@ -424,48 +493,100 @@ export default {
       const uploadedMonth = getCurrentMonth();
       const inserts = [];
 
-      workbook.SheetNames.forEach((sheetName) => {
-        const sheet = workbook.Sheets[sheetName];
+      const matinalSheetName = workbook.SheetNames.find(
+        (name) => name.toUpperCase() === "MATINAL"
+      );
 
-        const raw = XLSX.utils.sheet_to_json(sheet, {
-          header: 1,
-          defval: "",
+      if (!matinalSheetName) {
+        return new Response(
+          JSON.stringify({ error: "No se encontró la hoja MATINAL" }),
+          { status: 400, headers: corsHeaders }
+        );
+      }
+
+      const sheet = workbook.Sheets[matinalSheetName];
+      const raw = XLSX.utils.sheet_to_json(sheet, {
+        header: 1,
+        defval: "",
+      });
+
+      const headerRowIndex = findMatinalHeaderRow(raw);
+      if (headerRowIndex === -1) {
+        return new Response(
+          JSON.stringify({ error: "No se detectaron headers válidos" }),
+          { status: 400, headers: corsHeaders }
+        );
+      }
+
+      const headersOriginal = raw[headerRowIndex].map((h) =>
+        h?.toString?.().trim?.()
+      );
+      const normalizedHeaders = headersOriginal.map((h) =>
+        normalizeKey(h || "")
+      );
+
+      const idIndex = normalizedHeaders.findIndex((h) =>
+        MATINAL_ID_KEYS.includes(h)
+      );
+      const freqIndex = normalizedHeaders.findIndex((h) =>
+        MATINAL_FREQ_KEYS.includes(h)
+      );
+      const codigoIndex = normalizedHeaders.findIndex((h) =>
+        MATINAL_CODIGO_KEYS.includes(h)
+      );
+      const razonIndex = normalizedHeaders.findIndex((h) =>
+        MATINAL_RAZON_KEYS.includes(h)
+      );
+
+      raw.slice(headerRowIndex + 1).forEach((row) => {
+        if (!rowHasValues(row)) return;
+
+        const idVendRaw = idIndex >= 0 ? row[idIndex] : null;
+        const freqRaw = freqIndex >= 0 ? row[freqIndex] : null;
+        const codigoRaw = codigoIndex >= 0 ? row[codigoIndex] : null;
+        const razonRaw = razonIndex >= 0 ? row[razonIndex] : null;
+
+        if (!idVendRaw || !freqRaw || !codigoRaw || !razonRaw) return;
+
+        const promotorId = Number(idVendRaw);
+        if (Number.isNaN(promotorId)) return;
+
+        const dias = normalizeFrequency(freqRaw);
+        if (!dias.length) return;
+
+        const actions = [];
+        headersOriginal.forEach((header, index) => {
+          const normalized = normalizedHeaders[index];
+          if (!header || !normalized) return;
+
+          if (
+            MATINAL_ID_KEYS.includes(normalized) ||
+            MATINAL_FREQ_KEYS.includes(normalized) ||
+            MATINAL_CODIGO_KEYS.includes(normalized) ||
+            MATINAL_RAZON_KEYS.includes(normalized)
+          ) {
+            return;
+          }
+
+          const cell = row?.[index];
+          const mark = cell?.toString?.().trim?.().toUpperCase?.() || "";
+          if (mark === "X") {
+            actions.push(header);
+          }
         });
 
-        const headerRowIndex = findHeaderRowIndex(raw);
-        if (headerRowIndex === -1) return;
+        if (!actions.length) return;
 
-        const headersOriginal = raw[headerRowIndex].map((h) =>
-          h?.toString?.().trim?.()
-        );
-        const normalizedHeaders = headersOriginal.map((h) =>
-          normalizeKey(h || "")
-        );
-
-        const promotorIndex = normalizedHeaders.findIndex((h) =>
-          PLAN_PROMOTOR_KEYS.includes(h)
-        );
-        const dayIndex = normalizedHeaders.findIndex((h) =>
-          PLAN_DAY_KEYS.includes(h)
-        );
-
-        raw.slice(headerRowIndex + 1).forEach((row) => {
-          if (!rowHasValues(row)) return;
-
-          const rowJson = buildRowJson(headersOriginal, row);
-
-          const promotorValue =
-            promotorIndex >= 0 ? row[promotorIndex] : null;
-          const dayValue = dayIndex >= 0 ? row[dayIndex] : null;
-
-          const dias = dayValue ? normalizeDays(dayValue) : DAY_MAP;
-
+        actions.forEach((actionName) => {
           inserts.push({
-            sheet_name: sheetName,
+            sheet_name: matinalSheetName,
             uploaded_month: uploadedMonth,
-            promotor_nombre: normalizeText(promotorValue),
+            promotor_id: promotorId,
+            frecuencia_raw: normalizeText(freqRaw),
             dias,
-            row_json: rowJson,
+            codigo_pdv: normalizeText(codigoRaw),
+            razon_social: normalizeText(razonRaw),
+            action_name: actionName?.toString?.().trim?.() || null,
           });
         });
       });
@@ -478,7 +599,7 @@ export default {
       }
 
       const deleteRes = await fetch(
-        `${env.SUPABASE_URL}/rest/v1/plan_comercial_records?uploaded_month=eq.${uploadedMonth}`,
+        `${env.SUPABASE_URL}/rest/v1/matinal_records?uploaded_month=eq.${uploadedMonth}`,
         {
           method: "DELETE",
           headers: sbHeaders,
@@ -489,30 +610,27 @@ export default {
         const err = await deleteRes.text();
         return new Response(
           JSON.stringify({
-            error: "Error limpiando Plan Comercial del mes",
+            error: "Error limpiando Matinal del mes",
             detail: err,
           }),
           { status: 500, headers: corsHeaders }
         );
       }
 
-      const res = await fetch(
-        `${env.SUPABASE_URL}/rest/v1/plan_comercial_records`,
-        {
-          method: "POST",
-          headers: { ...sbHeaders, Prefer: "return=minimal" },
-          body: JSON.stringify(inserts),
-        }
-      );
+      const res = await fetch(`${env.SUPABASE_URL}/rest/v1/matinal_records`, {
+        method: "POST",
+        headers: { ...sbHeaders, Prefer: "return=minimal" },
+        body: JSON.stringify(inserts),
+      });
 
       if (!res.ok) {
         const err = await res.text();
         return new Response(
-          JSON.stringify({
-            error: "Error guardando Plan Comercial",
-            detail: err,
-          }),
-          { status: 500, headers: corsHeaders }
+          JSON.stringify({ error: "Error guardando Matinal", detail: err }),
+          {
+            status: 500,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          }
         );
       }
 
@@ -527,9 +645,9 @@ export default {
     }
 
     /* =========================
-       PLAN COMERCIAL SHEETS
+       MATINAL DATA
     ========================= */
-    if (method === "GET" && path === "/plan-comercial/sheets") {
+    if (method === "GET" && path === "/matinal/data") {
       const user = await requireAuth(req);
       if (!user) {
         return new Response(JSON.stringify({ error: "No autorizado" }), {
@@ -539,83 +657,92 @@ export default {
       }
 
       const month = getCurrentMonth();
+      const today = todayCode;
 
-      let query =
-        `${env.SUPABASE_URL}/rest/v1/plan_comercial_records` +
-        `?select=sheet_name&uploaded_month=eq.${month}`;
+      let promotorId = null;
 
       if (user.role !== "admin") {
-        query += `&promotor_nombre=eq.${encodeURIComponent(
-          user.nombre_promotor
-        )}`;
+        promotorId = getPromotorIdByName(user.nombre_promotor);
+        if (!promotorId) {
+          return new Response(
+            JSON.stringify({ error: "Promotor sin ID asociado" }),
+            { status: 403, headers: corsHeaders }
+          );
+        }
+      } else {
+        const requested = url.searchParams.get("promotorId");
+        promotorId = requested ? Number(requested) : null;
+      }
+
+      let query =
+        `${env.SUPABASE_URL}/rest/v1/matinal_records` +
+        `?uploaded_month=eq.${month}`;
+
+      if (promotorId) {
+        query += `&promotor_id=eq.${promotorId}`;
       }
 
       const res = await fetch(query, { headers: sbHeaders });
-      const rows = await res.json();
-
-      const sheets = Array.from(
-        new Set(rows.map((row) => row.sheet_name).filter(Boolean))
-      );
-
-      return new Response(JSON.stringify({ sheets }), {
-        status: 200,
-        headers: corsHeaders,
-      });
-    }
-
-    /* =========================
-       PLAN COMERCIAL DATA
-    ========================= */
-    if (method === "GET" && path === "/plan-comercial/data") {
-      const user = await requireAuth(req);
-      if (!user) {
-        return new Response(JSON.stringify({ error: "No autorizado" }), {
-          status: 401,
-          headers: corsHeaders,
-        });
-      }
-
-      const sheet = url.searchParams.get("sheet");
-      if (!sheet) {
+      if (!res.ok) {
+        const err = await res.text();
         return new Response(
-          JSON.stringify({ error: "Falta parámetro sheet" }),
-          { status: 400, headers: corsHeaders }
+          JSON.stringify({
+            error: "Error consultando Matinal",
+            detail: err,
+          }),
+          {
+            status: res.status,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          }
         );
       }
 
-      const month = getCurrentMonth();
-
-      let query =
-        `${env.SUPABASE_URL}/rest/v1/plan_comercial_records` +
-        `?sheet_name=eq.${encodeURIComponent(sheet)}` +
-        `&uploaded_month=eq.${month}`;
-
-      if (user.role !== "admin") {
-        query += `&promotor_nombre=eq.${encodeURIComponent(
-          user.nombre_promotor
-        )}`;
+      const rows = await res.json();
+      if (!Array.isArray(rows)) {
+        return new Response(
+          JSON.stringify({
+            error: "Respuesta inválida de Matinal",
+            detail: rows,
+          }),
+          {
+            status: 500,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          }
+        );
       }
 
-      const res = await fetch(query, { headers: sbHeaders });
-      const rows = await res.json();
+      const filtered = rows.filter(
+        (r) => Array.isArray(r.dias) && r.dias.includes(today)
+      );
 
-      const filtered = rows.filter((r) => {
-        if (Array.isArray(r.dias)) return r.dias.includes(todayCode);
-        return true;
+      const grouped = {};
+      filtered.forEach((row) => {
+        const actionName = row.action_name || "Sin acción";
+        if (!grouped[actionName]) grouped[actionName] = [];
+        grouped[actionName].push({
+          codigo_pdv: row.codigo_pdv,
+          razon_social: row.razon_social,
+          promotor_id: row.promotor_id,
+          frecuencia_raw: row.frecuencia_raw,
+          dias: row.dias,
+        });
       });
+
+      const actions = Object.keys(grouped)
+        .sort((a, b) => a.localeCompare(b))
+        .map((name) => ({ name, clients: grouped[name] }));
 
       return new Response(
         JSON.stringify({
-          sheet,
-          dia: todayCode,
+          dia: today,
           total: filtered.length,
-          rows: filtered,
+          actions,
         }),
         { status: 200, headers: corsHeaders }
       );
     }
 
-    /* =========================
+     /* =========================
        CNC FROM GOOGLE SHEETS
     ========================= */
     if (method === "GET" && path === "/cnc") {
@@ -961,5 +1088,17 @@ export default {
     // FALLBACK
     // =========================
     return new Response("Not found", { status: 404, headers: corsHeaders });
+  } catch (err) {
+    return new Response(
+      JSON.stringify({
+        error: "Error interno",
+        detail: err?.message || "Unknown error",
+      }),
+      {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      }
+    );
+  }
   },
 };

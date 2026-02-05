@@ -118,17 +118,6 @@ export default function Dashboard() {
             </div>
           </MotionDiv>
         </Link>
-
-        <Link to="/cnc" className="quick-card">
-          <MotionDiv className="quick-card-inner" whileHover={{ scale: 1.04 }}>
-            <Medal size={32} />
-            <h3>Clientes foco</h3>
-            <p>Clientes con descuentos adicionales.</p>
-            <div className="quick-go">
-              Ir <ArrowRight size={16} />
-            </div>
-          </MotionDiv>
-        </Link>
       </div>
       {/* STATS */}
       <h2 className="stats-title">Estadísticas</h2>
@@ -149,11 +138,6 @@ export default function Dashboard() {
           <span>
             <AnimatedNumber value={flyersGenerated} />
           </span>
-        </MotionDiv>
-
-        <MotionDiv className="stat-box" whileHover={{ scale: 1.03 }}>
-          <h4>Actualizaciones pendientes</h4>
-          <span>0</span>
         </MotionDiv>
       </div>
     </MotionDiv>

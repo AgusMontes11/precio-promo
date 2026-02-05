@@ -1,13 +1,35 @@
-/* Modo claro (default) */
-.flyer-select {
-  background-color: #fff;
-  color: #000;
-  border: 1px solid #ccc;
+.flyer-select-wrapper {
+  position: relative;
+  width: min(360px, 100%);
 }
 
-/* Modo oscuro */
-.dark-mode .flyer-select {
-  background-color: #1e1e1e;
-  color: #fff;
-  border: 1px solid #555;
+.flyer-select-wrapper::after {
+  content: "▾";
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+  font-size: 0.9rem;
+}
+
+.flyer-select.form-select {
+  width: 100%;
+  padding: 10px 14px;
+  padding-right: 34px;
+  border-radius: 12px;
+  border: 1px solid var(--border-color) !important;
+  background: var(--bg-card) !important;
+  color: var(--text-main) !important;
+  font-size: 0.95rem;
+  box-shadow: var(--shadow-soft) !important;
+  outline: none;
+  appearance: none;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.flyer-select.form-select:focus {
+  border-color: var(--accent) !important;
+  box-shadow: var(--ring) !important;
 }

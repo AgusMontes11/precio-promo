@@ -10,7 +10,7 @@ import PromotionBuilder from "./components/PromotionBuilder";
 import Login from "./pages/Login";
 import Ranking from "./pages/Ranking";
 import CncPage from "./pages/CncPage";
-import PlanComercialPage from "./pages/PlanComercialPage";
+import MatinalPage from "./pages/MatinalPage";
 
 import PrivateRoute from "./routes/PrivateRoute";
 import { useAuth } from "./context/useAuth";
@@ -55,12 +55,12 @@ export default function AppShell() {
           }
         />
 
-        {/* PLAN COMERCIAL (admin + promotor) */}
+        {/* MATINAL (admin + promotor) */}
         <Route
-          path="/plan-comercial"
+          path="/matinal"
           element={
             <PrivateRoute roles={["admin", "promotor"]}>
-              <PlanComercialPage />
+              <MatinalPage />
             </PrivateRoute>
           }
         />

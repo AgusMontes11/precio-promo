@@ -88,16 +88,24 @@ export default function CncPage() {
 
       {/* TABS + UPLOAD */}
       <div className="cnc-top-row">
-        <div className="cnc-tabs">
-          {SHEETS.map((s) => (
-            <button
-              key={s}
-              className={`cnc-tab ${sheet === s ? "active" : ""}`}
-              onClick={() => setSheet(s)}
+        <div className="cnc-filter">
+          <label htmlFor="cnc-sheet" className="cnc-filter-label">
+            Hoja CNC
+          </label>
+          <div className="cnc-select-wrapper">
+            <select
+              id="cnc-sheet"
+              className="cnc-select"
+              value={sheet}
+              onChange={(e) => setSheet(e.target.value)}
             >
-              {s}
-            </button>
-          ))}
+              {SHEETS.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
         {role === "admin" && (
@@ -105,7 +113,7 @@ export default function CncPage() {
             <form onSubmit={handleUpload}>
               <input
                 type="file"
-                accept=".xlsx,.xls"
+                accept=".xlsx,.xls,.xlsb"
                 onChange={(e) => setFile(e.target.files[0])}
               />
               <button type="submit">Subir Excel</button>
