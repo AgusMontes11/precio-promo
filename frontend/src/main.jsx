@@ -26,3 +26,9 @@ ReactDOM.createRoot(document.getElementById("root")).render(
     </React.StrictMode>
   </AuthProvider>
 );
+
+const bootSplash = document.getElementById("boot-splash");
+if (bootSplash) {
+  bootSplash.classList.add("is-hidden");
+  window.setTimeout(() => bootSplash.remove(), 300);
+}

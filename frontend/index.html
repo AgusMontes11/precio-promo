@@ -15,6 +15,49 @@
     />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>PANELLA S.A.</title>
+
+    <style>
+      :root {
+        color-scheme: light dark;
+      }
+
+      #boot-splash {
+        position: fixed;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        background: #0b1220;
+        z-index: 9999;
+        transition: opacity 260ms ease, visibility 260ms ease;
+      }
+
+      #boot-splash.is-hidden {
+        opacity: 0;
+        visibility: hidden;
+      }
+
+      .boot-splash__logo {
+        width: min(62vw, 240px);
+        height: auto;
+        animation: boot-pulse 1.4s ease-in-out infinite;
+        filter: drop-shadow(0 12px 30px rgba(33, 150, 243, 0.28));
+      }
+
+      @keyframes boot-pulse {
+        0% {
+          transform: scale(0.98);
+          opacity: 0.75;
+        }
+        50% {
+          transform: scale(1.03);
+          opacity: 1;
+        }
+        100% {
+          transform: scale(0.98);
+          opacity: 0.8;
+        }
+      }
+    </style>
   
     <!-- iOS FULLSCREEN MODE -->
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -35,6 +78,13 @@
   
   </head>
   <body>
+    <div id="boot-splash" aria-label="Cargando" role="status">
+      <img
+        src="/logo-panella.png"
+        alt="Grupo Panella"
+        class="boot-splash__logo"
+      />
+    </div>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
