@@ -742,6 +742,106 @@ export default {
       );
     }
 
+    /* =========================
+       MATINAL SALES STATUS
+    ========================= */
+    if (method === "GET" && path === "/matinal/sales-status") {
+      const user = await requireAuth(req);
+      if (!user) {
+        return new Response(JSON.stringify({ error: "No autorizado" }), {
+          status: 401,
+          headers: corsHeaders,
+        });
+      }
+
+      const res = await fetch(
+        `${env.SUPABASE_URL}/rest/v1/matinal_sales_status` +
+          `?user_id=eq.${user.id}&select=codigo_pdv,sold`,
+        { headers: sbHeaders }
+      );
+
+      if (!res.ok) {
+        const err = await res.text();
+        return new Response(
+          JSON.stringify({
+            error: "Error consultando estado de ventas",
+            detail: err,
+          }),
+          {
+            status: res.status,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          }
+        );
+      }
+
+      const rows = await res.json();
+      return new Response(JSON.stringify({ items: rows || [] }), {
+        status: 200,
+        headers: corsHeaders,
+      });
+    }
+
+    if (
+      (method === "POST" || method === "PUT") &&
+      path === "/matinal/sales-status"
+    ) {
+      const user = await requireAuth(req);
+      if (!user) {
+        return new Response(JSON.stringify({ error: "No autorizado" }), {
+          status: 401,
+          headers: corsHeaders,
+        });
+      }
+
+      const body = await req.json().catch(() => ({}));
+      const codigo = normalizeText(body.codigo_pdv);
+      const sold = body.sold;
+
+      if (!codigo || typeof sold !== "boolean") {
+        return new Response(
+          JSON.stringify({ error: "Datos invalidos" }),
+          { status: 400, headers: corsHeaders }
+        );
+      }
+
+      const payload = {
+        user_id: user.id,
+        codigo_pdv: codigo,
+        sold,
+        updated_at: new Date().toISOString(),
+      };
+
+      const res = await fetch(
+        `${env.SUPABASE_URL}/rest/v1/matinal_sales_status` +
+          `?on_conflict=user_id,codigo_pdv`,
+        {
+          method: "POST",
+          headers: {
+            ...sbHeaders,
+            Prefer: "resolution=merge-duplicates,return=representation",
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      if (!res.ok) {
+        const err = await res.text();
+        return new Response(
+          JSON.stringify({ error: "Error guardando estado", detail: err }),
+          {
+            status: res.status,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          }
+        );
+      }
+
+      const rows = await res.json().catch(() => []);
+      return new Response(
+        JSON.stringify({ success: true, item: rows?.[0] || payload }),
+        { status: 200, headers: corsHeaders }
+      );
+    }
+
      /* =========================
        CNC FROM GOOGLE SHEETS
     ========================= */

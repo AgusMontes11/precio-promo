@@ -141,6 +141,13 @@
   border: 1px solid rgba(148, 163, 184, 0.15);
 }
 
+.matinal-client-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
 .matinal-client-main {
   display: flex;
   flex-direction: column;
@@ -159,6 +166,19 @@
 .matinal-client-meta {
   font-size: 12px;
   color: #94a3b8;
+}
+
+.matinal-client-check {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #e2e8f0;
+  white-space: nowrap;
+}
+
+.matinal-client-check input {
+  accent-color: #22c55e;
 }
 
 .matinal-empty {

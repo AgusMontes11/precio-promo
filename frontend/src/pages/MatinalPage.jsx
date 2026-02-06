@@ -1,7 +1,12 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/useAuth";
 import MatinalCarousel from "../components/MatinalCarousel";
-import { getMatinalData, uploadMatinalExcel } from "../services/matinal";
+import {
+  getMatinalData,
+  getMatinalSalesStatus,
+  setMatinalSalesStatus,
+  uploadMatinalExcel,
+} from "../services/matinal";
 import "./css/matinalPage.css";
 
 export default function MatinalPage() {
@@ -12,6 +17,7 @@ export default function MatinalPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [dia, setDia] = useState("");
+  const [salesStatus, setSalesStatus] = useState({});
 
   const [file, setFile] = useState(null);
   const [uploadMsg, setUploadMsg] = useState("");
@@ -21,6 +27,7 @@ export default function MatinalPage() {
   useEffect(() => {
     if (!token) return;
     loadMatinal();
+    loadSalesStatus();
     // eslint-disable-next-line
   }, [token, role]);
 
@@ -42,6 +49,20 @@ export default function MatinalPage() {
     }
   }
 
+  async function loadSalesStatus() {
+    try {
+      const data = await getMatinalSalesStatus({ token });
+      const next = {};
+      (data?.items || []).forEach((item) => {
+        if (!item?.codigo_pdv) return;
+        next[item.codigo_pdv] = Boolean(item.sold);
+      });
+      setSalesStatus(next);
+    } catch (err) {
+      setError(err.message || "Error cargando estado de ventas");
+    }
+  }
+
   async function handleUpload(e) {
     e.preventDefault();
     if (!file) return;
@@ -60,6 +81,16 @@ export default function MatinalPage() {
   async function handleAdminFilter(e) {
     e.preventDefault();
     await loadMatinal(promotorId || null);
+  }
+
+  async function handleToggleSale({ codigo_pdv, sold }) {
+    try {
+      await setMatinalSalesStatus({ token, codigo_pdv, sold });
+      setSalesStatus((prev) => ({ ...prev, [codigo_pdv]: sold }));
+    } catch (err) {
+      setError(err.message || "Error guardando estado de ventas");
+      throw err;
+    }
   }
 
   return (
@@ -110,7 +141,13 @@ export default function MatinalPage() {
       <div className="matinal-card">
         {loading && <MatinalLoader />}
         {error && <p className="matinal-error">{error}</p>}
-        {!loading && !error && <MatinalCarousel actions={actions} />}
+        {!loading && !error && (
+          <MatinalCarousel
+            actions={actions}
+            salesStatus={salesStatus}
+            onToggleSale={handleToggleSale}
+          />
+        )}
       </div>
     </div>
   );
