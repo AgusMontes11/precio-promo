@@ -1,11 +1,11 @@
 // src/components/ProductList.jsx
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import api from "../services/api";
 import ProductForm from "./ProductForm";
 import "./css/productlist.css";
 import { useAuth } from "../context/useAuth";
 
-export default function ProductList({ onToggleTier }) {
+export default function ProductList({ selectedProducts = [], onToggleSelection }) {
   const { user } = useAuth();
   const isPromotor = user?.role === "promotor";
 
@@ -15,14 +15,15 @@ export default function ProductList({ onToggleTier }) {
 
   const [editingProduct, setEditingProduct] = useState(null);
   const [deleteProduct, setDeleteProduct] = useState(null);
+  const [expandedNameId, setExpandedNameId] = useState(null);
+  const tableRef = useRef(null);
 
   // FILTROS
   const [search, setSearch] = useState("");
   const [selectedCategories, setSelectedCategories] = useState([]);
-  const [sortMode, setSortMode] = useState("none");
 
   // PAGINACIÓN
-  const [itemsPerPage, setItemsPerPage] = useState(7);
+  const [itemsPerPage] = useState(5);
   const [page, setPage] = useState(1);
 
   // EN MOVIL QUE SEAN SELECTS
@@ -38,18 +39,6 @@ export default function ProductList({ onToggleTier }) {
     }
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
-  useEffect(() => {
-    function updateItems() {
-      const isMobile = window.innerWidth <= 576; // breakpoint mobile
-      setItemsPerPage(isMobile ? 3 : 7);
-    }
-
-    updateItems();
-    window.addEventListener("resize", updateItems);
-
-    return () => window.removeEventListener("resize", updateItems);
   }, []);
 
   const loadProducts = useCallback(async () => {
@@ -87,29 +76,22 @@ export default function ProductList({ onToggleTier }) {
     loadProducts();
   }, [loadProducts]);
 
-  // =====================================
-  // TOGGLE ESCALONADAS
-  // =====================================
-  const toggleTier = async (p) => {
-    const updated = { ...p, hasTiers: !p.hasTiers };
-
-    setProducts((prev) => prev.map((x) => (x.id === p.id ? updated : x)));
-
-    onToggleTier?.(updated);
-
-    try {
-      await api.put(`/products/${p.id}`, {
-        name: updated.name,
-        price: Number(updated.price),
-        category: updated.category || null,
-        imageUrl: updated.imageUrl ?? null, // <--- UNIFICADO
-        has_tiers: updated.hasTiers,
-        discount_tiers: updated.discountTiers || [],
-      });
-    } catch (err) {
-      console.warn("No se pudo persistir hasTiers", err);
+  useEffect(() => {
+    function handlePointerDown(event) {
+      if (!expandedNameId) return;
+      const target = event.target;
+      if (target.closest?.(".shopify-name-cell")) return;
+      setExpandedNameId(null);
     }
-  };
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+    };
+  }, [expandedNameId]);
+
+  const isSelected = (productId) =>
+    selectedProducts.some((p) => p.id === productId);
 
   // =====================================
   // DELETE
@@ -142,7 +124,7 @@ export default function ProductList({ onToggleTier }) {
   };
 
   // =====================================
-  // FILTROS + ORDEN
+  // FILTROS
   // =====================================
   const filtered = useMemo(() => {
     let data = [...products];
@@ -157,25 +139,8 @@ export default function ProductList({ onToggleTier }) {
       data = data.filter((p) => selectedCategories.includes(p.category));
     }
 
-    switch (sortMode) {
-      case "priceAsc":
-        data.sort((a, b) => Number(a.price) - Number(b.price));
-        break;
-      case "priceDesc":
-        data.sort((a, b) => Number(b.price) - Number(a.price));
-        break;
-      case "az":
-        data.sort((a, b) => a.name.localeCompare(b.name));
-        break;
-      case "za":
-        data.sort((a, b) => b.name.localeCompare(a.name));
-        break;
-      default:
-        break;
-    }
-
     return data;
-  }, [products, search, selectedCategories, sortMode]);
+  }, [products, search, selectedCategories]);
 
   // =====================================
   // PAGINACIÓN
@@ -186,6 +151,8 @@ export default function ProductList({ onToggleTier }) {
   }, [filtered, itemsPerPage, page]);
 
   const totalPages = Math.ceil(filtered.length / itemsPerPage);
+  const selectionCount = selectedProducts.length;
+  const emptyColSpan = (isMobile ? 5 : 6) + (isPromotor ? 0 : 1);
 
   // =====================================
   // HELPERS
@@ -204,43 +171,35 @@ export default function ProductList({ onToggleTier }) {
       <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
         <h2 className="shopify-title mb-0">Productos de Panella</h2>
 
-        {!isPromotor && (
-          <button
-            className="btn btn-outline-primary btn-sm shopify-add-btn mb-1"
-            onClick={() => setEditingProduct({ id: null })}
-          >
-            + Nuevo Producto
-          </button>
-        )}
+        <div className="d-flex align-items-center gap-2 flex-wrap">
+          <span className="shopify-selection-count">
+            En lista: {selectionCount}
+          </span>
+          {!isPromotor && (
+            <button
+              className="btn btn-outline-primary btn-sm shopify-add-btn mb-1"
+              onClick={() => setEditingProduct({ id: null })}
+            >
+              + Nuevo Producto
+            </button>
+          )}
+        </div>
       </div>
 
       {/* FILTERS */}
       <div className="shopify-card p-3 mb-3">
-        <div className="d-flex flex-wrap gap-3 align-items-center">
+        <div className="d-flex flex-wrap gap-3 align-items-center w-100">
           <input
             type="text"
             placeholder="Buscar productos..."
             className="shopify-input"
-            style={{ maxWidth: 280 }}
+            style={{ width: "100%" }}
             value={search}
             onChange={(e) => {
               setPage(1);
               setSearch(e.target.value);
             }}
           />
-
-          <select
-            className="shopify-select"
-            style={{ maxWidth: 200 }}
-            value={sortMode}
-            onChange={(e) => setSortMode(e.target.value)}
-          >
-            <option value="none">Ordenar...</option>
-            <option value="az">A → Z</option>
-            <option value="za">Z → A</option>
-            <option value="priceAsc">Más baratos</option>
-            <option value="priceDesc">Más caros</option>
-          </select>
         </div>
       </div>
 
@@ -286,16 +245,17 @@ export default function ProductList({ onToggleTier }) {
 
         {/* PRODUCT LIST */}
         {!loading && (
-          <div className="shopify-card p-0 shopify-table-container">
+          <div className="shopify-card p-0 shopify-table-container" ref={tableRef}>
             <div className="shopify-table-wrapper">
-              <table className="table table-hover align-middle shopify-table">
+              <table className="table align-middle shopify-table">
                 <thead className="shopify-thead">
                   <tr>
                   <th>Esc.</th>
                   <th>Imagen</th>
                   <th>Nombre</th>
                   <th>Precio</th>
-                  <th>Categoría</th>
+                  {!isMobile && <th>Categoría</th>}
+                  <th style={{ width: 60, textAlign: "center" }}>+</th>
                   {!isPromotor && <th style={{ width: 160 }}>Acciones</th>}
                 </tr>
               </thead>
@@ -303,14 +263,7 @@ export default function ProductList({ onToggleTier }) {
               <tbody>
                 {paginated.map((p) => (
                   <tr key={p.id}>
-                    <td>
-                      <input
-                        type="checkbox"
-                        checked={p.hasTiers}
-                        onChange={() => toggleTier(p)}
-                        className="shopify-checkbox"
-                      />
-                    </td>
+                    <td>{p.hasTiers ? "Si" : "No"}</td>
 
                     <td>
                       <img
@@ -321,11 +274,38 @@ export default function ProductList({ onToggleTier }) {
                       />
                     </td>
 
-                    <td className="fw-semibold">{p.name}</td>
+                    <td
+                      className={`fw-semibold shopify-name-cell${
+                        expandedNameId === p.id ? " is-expanded" : ""
+                      }`}
+                      data-full={p.name}
+                      title="Tocar para ver completo"
+                      onClick={() =>
+                        setExpandedNameId((prev) => (prev === p.id ? null : p.id))
+                      }
+                    >
+                      <span className="shopify-name-text">{p.name}</span>
+                    </td>
 
                     <td>${Number(p.price).toLocaleString("es-AR")}</td>
 
-                    <td>{p.category || "-"}</td>
+                    {!isMobile && <td>{p.category || "-"}</td>}
+
+                    <td className="text-center">
+                      <button
+                        className={`btn-sm shopify-plus-btn${
+                          isSelected(p.id) ? " is-active" : ""
+                        }`}
+                        aria-label={
+                          isSelected(p.id)
+                            ? "Quitar de la lista"
+                            : "Agregar a la lista"
+                        }
+                        onClick={() => onToggleSelection?.(p)}
+                      >
+                        +
+                      </button>
+                    </td>
 
                     <td>
                       {!isPromotor && (
@@ -350,7 +330,7 @@ export default function ProductList({ onToggleTier }) {
 
                 {paginated.length === 0 && (
                   <tr>
-                    <td colSpan="6" className="text-center p-4 text-muted">
+                    <td colSpan={emptyColSpan} className="text-center p-4 text-muted">
                       No se encontraron productos.
                     </td>
                   </tr>

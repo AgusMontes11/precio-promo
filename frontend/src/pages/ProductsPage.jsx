@@ -7,12 +7,11 @@ export default function ProductsPage() {
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [editedTiers, setEditedTiers] = useState({});
 
-  // Cuando tildás / destildás el checkbox "Esc."
-  const handleToggleTier = (product) => {
+  // Seleccion para lista de difusion (solo local, no se persiste)
+  const handleToggleSelection = (product) => {
     setSelectedProducts((prev) => {
       const exists = prev.find((p) => p.id === product.id);
 
-      // 👉 Si ya estaba seleccionado: lo saco y borro sus tiers editados
       if (exists) {
         const remaining = prev.filter((p) => p.id !== product.id);
 
@@ -25,9 +24,8 @@ export default function ProductsPage() {
         return remaining;
       }
 
-      // 👉 Si NO estaba seleccionado: lo agrego y preparo sus tiers iniciales
       setEditedTiers((prevTiers) => {
-        if (prevTiers[product.id]) return prevTiers; // ya tenía algo local
+        if (prevTiers[product.id]) return prevTiers;
 
         const serverHasTiers =
           product.hasTiers || product.has_tiers || false;
@@ -74,7 +72,10 @@ export default function ProductsPage() {
             overflow: "auto",
           }}
         >
-          <ProductList onToggleTier={handleToggleTier} />
+          <ProductList
+            selectedProducts={selectedProducts}
+            onToggleSelection={handleToggleSelection}
+          />
         </div>
 
         {/* PANEL DE ESCALONADAS / PREVIEW */}

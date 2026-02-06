@@ -25,8 +25,58 @@
   border-color: var(--border-color) !important;
 }
 
+.shopify-table tbody tr {
+  height: 56px;
+  transition: none;
+}
+
+.shopify-table td {
+  vertical-align: middle;
+}
+
+.shopify-name-cell {
+  position: relative;
+  cursor: pointer;
+}
+
+.shopify-name-text {
+  display: block;
+  max-width: 220px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.shopify-name-cell.is-expanded::after {
+  content: attr(data-full);
+  position: absolute;
+  left: calc(100% + 8px);
+  top: 50%;
+  transform: translateY(-50%);
+  background: var(--bg-card);
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 6px 8px;
+  white-space: normal;
+  max-width: 260px;
+  z-index: 5;
+  box-shadow: var(--shadow-main);
+}
+
+@media (max-width: 576px) {
+  .shopify-name-text {
+    max-width: 140px;
+  }
+
+  .shopify-name-cell.is-expanded::after {
+    max-width: 200px;
+  }
+}
+
 .shopify-table tbody tr:hover {
   background: rgba(255, 255, 255, 0.04) !important;
+  transform: none !important;
 }
 
 .shopify-table td,
@@ -162,6 +212,27 @@
   color: white;
 }
 
+.shopify-plus-btn {
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+  color: var(--text-main);
+  border-radius: 9px;
+  padding: 4px 10px;
+  min-width: 34px;
+  font-weight: 700;
+}
+
+.shopify-plus-btn:hover {
+  background: var(--accent);
+  color: white;
+}
+
+.shopify-plus-btn.is-active {
+  background: #16a34a;
+  border-color: #16a34a;
+  color: white;
+}
+
 .shopify-danger-btn {
   background: #fee2e2;
   border: 1px solid #fca5a5;
@@ -195,6 +266,16 @@
 .shopify-page-indicator {
   color: var(--text-main);
   font-weight: 500;
+}
+
+.shopify-selection-count {
+  background: rgba(59, 130, 246, 0.15);
+  border: 1px solid rgba(59, 130, 246, 0.35);
+  color: #bfdbfe;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
 }
 
 /* ============================================================
@@ -358,18 +439,10 @@ ms-10 {
 }
 
 .shopify-table-container {
-  height: 53.5vh;        /* desktop */
-  display: flex;
-  flex-direction: column;
+  height: auto;
+  display: block;
 }
 
 .shopify-table-wrapper {
-  flex: 1;
-  overflow-y: auto;
-}
-
-@media (max-width: 576px) {
-  .shopify-table-container {
-    height: 36.5vh;
-  }
+  overflow: visible;
 }

@@ -22,6 +22,7 @@ export default function FlyerBuilder() {
   const [selected, setSelected] = useState(null);
   const [templateId, setTemplateId] = useState("black");
   const previewRef = useRef(null);
+  const [search, setSearch] = useState("");
 
   const loadProducts = useCallback(async () => {
     try {
@@ -67,9 +68,13 @@ export default function FlyerBuilder() {
   const [selectedCategory, setSelectedCategory] = useState("");
   const categories = getCategories(products);
 
-  const filteredProducts = selectedCategory
-    ? products.filter((p) => p.category === selectedCategory)
-    : products;
+  const filteredProducts = products.filter((p) => {
+    const matchCategory = selectedCategory ? p.category === selectedCategory : true;
+    const matchSearch = search.trim()
+      ? p.name?.toLowerCase().includes(search.toLowerCase())
+      : true;
+    return matchCategory && matchSearch;
+  });
 
   return (
     <div className="container-fluid px-5">
@@ -81,7 +86,14 @@ export default function FlyerBuilder() {
           className="col-12 col-md-5 d-flex flex-column"
           style={{ height: "82vh" }}
         >
-          <div className="d-flex gap-2 mb-3">
+          <div className="d-flex flex-column gap-2 mb-3">
+            <input
+              type="text"
+              className="form-control flyer-select"
+              placeholder="Buscar productos..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
             <div className="flyer-select-wrapper">
               <select
                 className="form-select mb-2 flyer-select"

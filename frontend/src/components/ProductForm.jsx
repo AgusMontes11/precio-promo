@@ -18,10 +18,27 @@ export default function ProductForm({ productId, onClose }) {
   const [saving, setSaving] = useState(false);
   const [alert, setAlert] = useState(null);
   const [imageFile, setImageFile] = useState(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [uploadedImage, setUploadedImage] = useState(null);
+  const [removeBg, setRemoveBg] = useState(true);
+  const [previewLoading, setPreviewLoading] = useState(false);
 
   const normalizeImage = (url) => {
     if (!url) return null;
     return url.startsWith("http") ? url : url;
+  };
+
+  const buildImageVariants = (url) => {
+    if (!url) return null;
+    const normalized = normalizeImage(url);
+    const withoutBg = "/upload/e_background_removal/";
+    const baseUrl = normalized.includes(withoutBg)
+      ? normalized.replace(withoutBg, "/upload/")
+      : normalized;
+    const removedBgUrl = baseUrl.includes("/upload/")
+      ? baseUrl.replace("/upload/", withoutBg)
+      : null;
+    return { originalUrl: baseUrl, removedBgUrl };
   };
 
   // ========================================================
@@ -50,15 +67,60 @@ export default function ProductForm({ productId, onClose }) {
             ? data.discount_tiers
             : [],
         });
+        const existingUrl =
+          data.imageUrl ||
+          data.imageurl ||
+          data.imageURL ||
+          data.image ||
+          null;
+        const variants = buildImageVariants(existingUrl);
+        setUploadedImage(variants);
+        setRemoveBg(Boolean(existingUrl?.includes("/upload/e_background_removal/")));
       })
       .catch(() =>
         setAlert({ type: "danger", text: "No se pudo cargar el producto" })
       );
   }, [productId, isEditing]);
 
+  useEffect(() => {
+    if (product.imageUrl) {
+      setPreviewLoading(true);
+    }
+  }, [product.imageUrl]);
+
   const showAlert = (type, text, timeout = 4000) => {
     setAlert({ type, text });
     setTimeout(() => setAlert(null), timeout);
+  };
+
+  const pickImageUrl = (img, wantsRemoveBg) => {
+    if (!img) return null;
+    if (wantsRemoveBg && img.removedBgUrl) return img.removedBgUrl;
+    return img.originalUrl;
+  };
+
+  const handleImageSelect = async (file) => {
+    setImageFile(file || null);
+    setUploadedImage(null);
+
+    if (!file) return;
+
+    setUploadingImage(true);
+    setPreviewLoading(true);
+    try {
+      const result = await uploadToCloudinary(file);
+      setUploadedImage(result);
+      const nextUrl = pickImageUrl(result, removeBg);
+      setProduct((prev) => ({ ...prev, imageUrl: nextUrl }));
+    } catch (err) {
+      console.error(err);
+      showAlert(
+        "danger",
+        "No se pudo procesar la imagen. Probá otra o desactivá el recorte."
+      );
+    } finally {
+      setUploadingImage(false);
+    }
   };
 
   // ========================================================
@@ -77,9 +139,18 @@ export default function ProductForm({ productId, onClose }) {
     try {
       let imageUrl = product.imageUrl || null;
 
-      if (imageFile) {
-        // subir la imagen DIRECTA (sin recorte)
-        imageUrl = await uploadToCloudinary(imageFile);
+      if (uploadingImage) {
+        showAlert("danger", "Esperá a que termine la carga de la imagen");
+        setSaving(false);
+        return;
+      }
+
+      if (imageFile && !uploadedImage) {
+        const result = await uploadToCloudinary(imageFile);
+        setUploadedImage(result);
+        imageUrl = pickImageUrl(result, removeBg);
+      } else if (uploadedImage) {
+        imageUrl = pickImageUrl(uploadedImage, removeBg);
       }
 
       const payload = {
@@ -178,13 +249,20 @@ export default function ProductForm({ productId, onClose }) {
 
         {/* Imagen actual */}
         {product.imageUrl && (
-          <div className="mb-3 text-center">
+          <div className="mb-3 text-center product-image-preview">
             <label className="form-label d-block">Imagen actual</label>
             <img
               src={normalizeImage(product.imageUrl)}
               alt="producto"
               style={{ width: 120, borderRadius: 10 }}
+              onLoad={() => setPreviewLoading(false)}
+              onError={() => setPreviewLoading(false)}
             />
+            {(uploadingImage || previewLoading) && (
+              <div className="product-image-loading">
+                <div className="product-image-spinner" />
+              </div>
+            )}
           </div>
         )}
 
@@ -195,8 +273,31 @@ export default function ProductForm({ productId, onClose }) {
             type="file"
             accept="image/*"
             className="form-control"
-            onChange={(e) => setImageFile(e.target.files?.[0] ?? null)}
+            onChange={(e) => handleImageSelect(e.target.files?.[0] ?? null)}
           />
+        </div>
+
+        <div className="form-check mb-3">
+          <input
+            className="form-check-input"
+            type="checkbox"
+            checked={removeBg}
+            onChange={(e) => {
+              const checked = e.target.checked;
+              setRemoveBg(checked);
+              const source = uploadedImage || buildImageVariants(product.imageUrl);
+              if (!uploadedImage && source) setUploadedImage(source);
+              const nextUrl = pickImageUrl(source, checked);
+              if (nextUrl) {
+                setPreviewLoading(true);
+                setProduct((prev) => ({ ...prev, imageUrl: nextUrl }));
+              }
+            }}
+            disabled={uploadingImage}
+          />
+          <label className="form-check-label">
+            Quitar fondo automaticamente (si falla, desactivarlo)
+          </label>
         </div>
 
         {/* Tiers */}
