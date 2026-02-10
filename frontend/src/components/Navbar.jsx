@@ -63,8 +63,8 @@ export default function Navbar() {
     { to: "/products", label: "Productos", icon: <Boxes size={20} /> },
     { to: "/cnc", label: "CNC", icon: <Users size={20} /> },
     {
-      to: "/matinal",
-      label: "Matinal",
+      to: "/plan-comercial",
+      label: "Plan Comercial",
       icon: <ClipboardList size={20} />,
     },
   ];

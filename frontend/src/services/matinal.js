@@ -37,14 +37,19 @@ export async function getMatinalSalesStatus({ token }) {
   return res.json();
 }
 
-export async function setMatinalSalesStatus({ token, codigo_pdv, sold }) {
+export async function setMatinalSalesStatus({
+  token,
+  codigo_pdv,
+  accion,
+  sold,
+}) {
   const res = await fetch(`${API_URL}/matinal/sales-status`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({ codigo_pdv, sold }),
+    body: JSON.stringify({ codigo_pdv, accion, sold }),
   });
 
   const data = await res.json().catch(() => ({}));

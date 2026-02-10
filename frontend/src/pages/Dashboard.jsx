@@ -1,6 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Boxes, Image as ImageIcon, Medal, ArrowRight } from "lucide-react";
+import {
+  Boxes,
+  Image as ImageIcon,
+  Medal,
+  ArrowRight,
+  ClipboardList,
+  Users,
+} from "lucide-react";
 import "./css/dashboard.css";
 import { Link } from "react-router-dom";
 import api from "../services/api";
@@ -65,7 +72,7 @@ export default function Dashboard() {
     return () => window.removeEventListener("flyer-generated", handler);
   }, []);
 
-  const { user } = useAuth();
+  const { user, role } = useAuth();
 
   return (
     <MotionDiv
@@ -86,38 +93,95 @@ export default function Dashboard() {
       </div>
       {/* QUICK CARDS */}
       <div className="quick-actions">
-        <Link to="/products" className="quick-card">
-          <MotionDiv className="quick-card-inner" whileHover={{ scale: 1.04 }}>
-            <Boxes size={32} />
-            <h3>Productos</h3>
-            <p>Agregá, editá o eliminá productos.</p>
-            <div className="quick-go">
-              Ir <ArrowRight size={16} />
-            </div>
-          </MotionDiv>
-        </Link>
+        {role === "admin" ? (
+          <>
+            <Link to="/plan-comercial" className="quick-card">
+              <MotionDiv
+                className="quick-card-inner"
+                whileHover={{ scale: 1.04 }}
+              >
+                <ClipboardList size={32} />
+                <h3>Plan Comercial</h3>
+                <p>Acciones Matinal y Vespertina.</p>
+                <div className="quick-go">
+                  Ir <ArrowRight size={16} />
+                </div>
+              </MotionDiv>
+            </Link>
 
-        <Link to="/flyers" className="quick-card">
-          <MotionDiv className="quick-card-inner" whileHover={{ scale: 1.04 }}>
-            <ImageIcon size={32} />
-            <h3>Flyers</h3>
-            <p>Generá flyers con diseño profesional.</p>
-            <div className="quick-go">
-              Ir <ArrowRight size={16} />
-            </div>
-          </MotionDiv>
-        </Link>
+            <Link to="/cnc" className="quick-card">
+              <MotionDiv
+                className="quick-card-inner"
+                whileHover={{ scale: 1.04 }}
+              >
+                <Users size={32} />
+                <h3>Acciones CNC UNG</h3>
+                <p>Clientes no compradores del dia.</p>
+                <div className="quick-go">
+                  Ir <ArrowRight size={16} />
+                </div>
+              </MotionDiv>
+            </Link>
 
-        <Link to="/ranking" className="quick-card">
-          <MotionDiv className="quick-card-inner" whileHover={{ scale: 1.04 }}>
-            <Medal size={32} />
-            <h3>Ranking</h3>
-            <p>Seguimiento de desempeño y objetivos.</p>
-            <div className="quick-go">
-              Ir <ArrowRight size={16} />
-            </div>
-          </MotionDiv>
-        </Link>
+            <Link to="/ranking" className="quick-card">
+              <MotionDiv
+                className="quick-card-inner"
+                whileHover={{ scale: 1.04 }}
+              >
+                <Medal size={32} />
+                <h3>Ranking</h3>
+                <p>Seguimiento de desempeño y objetivos.</p>
+                <div className="quick-go">
+                  Ir <ArrowRight size={16} />
+                </div>
+              </MotionDiv>
+            </Link>
+          </>
+        ) : (
+          <>
+            <Link to="/products" className="quick-card">
+              <MotionDiv
+                className="quick-card-inner"
+                whileHover={{ scale: 1.04 }}
+              >
+                <Boxes size={32} />
+                <h3>Productos</h3>
+                <p>Agregá, editá o eliminá productos.</p>
+                <div className="quick-go">
+                  Ir <ArrowRight size={16} />
+                </div>
+              </MotionDiv>
+            </Link>
+
+            <Link to="/flyers" className="quick-card">
+              <MotionDiv
+                className="quick-card-inner"
+                whileHover={{ scale: 1.04 }}
+              >
+                <ImageIcon size={32} />
+                <h3>Flyers</h3>
+                <p>Generá flyers con diseño profesional.</p>
+                <div className="quick-go">
+                  Ir <ArrowRight size={16} />
+                </div>
+              </MotionDiv>
+            </Link>
+
+            <Link to="/ranking" className="quick-card">
+              <MotionDiv
+                className="quick-card-inner"
+                whileHover={{ scale: 1.04 }}
+              >
+                <Medal size={32} />
+                <h3>Ranking</h3>
+                <p>Seguimiento de desempeño y objetivos.</p>
+                <div className="quick-go">
+                  Ir <ArrowRight size={16} />
+                </div>
+              </MotionDiv>
+            </Link>
+          </>
+        )}
       </div>
       {/* STATS */}
       <h2 className="stats-title">Estadísticas</h2>

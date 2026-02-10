@@ -15,6 +15,17 @@
   margin-bottom: 20px;
 }
 
+.cnc-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.cnc-header-actions {
+  position: relative;
+}
+
 .cnc-header h1 {
   font-size: 1.6rem;
   font-weight: 600;
@@ -32,11 +43,17 @@
 
 .cnc-top-row {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  gap: 24px;
+  gap: 16px;
   margin-bottom: 20px;
   flex-wrap: wrap;
+}
+
+.cnc-filters {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 /* =========================================================
@@ -50,29 +67,7 @@
   min-width: 220px;
 }
 
-.cnc-filter-label {
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.cnc-select-wrapper {
-  position: relative;
-}
-
-.cnc-select-wrapper::after {
-  content: "▾";
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--text-muted);
-  pointer-events: none;
-  font-size: 0.9rem;
-}
-
-.cnc-select {
+.cnc-input {
   width: 100%;
   padding: 10px 14px;
   border-radius: 12px;
@@ -82,39 +77,63 @@
   font-size: 0.95rem;
   box-shadow: var(--shadow-soft);
   outline: none;
-  appearance: none;
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
-  padding-right: 34px;
 }
 
-.cnc-select:focus {
+.cnc-input:focus {
   border-color: var(--accent);
   box-shadow: var(--ring);
 }
 
-/* =========================================================
-   UPLOAD EXCEL (ADMIN)
-========================================================= */
-
-.cnc-upload {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin-left: auto;
+.cnc-filter-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
 
-.cnc-upload form {
+.cnc-actions-btn {
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+  color: var(--text-main);
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
+  box-shadow: var(--shadow-soft);
 }
 
-.cnc-upload input[type="file"] {
+.cnc-actions-panel {
+  position: absolute;
+  right: 0;
+  top: 48px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 240px;
+  z-index: 10;
+  box-shadow: var(--shadow-main);
+}
+
+.cnc-actions-panel form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cnc-actions-panel input[type="file"] {
   font-size: 0.85rem;
   color: var(--text-muted);
 }
 
-.cnc-upload button {
+.cnc-actions-panel button {
   padding: 8px 14px;
   font-size: 0.85rem;
   border-radius: 10px;
@@ -125,7 +144,7 @@
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.cnc-upload button:hover {
+.cnc-actions-panel button:hover {
   transform: translateY(-1px);
   box-shadow: var(--glow);
 }
@@ -147,12 +166,60 @@
   box-shadow: var(--shadow-main);
 }
 
+.cnc-sheet-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cnc-sheet-card {
+  background: var(--bg-card);
+  border-radius: 14px;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-main);
+  overflow: hidden;
+}
+
+.cnc-sheet-header {
+  width: 100%;
+  border: none;
+  background: linear-gradient(135deg, #111827, #1f2937);
+  color: #fff;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.cnc-sheet-title {
+  text-align: left;
+}
+
+.cnc-sheet-count {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+}
+
+.cnc-sheet-body {
+  padding: 12px;
+  overflow: hidden;
+}
+
+.cnc-table-wrapper {
+  overflow-x: auto;
+}
+
 /* tabla */
 .cnc-table {
   width: 100%;
   border-collapse: separate !important;
   border-spacing: 0;
   font-size: 0.9rem;
+  table-layout: fixed;
 }
 
 /* header */
@@ -163,6 +230,7 @@
   color: var(--text-main);
   background: transparent;
   border-bottom: 1px solid var(--border-color);
+  white-space: nowrap;
 }
 
 /* filas */
@@ -179,6 +247,8 @@
   padding: 14px 18px;
   color: var(--text-main);
   border-bottom: 1px solid var(--border-color);
+  vertical-align: top;
+  word-break: break-word;
 }
 
 /* última fila */
@@ -220,12 +290,11 @@
     align-items: flex-start;
   }
 
-  .cnc-upload {
-    margin-left: 0;
+  .cnc-filter {
     width: 100%;
   }
 
-  .cnc-filter {
-    width: 100%;
+  .cnc-header-row {
+    align-items: flex-start;
   }
 }

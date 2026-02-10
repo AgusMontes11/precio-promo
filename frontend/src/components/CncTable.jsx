@@ -13,10 +13,7 @@ export default function CncTable({ data, role }) {
             <th>Código</th>
             <th>Cliente</th>
 
-            {role === "admin" && <th>Promotor</th>}
-            {role === "admin" && <th>Canal</th>}
-
-            <th>Días</th>
+            {role === "admin" ? <th>Promotor</th> : <th>Días</th>}
           </tr>
         </thead>
 
@@ -26,23 +23,17 @@ export default function CncTable({ data, role }) {
               <td className="cnc-code">{row.codigo}</td>
               <td>{row.cliente}</td>
 
-              {role === "admin" && (
+              {role === "admin" ? (
                 <td className="cnc-promotor">
                   {row.promotor_nombre}
                 </td>
-              )}
-
-               {role === "admin" && (
-                <td className="cnc-canal">
-                  {row.canal}
+              ) : (
+                <td className="cnc-dias">
+                  {Array.isArray(row.dias)
+                    ? row.dias.join(", ")
+                    : row.dias}
                 </td>
               )}
-              
-              <td className="cnc-dias">
-                {Array.isArray(row.dias)
-                  ? row.dias.join(", ")
-                  : row.dias}
-              </td>
             </tr>
           ))}
         </tbody>

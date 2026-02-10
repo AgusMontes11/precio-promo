@@ -11,6 +11,8 @@ import Login from "./pages/Login";
 import Ranking from "./pages/Ranking";
 import CncPage from "./pages/CncPage";
 import MatinalPage from "./pages/MatinalPage";
+import VespertinaPage from "./pages/VespertinaPage";
+import PlanComercialPage from "./pages/PlanComercialPage";
 
 import PrivateRoute from "./routes/PrivateRoute";
 import { useAuth } from "./context/useAuth";
@@ -61,6 +63,26 @@ export default function AppShell() {
           element={
             <PrivateRoute roles={["admin", "promotor"]}>
               <MatinalPage />
+            </PrivateRoute>
+          }
+        />
+
+        {/* VESPERTINA (admin + promotor) */}
+        <Route
+          path="/vespertina"
+          element={
+            <PrivateRoute roles={["admin", "promotor"]}>
+              <VespertinaPage />
+            </PrivateRoute>
+          }
+        />
+
+        {/* PLAN COMERCIAL (admin + promotor) */}
+        <Route
+          path="/plan-comercial"
+          element={
+            <PrivateRoute roles={["admin", "promotor"]}>
+              <PlanComercialPage />
             </PrivateRoute>
           }
         />

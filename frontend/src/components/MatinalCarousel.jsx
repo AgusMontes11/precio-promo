@@ -2,13 +2,8 @@ import { useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import "../pages/css/matinalPage.css";
 
-export default function MatinalCarousel({
-  actions = [],
-  salesStatus = {},
-  onToggleSale,
-}) {
+export default function MatinalCarousel({ actions = [] }) {
   const [open, setOpen] = useState(() => new Set());
-  const [pending, setPending] = useState(() => new Set());
 
   const sorted = useMemo(() => {
     return [...actions].sort((a, b) => a.name.localeCompare(b.name));
@@ -19,15 +14,6 @@ export default function MatinalCarousel({
       const next = new Set(prev);
       if (next.has(name)) next.delete(name);
       else next.add(name);
-      return next;
-    });
-  }
-
-  function setPendingState(code, isBusy) {
-    setPending((prev) => {
-      const next = new Set(prev);
-      if (isBusy) next.add(code);
-      else next.delete(code);
       return next;
     });
   }
@@ -86,28 +72,6 @@ export default function MatinalCarousel({
                             {client.razon_social}
                           </span>
                         </div>
-                        <label className="matinal-client-check">
-                          <input
-                            type="checkbox"
-                            checked={Boolean(salesStatus[client.codigo_pdv])}
-                            disabled={
-                              pending.has(client.codigo_pdv) || !onToggleSale
-                            }
-                            onChange={async (event) => {
-                              if (!onToggleSale || !client.codigo_pdv) return;
-                              setPendingState(client.codigo_pdv, true);
-                              try {
-                                await onToggleSale({
-                                  codigo_pdv: client.codigo_pdv,
-                                  sold: event.target.checked,
-                                });
-                              } finally {
-                                setPendingState(client.codigo_pdv, false);
-                              }
-                            }}
-                          />
-                          <span>Vendido</span>
-                        </label>
                       </div>
                       <div className="matinal-client-meta">
                         Frecuencia: {client.frecuencia_raw}

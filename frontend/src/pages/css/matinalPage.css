@@ -6,6 +6,10 @@
   color: var(--matinal-text, #e5e7eb);
 }
 
+.matinal-embedded {
+  padding: 0;
+}
+
 .matinal-header h1 {
   margin: 0;
   font-size: 28px;
@@ -16,11 +20,56 @@
   color: var(--text-muted, #9ca3af);
 }
 
+.matinal-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.matinal-header-actions {
+  position: relative;
+}
+
 .matinal-top-row {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: flex-start;
+  justify-content: space-between;
   gap: 16px;
+}
+
+.matinal-filters {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.plan-tabs {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.plan-tab {
+  border: 1px solid #374151;
+  background: #0f172a;
+  color: #e5e7eb;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.plan-tab:hover {
+  box-shadow: 0 10px 20px rgba(15, 23, 42, 0.35);
+  transform: translateY(-1px);
+}
+
+.plan-tab.active {
+  background: linear-gradient(135deg, #1f2937, #0f172a);
+  border-color: #1f2937;
 }
 
 .matinal-badge {
@@ -56,7 +105,8 @@
 }
 
 .matinal-filter button,
-.matinal-upload button {
+.matinal-upload button,
+.matinal-actions-panel button {
   border: none;
   padding: 8px 14px;
   border-radius: 8px;
@@ -80,11 +130,73 @@
   color: #9ca3af;
 }
 
+.matinal-actions-btn {
+  border: 1px solid #374151;
+  background: #0f172a;
+  color: #e5e7eb;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 700;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.25);
+}
+
+.matinal-actions-panel {
+  position: absolute;
+  right: 0;
+  top: 48px;
+  background: #0b1220;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 12px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 240px;
+  z-index: 10;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.35);
+}
+
+.matinal-actions-panel form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.matinal-actions-panel input[type="file"] {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
 .matinal-card {
   background: #0b1220;
   border-radius: 14px;
   padding: 18px;
   box-shadow: 0 12px 28px rgba(15, 23, 42, 0.35);
+}
+
+.matinal-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  gap: 12px;
+}
+
+@media (max-width: 768px) {
+  .matinal-header-row {
+    align-items: flex-start;
+  }
+}
+
+.matinal-card-heading {
+  font-weight: 700;
+  color: #e5e7eb;
 }
 
 .matinal-grid {
@@ -179,6 +291,40 @@
 
 .matinal-client-check input {
   accent-color: #22c55e;
+}
+
+.matinal-action-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.matinal-action-item {
+  background: #111827;
+  border-radius: 10px;
+  padding: 8px 10px;
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.matinal-action-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.matinal-action-name {
+  color: #f9fafb;
+  font-weight: 600;
+}
+
+.matinal-action-meta {
+  font-size: 12px;
+  color: #94a3b8;
 }
 
 .matinal-empty {

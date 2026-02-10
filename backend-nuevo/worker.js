@@ -756,7 +756,7 @@ export default {
 
       const res = await fetch(
         `${env.SUPABASE_URL}/rest/v1/matinal_sales_status` +
-          `?user_id=eq.${user.id}&select=codigo_pdv,sold`,
+          `?user_id=eq.${user.id}&select=codigo_pdv,accion,sold`,
         { headers: sbHeaders }
       );
 
@@ -795,9 +795,10 @@ export default {
 
       const body = await req.json().catch(() => ({}));
       const codigo = normalizeText(body.codigo_pdv);
+      const accion = normalizeText(body.accion);
       const sold = body.sold;
 
-      if (!codigo || typeof sold !== "boolean") {
+      if (!codigo || !accion || typeof sold !== "boolean") {
         return new Response(
           JSON.stringify({ error: "Datos invalidos" }),
           { status: 400, headers: corsHeaders }
@@ -807,13 +808,14 @@ export default {
       const payload = {
         user_id: user.id,
         codigo_pdv: codigo,
+        accion,
         sold,
         updated_at: new Date().toISOString(),
       };
 
       const res = await fetch(
         `${env.SUPABASE_URL}/rest/v1/matinal_sales_status` +
-          `?on_conflict=user_id,codigo_pdv`,
+          `?on_conflict=user_id,codigo_pdv,accion`,
         {
           method: "POST",
           headers: {
