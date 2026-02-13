@@ -26,7 +26,7 @@ export const PROMOTOR_IMAGES = {
   "SEVILLA FIORELLA": { image: sevilla, number: 4 },
   "TORO FRANCO": { image: toro, number: 11 },
   "ORTIZ PABLO": { image: ortiz, number: 23 },
-  "SANCHEZ RONALDO LUCAS PITON": { image: piton, number: 12 },
+  "SANCHEZ RONALDO LUCAS PITON": { image: paulo, number: 12 },
   "RIOS MAXIMILIANO": { image: rios, number: 6 },
   "MONTES GABRIEL": { image: montes, number: 10 },
   "CAMARGO MOIRA": { image: camargo, number: 25 },
