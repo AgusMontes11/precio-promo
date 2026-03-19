@@ -153,14 +153,14 @@ export default function Dashboard() {
               </MotionDiv>
             </Link>
 
-            <Link to="/flyers" className="quick-card">
+            <Link to="/cnc" className="quick-card">
               <MotionDiv
                 className="quick-card-inner"
                 whileHover={{ scale: 1.04 }}
               >
-                <ImageIcon size={32} />
-                <h3>Flyers</h3>
-                <p>Generá flyers con diseño profesional.</p>
+                <Users size={32} />
+                <h3>Acciones CNC UNG</h3>
+                <p>Clientes no compradores del dia.</p>
                 <div className="quick-go">
                   Ir <ArrowRight size={16} />
                 </div>

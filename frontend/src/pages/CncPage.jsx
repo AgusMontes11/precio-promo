@@ -7,7 +7,7 @@ import CncTable from "../components/CncTable";
 import { PROMOTOR_IMAGES } from "../constants/promotorImages";
 import "./css/cncPage.css";
 
-const SHEETS = ["CNC UNG mes anterior", "CNC 500CC", "CNC H2Oh Still", "CNC Gatorade"];
+const SHEETS = ["CNC U2M", "CNC 1.5L"];
 
 export default function CncPage() {
   const { user, role } = useAuth();
